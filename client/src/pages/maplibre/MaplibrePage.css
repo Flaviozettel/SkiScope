@@ -1,0 +1,14 @@
+#maplibre-content {
+  width: 100%;
+  margin-top: 1em;
+  display: flex;
+  gap: 1em;
+  justify-content: center;
+  flex-flow: row wrap;
+}
+
+#maplibre-container {
+  width: 100%;
+  max-width: 700px;
+  aspect-ratio: 1.7; /* aspect ratio of data bbox */
+}

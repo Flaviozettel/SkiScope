@@ -1,0 +1,38 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "FHNW"
+      },
+      "geometry": {
+        "coordinates": [7.642053725874888, 47.53482543914882],
+        "type": "Point"
+      },
+      "id": 0
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Bern"
+      },
+      "geometry": {
+        "coordinates": [7.4469686824532175, 46.95873550880529],
+        "type": "Point"
+      },
+      "id": 1
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Zurich"
+      },
+      "geometry": {
+        "coordinates": [8.54175132796243, 47.37668053625666],
+        "type": "Point"
+      },
+      "id": 2
+    }
+  ]
+}
