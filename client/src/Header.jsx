@@ -1,43 +1,36 @@
-import { NavLink } from "react-router";
+import skiImage from "./data/Header_Berge.jpg";
 
-function NavButton({ path, children }) {
+export const Header = () => {
   return (
-    <NavLink
-      to={path}
-      style={({ isActive }) => ({
-        display: "inline-block",
-        margin: ".5em 1em",
-        color: isActive ? "dodgerblue" : "black",
-      })}
+    <header
+      className="hero"
+      style={{
+        backgroundImage: `url(${skiImage})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center top",
+      }}
     >
-      {children}
-    </NavLink>
-  );
-}
+      <div className="hero-overlay">
+        {/* Logo – centered top */}
+        <div className="logo-container">
+          <div className="logo">❄ SkiScope</div>
+        </div>
 
-function Header() {
-  return (
-    <>
-      <h1>
-        4230 Webmapping Beispiele mit
-        <a href="https://react.dev" target="_blank" rel="noreferrer">
-          <img src="./react.svg" className="logo" alt="React logo" />
-        </a>
-        React
-      </h1>
-      <h2>
-        <NavButton path="openlayers">
-          <img src="./OpenLayers_logo.svg" className="logo" alt="OpenLayers logo" />
-          OpenLayers
-        </NavButton>
-        <NavButton path="maplibre">
-          <img src="./Maplibre-logo.png" className="logo" alt="MapLibre logo" />
-          MapLibre (Reactive)
-        </NavButton>
-        <NavButton path="spatialanalysis">Spatial Analysis</NavButton>
-        <NavButton path="geotiff">Cloud-optimized GeoTIFF</NavButton>
-      </h2>
-    </>
+        {/* Best snow badge – top right */}
+        <div className="hero-badge">
+          <span className="badge-icon">❄️</span>
+          <div>
+            <div className="badge-label">Beste Schneehöhe</div>
+            <div className="badge-value">245 cm in Zermatt</div>
+          </div>
+        </div>
+
+        {/* Hero text – bottom left */}
+        <div className="hero-text">
+          <h1>Finde dein perfektes Skigebiet.</h1>
+          <p>Pisten, Schnee und Liftangebot übersichtlich vergleichen.</p>
+        </div>
+      </div>
+    </header>
   );
-}
-export default Header;
+};

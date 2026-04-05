@@ -1,0 +1,345 @@
+import { useState, useRef, useEffect } from "react"; // React Hooks
+import DatePicker from "react-datepicker"; // Datepicker Komponente
+import "react-datepicker/dist/react-datepicker.css"; // Styles für Datepicker
+import { registerLocale } from "react-datepicker"; // Locale Funktion = für deutsche Sprache
+import de from "date-fns/locale/de"; // deutsches Locale
+registerLocale("de", de); // Locale registrieren
+import Map, { Source, Layer, Marker, Popup } from "react-map-gl/maplibre"; // MapLibre Komponenten
+import "maplibre-gl/dist/maplibre-gl.css"; // Map Styles
+
+import skigebiete from "./data/skigebiete_schnee.json"; // GeoJSON mit Skigebieten
+
+// Dropdown Optionen
+const SCORE_OPTIONS = ["SkiScope SCORE", "Schneehöhe", "Pistenkilometer"];
+
+// Funktion: berechnet Montag einer Woche
+function getMontag(datum) {
+  const d = new Date(datum); // Datum kopieren
+  const tag = d.getDay(); // Wochentag (0=So)
+  const diff = tag === 0 ? -6 : 1 - tag; // Differenz zum Montag
+  d.setDate(d.getDate() + diff); // Datum verschieben
+  return d; // zurückgeben
+}
+
+// Funktion: erstellt 7 Tage ab Startdatum
+function generiereWoche(startDatum) {
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(startDatum);
+    d.setDate(d.getDate() + i); // jeden Tag erhöhen
+
+    return {
+      datum: d.toISOString().split("T")[0], // ISO Datum für API
+      dayShort:
+        i === 0
+          ? null
+          : d.toLocaleDateString("de-CH", { weekday: "short" }).toUpperCase(), // Wochentag
+      date: d.toLocaleDateString("de-CH", { day: "numeric", month: "short" }), // Anzeige Datum
+      icon: "❄️", // Icon
+    };
+  });
+}
+
+// OpenStreetMap Raster Style
+const OSM_STYLE = {
+  version: 8,
+  sources: {
+    osm: {
+      type: "raster", // Raster Tiles
+      tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"], // Tile URL, für graue Karte: https://tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png
+      tileSize: 256,
+      attribution: "© OpenStreetMap",
+    },
+  },
+  layers: [{ id: "osm", type: "raster", source: "osm" }], // Layer anzeigen
+};
+
+// Hauptkomponente
+export const MainArea = ({ schneeBounds, aktivDatum, setAktivDatum }) => {
+  // States
+  const [activeDay, setActiveDay] = useState(0); // ausgewählter Tag
+  const [scoreOpen, setScoreOpen] = useState(false); // Dropdown offen?
+  const [selectedScore, setSelectedScore] = useState(0); // gewählter Score
+  const [pickerOffen, setPickerOffen] = useState(false); // Datepicker sichtbar?
+  const [gewaehlteWoche, setGewaehlteWoche] = useState(null); // gewählte Woche
+  const [geoData, setGeoData] = useState(null); // GeoJSON Daten
+  const [selectedMarker, setSelectedMarker] = useState(null); // aktiver Marker
+
+  // Startdatum bestimmen
+  const startDatum = gewaehlteWoche ? getMontag(gewaehlteWoche) : new Date();
+  const DAYS = generiereWoche(startDatum); // Woche generieren
+
+  // Beim Start → erstes Datum setzen
+  useEffect(() => {
+    setAktivDatum(DAYS[0].datum);
+  }, []);
+
+  // Daten vom GeoServer holen
+  useEffect(() => {
+    if (!aktivDatum || !schneeBounds) return;
+
+    fetch(
+      `http://localhost:8080/geoserver/testskiscope/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=testskiscope:schneehoehen_datum&viewparams=datum:${aktivDatum}&outputFormat=application/json`,
+    )
+      .then((res) => res.json()) // JSON parsen
+      .then((data) => setGeoData(data)) // speichern
+      .catch((err) => console.error("Fehler:", err)); // Fehler loggen
+  }, [aktivDatum, schneeBounds]);
+
+  // Klick auf Tag
+  const handleDayClick = (i) => {
+    setActiveDay(i); // UI aktualisieren
+    setAktivDatum(DAYS[i].datum); // Datum setzen
+  };
+
+  return (
+    <main className="main">
+      {/* Header Bereich */}
+      <div className="prognose-header">
+        <div className="prognose-title">
+          <h2>Wochen Prognose</h2>
+          <p>Basierend auf aktuellen Echtzeit-Wetterdaten der Bergstationen.</p>
+        </div>
+
+        {/* Suchfeld */}
+        <div className="search-box">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#aaa"
+            strokeWidth="2.5"
+          >
+            <circle cx="11" cy="11" r="8" /> {/* Lupe Kreis */}
+            <path d="m21 21-4.35-4.35" /> {/* Lupe Griff */}
+          </svg>
+          <input
+            type="text"
+            placeholder="Skigebiet suchen..."
+            className="search-input"
+          />
+        </div>
+      </div>
+
+      {/* Wochenleiste */}
+      <div className="week" style={{ position: "relative" }}>
+        {DAYS.map((d, i) => (
+          <div
+            key={i}
+            className={`day ${i === activeDay ? "active" : ""}`} // aktiver Tag
+            onClick={() => handleDayClick(i)} // Klick
+          >
+            <div className="day-label">{i === 0 ? "Heute" : d.dayShort}</div>
+            <div className="day-date">{d.date}</div>
+            <div className="day-icon">{d.icon}</div>
+          </div>
+        ))}
+
+        {/* Datepicker Button */}
+        <div
+          className="day-picker"
+          onClick={() => setPickerOffen(!pickerOffen)}
+        >
+          <span style={{ fontSize: 20 }}>📅</span>
+          <span>
+            Datum
+            <br />
+            wählen
+          </span>
+        </div>
+
+        {/* Datepicker Popup */}
+        {pickerOffen && (
+          <div
+            style={{
+              position: "absolute",
+              zIndex: 1000,
+              top: "100%",
+              right: 0,
+            }}
+          >
+            <DatePicker
+              inline
+              selected={gewaehlteWoche}
+              onChange={(datum) => {
+                const montag = getMontag(datum); // Woche berechnen
+                setGewaehlteWoche(montag);
+                setActiveDay(0);
+                setAktivDatum(montag.toISOString().split("T")[0]);
+                setPickerOffen(false);
+              }}
+              showWeekNumbers
+              locale="de"
+              calendarStartDay={1}
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Top Empfehlung */}
+      <div className="empfehlung-header">
+        <div className="empfehlung-title">
+          <div className="empfehlung-title-bar"></div>
+          <h3>Top Empfehlung für dich</h3>
+        </div>
+
+        {/* Dropdown Steuerung */}
+        <div className="empfehlung-controls">
+          <span className="empfohlen-label">Empfohlen nach:</span>
+
+          <div className="score-dropdown-wrapper">
+            <button
+              className={`skiscope-score-btn ${scoreOpen ? "open" : ""}`}
+              onClick={() => setScoreOpen((v) => !v)}
+            >
+              {SCORE_OPTIONS[selectedScore]} {/* aktueller Wert */}
+              <svg
+                className={`dropdown-chevron ${scoreOpen ? "rotated" : ""}`}
+                width="11"
+                height="11"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#2d6cdf"
+                strokeWidth="2.5"
+              >
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </button>
+
+            {/* Dropdown Optionen */}
+            {scoreOpen && (
+              <div className="score-dropdown">
+                {SCORE_OPTIONS.map((opt, i) => (
+                  <div
+                    key={i}
+                    className={`score-option ${i === selectedScore ? "selected" : ""}`}
+                    onClick={() => {
+                      setSelectedScore(i);
+                      setScoreOpen(false);
+                    }}
+                  >
+                    {opt}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Legende */}
+      <div className="legende">
+        <div className="legende-title">❄️ Schneehöhe (cm)</div>
+
+        {/* Farbskala */}
+        <div style={{ display: "flex", gap: 4, marginTop: 4 }}>
+          {[
+            { value: "1", color: "#CDFFCD" },
+            { value: "20", color: "#99F0B2" },
+            { value: "50", color: "#53BD9F" },
+            { value: "80", color: "#3296B4" },
+            { value: "120", color: "#0670B0" },
+            { value: "200", color: "#054F8C" },
+            { value: "300+", color: "#610432" },
+          ].map((item) => (
+            <div
+              key={item.value}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 3,
+              }}
+            >
+              <div
+                style={{
+                  width: 32,
+                  height: 14,
+                  borderRadius: 3,
+                  background: item.color,
+                  border: "1px solid #e0e6ef",
+                }}
+              />
+              <span style={{ fontSize: 9, color: "#aaa" }}>{item.value}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Karte */}
+      <div className="map-container">
+        <Map
+          initialViewState={{ longitude: 8.3, latitude: 46.8, zoom: 8 }} // Startposition
+          style={{ width: "100%", height: "100%" }}
+          mapStyle={OSM_STYLE}
+        >
+          {/* Schneehöhen Layer */}
+          {geoData && (
+            <Source id="schnee" type="geojson" data={geoData}>
+              <Layer
+                id="schnee-layer"
+                type="fill"
+                paint={{
+                  "fill-color": ["get", "fill"], // Farbe aus Daten
+                  "fill-opacity": 0.35,
+                  "fill-antialias": true,
+                }}
+              />
+            </Source>
+          )}
+
+          {/* Marker */}
+          {skigebiete?.features?.map((feature, i) => {
+            const [lng, lat] = feature.geometry.coordinates; // Koordinaten
+            const p = feature.properties; // Eigenschaften
+
+            return (
+              <Marker
+                key={i}
+                longitude={lng}
+                latitude={lat}
+                anchor="center"
+                onClick={() => setSelectedMarker({ lng, lat, p })}
+              >
+                <div
+                  style={{
+                    width: 12,
+                    height: 12,
+                    borderRadius: "50%",
+                    background: "#2d6cdf",
+                    border: "2px solid white",
+                    boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
+                    cursor: "pointer",
+                  }}
+                />
+              </Marker>
+            );
+          })}
+
+          {/* Popup */}
+          {selectedMarker && (
+            <Popup
+              longitude={selectedMarker.lng}
+              latitude={selectedMarker.lat}
+              anchor="bottom"
+              onClose={() => setSelectedMarker(null)}
+              closeOnClick={false}
+            >
+              <div style={{ fontSize: 12, lineHeight: 1.6 }}>
+                <strong>{selectedMarker.p.Skigebiet}</strong>
+                <br />
+                ❄️ Schnee: {selectedMarker.p.Schneezustand ?? "unbekannt"}
+                <br />
+                🌡️ {selectedMarker.p.Temperature}°C
+                <br />
+                🎿 {selectedMarker.p.PisteKm} km
+                <br />
+                🚡 {selectedMarker.p.Lifte} Lifte
+              </div>
+            </Popup>
+          )}
+        </Map>
+      </div>
+    </main>
+  );
+};

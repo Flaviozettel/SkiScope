@@ -1,0 +1,1391 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "verbier-132",
+        "Schneezustand": "hart"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.2190276,
+          46.0936558
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "verbier-132",
+        "Schneezustand": "hart"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.2190276,
+          46.0936558
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "engadin-65",
+        "Schneezustand": "pulver"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          9.761445,
+          46.431199
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "davos-69",
+        "Schneezustand": "pulver / hart"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          9.8236892,
+          46.796198
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "klosters-121",
+        "Schneezustand": "hart"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          9.8750678,
+          46.8829097
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "laax-67",
+        "Schneezustand": "hart / pulver"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          9.2648778,
+          46.8208677
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "st-moritz-77",
+        "Schneezustand": "pulver"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          9.8392428,
+          46.4978958
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "lenk-im-simmental-94",
+        "Schneezustand": "hart / sulz"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.4433463,
+          46.4666427
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "leysin-330",
+        "Schneezustand": "hart / sulz"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.0148403,
+          46.3438701
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "adelboden-102",
+        "Schneezustand": "keine Meldung"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.5587618,
+          46.4927213
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "saas-fee-176",
+        "Schneezustand": "hart"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.9247055,
+          46.107342
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "les-diablerets-3",
+        "Schneezustand": "keine Meldung"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.1818034,
+          46.347213
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "villars-gryon-147",
+        "Schneezustand": "hart / sulz"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.0613837,
+          46.2741741
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "flumserberg-113",
+        "Schneezustand": "hart / nass"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          9.3071241,
+          47.0890046
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "st-luc-chandolin-167",
+        "Schneezustand": "pulver"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.6014778,
+          46.2455026
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "savognin-129",
+        "Schneezustand": "pulver / keine Meldung"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          9.5980124,
+          46.5969026
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "anzere-145",
+        "Schneezustand": "hart / sulz"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.3872861,
+          46.2774954
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "leukerbad-83",
+        "Schneezustand": "hart / pulver"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.6267416,
+          46.3793158
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "toggenburg-158",
+        "Schneezustand": "pulver / hart"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          9.0835685,
+          47.3613026
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "graechen-179",
+        "Schneezustand": "hart"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.8421612,
+          46.1960178
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "soerenberg-107",
+        "Schneezustand": "hart / sulz"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.0349311,
+          46.8221657
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "vercorin-7",
+        "Schneezustand": "hart / sulz"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.5624032,
+          46.2371295
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "bruson-181",
+        "Schneezustand": "hart"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.2186328,
+          46.0662119
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "nax-mont-noble-8",
+        "Schneezustand": "hart"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.4250269,
+          46.2267697
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "elm-49",
+        "Schneezustand": "hart / sulz"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          9.1718971,
+          46.9188827
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "disentis-130",
+        "Schneezustand": "hart / sulz"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.8549785,
+          46.7041748
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "stoos-19",
+        "Schneezustand": "hart / sulz"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.7065327,
+          46.9865215
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "hoch-ybrig-26",
+        "Schneezustand": "hart / sulz"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.7867776,
+          47.0045672
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "ovronnaz-138",
+        "Schneezustand": "hart / sulz"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.1723377,
+          46.1989846
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "alt-st-johann-toggenburg-204",
+        "Schneezustand": "hart / sulz"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          9.2840566,
+          47.1940929
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "chaeserrugg-toggenburg-203",
+        "Schneezustand": "hart / sulz"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          9.3134262,
+          47.1558974
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "tschiertschen-57",
+        "Schneezustand": "hart / sulz"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          9.6066499,
+          46.8173936
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "melchsee-frutt-24",
+        "Schneezustand": "hart / nass"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.2695375,
+          46.7741051
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "saas-grund-175",
+        "Schneezustand": "pulver / hart"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.9370051,
+          46.1278436
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "san-bernardino-2",
+        "Schneezustand": "pulver"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          9.2059587,
+          46.4505008
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "vals-116",
+        "Schneezustand": "pulver / sulz"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          9.1805169,
+          46.6165853
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "bivio-70",
+        "Schneezustand": "nicht gefunden"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          9.6496931,
+          46.4687474
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "les-marecottes-10",
+        "Schneezustand": "sulz"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.0033039,
+          46.0938007
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "braunwald-115",
+        "Schneezustand": "pulver"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.9984978,
+          46.9392639
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "engstligenalp-336",
+        "Schneezustand": "hart"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.5648635,
+          46.4464835
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "wildhaus-toggenburg-32",
+        "Schneezustand": "pulver / hart"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          9.2819335,
+          47.1949695
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "bosco-gurin-252",
+        "Schneezustand": "keine Meldung"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.4918978,
+          46.3167843
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "berguen-filisur-299",
+        "Schneezustand": "hart / sulz"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          9.7665069,
+          46.6250967
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "pilatus-luzern-153",
+        "Schneezustand": "nicht gefunden"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.3037364,
+          47.0479081
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "tramelan-337",
+        "Schneezustand": "keine Meldung"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.1030216,
+          47.223677
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "les-breuleux-211",
+        "Schneezustand": "keine Meldung"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.0054836,
+          47.2115671
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "les-genevez-208",
+        "Schneezustand": "nass"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.1293599,
+          47.2567802
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "marbach-marbachegg-25",
+        "Schneezustand": "nicht gefunden"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.9036452,
+          46.8332791
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "eriz-80",
+        "Schneezustand": "nicht gefunden"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.773775,
+          46.7962793
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "atzmaennig-52",
+        "Schneezustand": "keine Meldung"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          9.0020296,
+          47.2769173
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "sunnbueel-kandersteg-405",
+        "Schneezustand": "keine Meldung"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.6501495,
+          46.4579861
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "gadmen-275",
+        "Schneezustand": "keine Meldung"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.3801261,
+          46.7035838
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "kronberg-44",
+        "Schneezustand": "sulz"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          9.331979,
+          47.2928362
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "saignelegier-150",
+        "Schneezustand": "keine Meldung"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.9963585,
+          47.2557997
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "la-chaux-de-fonds-75",
+        "Schneezustand": "keine Meldung"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.8325778,
+          47.1031321
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "lauterbrunnen-95",
+        "Schneezustand": "nicht gefunden"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.9078016,
+          46.5939043
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "studen-sz-106",
+        "Schneezustand": "nicht gefunden"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.8362961,
+          47.0742334
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "cari-364",
+        "Schneezustand": "nicht gefunden"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.8123556,
+          46.4958893
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "mettmen-400",
+        "Schneezustand": "nicht gefunden"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.9981412,
+          47.1248124
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "kerenzerberg-filzbach-43",
+        "Schneezustand": "nicht gefunden"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          9.1307905,
+          47.1189463
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "weissenberge-matt-263",
+        "Schneezustand": "nicht gefunden"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          9.1849297,
+          46.9651276
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "grosse-scheidegg-296",
+        "Schneezustand": "nicht gefunden"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.1018667,
+          46.6558783
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "gibswil-30",
+        "Schneezustand": "nicht gefunden"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.9132336,
+          47.3130044
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "simplon-367",
+        "Schneezustand": "nicht gefunden"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.0563136,
+          46.1955875
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "balmberg-240",
+        "Schneezustand": "keine Meldung"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.4047731,
+          46.8695246
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "schwanden-sigriswil-92",
+        "Schneezustand": "nicht gefunden"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.7180509,
+          46.7364053
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "heimenschwand-223",
+        "Schneezustand": "nicht gefunden"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.6972569,
+          46.8287284
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "urnaesch-ar-331",
+        "Schneezustand": "nicht gefunden"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          9.2834506,
+          47.3178621
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "degersheim-51",
+        "Schneezustand": "nicht gefunden"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          9.1990317,
+          47.3735896
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "wasserfallen-241",
+        "Schneezustand": "nicht gefunden"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.7010284,
+          47.3740199
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "schwellbrunn-appenzell-37",
+        "Schneezustand": "keine Meldung"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          9.2491335,
+          47.352345
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "homberg-282",
+        "Schneezustand": "keine Meldung"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.682735,
+          46.775266
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "dent-de-vaulion-184",
+        "Schneezustand": "nicht gefunden"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.3623107,
+          46.6844844
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "eggiwil-283",
+        "Schneezustand": "nicht gefunden"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.7974921,
+          46.8752245
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "la-berra-la-roche-218",
+        "Schneezustand": "pulver"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.1793719,
+          46.6778497
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "saas-almagell-270",
+        "Schneezustand": "pulver"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.9582333,
+          46.0938913
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "la-fouly-141",
+        "Schneezustand": "pulver / sulz"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.0989678,
+          45.9331158
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "heuberge-68",
+        "Schneezustand": "hart / sulz"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          9.7270555,
+          46.8681945
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "champex-lac-168",
+        "Schneezustand": "keine Meldung"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.1168165,
+          46.0305776
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "val-muestair-124",
+        "Schneezustand": "pulver / hart"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          10.3745078,
+          46.6106333
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "eischoll-163",
+        "Schneezustand": "hart / sulz"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.7812181,
+          46.2936189
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "moerlialp-giswil-23",
+        "Schneezustand": "hart / pulver"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.1095816,
+          46.825086
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "schwarzsee-fr-214",
+        "Schneezustand": "nass / hart"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.2883346,
+          46.6703358
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "jeizinen-267",
+        "Schneezustand": "nicht gefunden"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.7233899,
+          46.3271175
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "rosswald-86",
+        "Schneezustand": "sulz / hart"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.0426994,
+          46.3045036
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "visperterminen-264",
+        "Schneezustand": "hart / sulz"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.9030118,
+          46.2589888
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "kandersteg-96",
+        "Schneezustand": "keine Meldung"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.6756638,
+          46.4975866
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "ebnat-kappel-toggenburg-114",
+        "Schneezustand": "nass"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          9.1233561,
+          47.2635337
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "jaunpass-boltigen-226",
+        "Schneezustand": "pulver"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.3382583,
+          46.5921915
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "ibergeregg-17",
+        "Schneezustand": "nicht gefunden"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.7333212,
+          47.0175573
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "goms-272",
+        "Schneezustand": "keine Meldung"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.2409951,
+          46.4687737
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "st-cergue-14",
+        "Schneezustand": "hart / nass"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.1621485,
+          46.4491552
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "bumbach-schangnau-234",
+        "Schneezustand": "hart / sulz"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.8994659,
+          46.8132748
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "sainte-croix-les-rasses-146",
+        "Schneezustand": "nass / sulz"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.5492807,
+          46.8283785
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "rothenthurm-20",
+        "Schneezustand": "keine Meldung"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.6748441,
+          47.1047258
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "nara-leontica-298",
+        "Schneezustand": "pulver"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.9210924,
+          46.4578305
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "les-paccots-la-veveyse-151",
+        "Schneezustand": "hart / pulver"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.9465972,
+          46.5220308
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "habkern-97",
+        "Schneezustand": "keine Meldung"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          7.8646663,
+          46.7276046
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Skigebiet": "rigi-21",
+        "Schneezustand": "keine Meldung"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          8.5232668,
+          47.0242266
+        ]
+      }
+    }
+  ]
+}
