@@ -18,7 +18,6 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
-print(os.getenv("DB_PASSWORD"))
 
 # Entwicklungsmodus → immer neu generieren
 DEV_MODE = True
@@ -42,7 +41,7 @@ nv  0   0   0   0
 
 # Datenbank-Verbindungsdaten
 DB_PARAMS = {
-    "host": "127.0.0.1",
+    "host": os.getenv("DB_HOST"),
     "dbname": os.getenv("DB_NAME"),
     "user": os.getenv("DB_USER"),
     "password": os.getenv("DB_PASSWORD")
@@ -68,6 +67,7 @@ app.add_middleware(
     allow_methods=["GET"],
     allow_headers=["*"],
 )
+
 
 # Funktion: berechnet Bounding Box aus GeoJSON
 def bbox_aus_geojson(datum):
@@ -98,13 +98,17 @@ def bbox_aus_geojson(datum):
 
 # Funktion: speichert Schneehöhen in DB
 def importiere_schnee_in_db(datum, data):
+    from datetime import date
+
+    datum = date.fromisoformat(datum)
+
     conn = get_db_conn()
-    cur = conn.cursor() # DB Cursor für SQL Befehle
+    cur = conn.cursor()
 
     for feature in data["features"]:
         geom_type = feature["geometry"]["type"]
 
-        # Polygon → MultiPolygon konvertieren (DB erwartet das)
+        # Polygon → MultiPolygon
         if geom_type == "Polygon":
             geom = {
                 "type": "MultiPolygon",
@@ -113,16 +117,14 @@ def importiere_schnee_in_db(datum, data):
         else:
             geom = feature["geometry"]
 
-        # Daten in DB einfügen
         cur.execute("""
             INSERT INTO schneehoehen (datum, value, fill, geom)
             VALUES (%s, %s, %s, ST_SetSRID(ST_GeomFromGeoJSON(%s), 4326))
-            ON CONFLICT (datum, value) DO NOTHING
         """, (
             datum,
-            feature["properties"]["value"],  # Schneehöhe
-            feature["properties"]["fill"],   # Farbe
-            json.dumps(geom)                 # Geometrie als JSON
+            feature["properties"]["value"],
+            feature["properties"]["fill"],
+            json.dumps(geom)
         ))
 
     conn.commit()

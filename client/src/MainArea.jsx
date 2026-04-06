@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react"; // React Hooks
+import { useState, useEffect } from "react"; // React Hooks
 import DatePicker from "react-datepicker"; // Datepicker Komponente
 import "react-datepicker/dist/react-datepicker.css"; // Styles für Datepicker
 import { registerLocale } from "react-datepicker"; // Locale Funktion = für deutsche Sprache
@@ -29,10 +29,7 @@ function generiereWoche(startDatum) {
 
     return {
       datum: d.toISOString().split("T")[0], // ISO Datum für API
-      dayShort:
-        i === 0
-          ? null
-          : d.toLocaleDateString("de-CH", { weekday: "short" }).toUpperCase(), // Wochentag
+      dayShort: i === 0 ? null : d.toLocaleDateString("de-CH", { weekday: "short" }).toUpperCase(), // Wochentag
       date: d.toLocaleDateString("de-CH", { day: "numeric", month: "short" }), // Anzeige Datum
       icon: "❄️", // Icon
     };
@@ -61,7 +58,6 @@ export const MainArea = ({ schneeBounds, aktivDatum, setAktivDatum }) => {
   const [selectedScore, setSelectedScore] = useState(0); // gewählter Score
   const [pickerOffen, setPickerOffen] = useState(false); // Datepicker sichtbar?
   const [gewaehlteWoche, setGewaehlteWoche] = useState(null); // gewählte Woche
-  const [geoData, setGeoData] = useState(null); // GeoJSON Daten
   const [selectedMarker, setSelectedMarker] = useState(null); // aktiver Marker
 
   // Startdatum bestimmen
@@ -72,18 +68,6 @@ export const MainArea = ({ schneeBounds, aktivDatum, setAktivDatum }) => {
   useEffect(() => {
     setAktivDatum(DAYS[0].datum);
   }, []);
-
-  // Daten vom GeoServer holen
-  useEffect(() => {
-    if (!aktivDatum || !schneeBounds) return;
-
-    fetch(
-      `http://localhost:8080/geoserver/testskiscope/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=testskiscope:schneehoehen_datum&viewparams=datum:${aktivDatum}&outputFormat=application/json`,
-    )
-      .then((res) => res.json()) // JSON parsen
-      .then((data) => setGeoData(data)) // speichern
-      .catch((err) => console.error("Fehler:", err)); // Fehler loggen
-  }, [aktivDatum, schneeBounds]);
 
   // Klick auf Tag
   const handleDayClick = (i) => {
@@ -113,11 +97,7 @@ export const MainArea = ({ schneeBounds, aktivDatum, setAktivDatum }) => {
             <circle cx="11" cy="11" r="8" /> {/* Lupe Kreis */}
             <path d="m21 21-4.35-4.35" /> {/* Lupe Griff */}
           </svg>
-          <input
-            type="text"
-            placeholder="Skigebiet suchen..."
-            className="search-input"
-          />
+          <input type="text" placeholder="Skigebiet suchen..." className="search-input" />
         </div>
       </div>
 
@@ -136,10 +116,7 @@ export const MainArea = ({ schneeBounds, aktivDatum, setAktivDatum }) => {
         ))}
 
         {/* Datepicker Button */}
-        <div
-          className="day-picker"
-          onClick={() => setPickerOffen(!pickerOffen)}
-        >
+        <div className="day-picker" onClick={() => setPickerOffen(!pickerOffen)}>
           <span style={{ fontSize: 20 }}>📅</span>
           <span>
             Datum
@@ -274,19 +251,28 @@ export const MainArea = ({ schneeBounds, aktivDatum, setAktivDatum }) => {
           mapStyle={OSM_STYLE}
         >
           {/* Schneehöhen Layer */}
-          {geoData && (
-            <Source id="schnee" type="geojson" data={geoData}>
-              <Layer
-                id="schnee-layer"
-                type="fill"
-                paint={{
-                  "fill-color": ["get", "fill"], // Farbe aus Daten
-                  "fill-opacity": 0.35,
-                  "fill-antialias": true,
-                }}
-              />
-            </Source>
-          )}
+          <Source
+            key={aktivDatum}
+            id="schnee"
+            type="vector"
+            tiles={[
+              `http://192.168.4.228:8080/geoserver/skiscope/ows?service=WMS&version=1.1.1&request=GetMap&layers=skiscope:schneehoehen_datum&bbox={bbox-epsg-3857}&width=256&height=256&srs=EPSG:3857&format=application/vnd.mapbox-vector-tile&viewparams=datum:${aktivDatum}`,
+            ]}
+            tileSize={512}
+            minzoom={0}
+            maxzoom={24}
+          >
+            <Layer
+              id="schnee-layer"
+              type="fill"
+              source-layer="schneehoehen_datum"
+              paint={{
+                "fill-color": ["get", "fill"],
+                "fill-opacity": 0.35,
+                "fill-antialias": true,
+              }}
+            />
+          </Source>
 
           {/* Marker */}
           {skigebiete?.features?.map((feature, i) => {
