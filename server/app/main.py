@@ -13,6 +13,13 @@ from datetime import date, timedelta, datetime
 import psycopg2
 import json
 
+#Import Secrets aus .env Datei
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+print(os.getenv("DB_PASSWORD"))
+
 # Entwicklungsmodus → immer neu generieren
 DEV_MODE = True
 
@@ -35,11 +42,12 @@ nv  0   0   0   0
 
 # Datenbank-Verbindungsdaten
 DB_PARAMS = {
-    "host": "localhost",
-    "dbname": "testskiscope",
-    "user": "postgres",
-    "password": "HeeDo1postgres"
+    "host": "127.0.0.1",
+    "dbname": os.getenv("DB_NAME"),
+    "user": os.getenv("DB_USER"),
+    "password": os.getenv("DB_PASSWORD")
 }
+
 
 # Funktion: Verbindung zur DB herstellen
 def get_db_conn():
