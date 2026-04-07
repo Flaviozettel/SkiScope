@@ -30,7 +30,7 @@ import psycopg2
 import psycopg2.extras
 from dotenv import load_dotenv
 
-load_dotenv("/home/gisadmin/skiscope/.env")
+load_dotenv("/home/gisadmin/skiscope/.env") # Für Cronjob: absolute Pfadangabe zum .env-File, da Arbeitsverzeichnis nicht definiert ist.
 
 # ══════════════════════════════════════════════════════════════
 #  KONFIGURATION
