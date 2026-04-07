@@ -7,15 +7,6 @@ import skigebiete from "./data/skigebiete_schnee.json"; // GeoJSON mit Skigebiet
 // Dropdown Optionen
 const SCORE_OPTIONS = ["SkiScope SCORE", "Schneehöhe", "Pistenkilometer"];
 
-// Funktion: berechnet Montag einer Woche
-function getMontag(datum) {
-  const d = new Date(datum); // Datum kopieren
-  const tag = d.getDay(); // Wochentag (0=So)
-  const diff = tag === 0 ? -6 : 1 - tag; // Differenz zum Montag
-  d.setDate(d.getDate() + diff); // Datum verschieben
-  return d; // zurückgeben
-}
-
 // Funktion: erstellt 7 Tage ab Startdatum
 function generiereWoche(startDatum) {
   return Array.from({ length: 7 }, (_, i) => {
@@ -46,7 +37,7 @@ const OSM_STYLE = {
 };
 
 // Hauptkomponente
-export const MainArea = ({ schneeBounds, aktivDatum, setAktivDatum }) => {
+export const MainArea = ({ aktivDatum, setAktivDatum }) => {
   // States
   const [activeDay, setActiveDay] = useState(0); // ausgewählter Tag
   const [scoreOpen, setScoreOpen] = useState(false); // Dropdown offen?

@@ -2,8 +2,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 # Zum Zurücksenden von Dateien (z. B. PNG)
 from fastapi.responses import FileResponse
-# Für externe Programme (GDAL) ausführen
-import subprocess
 # HTTP Requests (API Calls)
 import requests
 # Datei- und Systemoperationen
@@ -21,9 +19,6 @@ load_dotenv()
 
 # Entwicklungsmodus → immer neu generieren
 DEV_MODE = True
-
-# Datei für Rohdaten
-RAW_FILE = "raw.geojson"
 
 # Farbskala für Schneehöhen (für PNG Rendering)
 COLOR_RAMP = """\
@@ -68,32 +63,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-# Funktion: berechnet Bounding Box aus GeoJSON
-def bbox_aus_geojson(datum):
-    url = f"https://snow-maps-hs.slf.ch/public/hs/map/HS1D-v2/{datum}/geojson"
-    antwort = requests.get(url, timeout=30)
-    data = antwort.json()
-
-    alle_coords = []
-
-    # rekursive Funktion um alle Koordinaten zu flatten. flatten macht aus [[lon, lat], [lon, lat]] → [lon, lat]
-    def flatten(c):
-        if isinstance(c[0], list):
-            for sub in c:
-                flatten(sub)
-        else:
-            alle_coords.append(c)
-
-    # durch alle Features gehen
-    for feature in data["features"]:
-        flatten(feature["geometry"]["coordinates"])
-
-    # min/max bestimmen
-    lons = [c[0] for c in alle_coords]
-    lats = [c[1] for c in alle_coords]
-
-    return min(lats), min(lons), max(lats), max(lons)
 
 
 # Funktion: speichert Schneehöhen in DB
@@ -156,24 +125,6 @@ def auto_importiere_wenn_noetig(datum):
             importiere_schnee_in_db(datum, data)
         except Exception as e:
             print(f"Import fehlgeschlagen für {datum}: {e}")
-
-
-# API Endpoint: Bounding Box liefern
-@app.get("/schnee/bounds")
-def get_bounds(datum: str = None):
-
-    # Daten ggf. automatisch importieren
-    auto_importiere_wenn_noetig(datum)
-
-    bbox = bbox_aus_geojson(datum)
-
-    # Rückgabe als zwei Punkte (unten links / oben rechts)
-    return {
-        "bounds": [
-            [bbox[0], bbox[1]],
-            [bbox[2], bbox[3]]
-        ]
-    }
 
 
 # API Endpoint: Daten für ein Datum importieren
