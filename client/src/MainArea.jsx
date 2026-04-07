@@ -42,7 +42,7 @@ const OSM_STYLE = {
   sources: {
     osm: {
       type: "raster", // Raster Tiles
-      tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"], // Tile URL, für graue Karte: https://tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png
+      tiles: ["https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"], // Tile URL, für graue Karte: https://tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png
       tileSize: 256,
       attribution: "© OpenStreetMap",
     },
@@ -132,7 +132,8 @@ export const MainArea = ({ schneeBounds, aktivDatum, setAktivDatum }) => {
               position: "absolute",
               zIndex: 1000,
               top: "100%",
-              right: 0,
+              left: "55%",
+              transform: "translateX(-55%)",
             }}
           >
             <DatePicker

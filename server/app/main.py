@@ -120,6 +120,7 @@ def importiere_schnee_in_db(datum, data):
         cur.execute("""
             INSERT INTO schneehoehen (datum, value, fill, geom)
             VALUES (%s, %s, %s, ST_SetSRID(ST_GeomFromGeoJSON(%s), 4326))
+            ON CONFLICT (datum, value) DO NOTHING
         """, (
             datum,
             feature["properties"]["value"],
@@ -190,3 +191,29 @@ def importiere_schnee(datum: str = None):
     importiere_schnee_in_db(datum, data)
 
     return {"status": "ok", "datum": datum, "features": len(data["features"])}
+
+@app.get("/skigebiete/top-schnee")
+def get_top_schnee():
+    conn = get_db_conn()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT station_name, schneetiefe_piste_cm
+        FROM skigebiete
+        WHERE schneetiefe_piste_cm IS NOT NULL
+        ORDER BY schneetiefe_piste_cm DESC
+        LIMIT 1
+    """)
+
+    result = cur.fetchone()
+
+    cur.close()
+    conn.close()
+
+    if result:
+        return {
+            "station_name": result[0],
+            "schnee_haupt": result[1]
+        }
+    else:
+        return {"error": "Keine Daten gefunden"}

@@ -1,6 +1,16 @@
 import skiImage from "./data/Header_Berge.jpg";
+import { useEffect, useState } from "react";
 
 export const Header = () => {
+  const [topSchnee, setTopSchnee] = useState(null);
+
+  useEffect(() => {
+    fetch("http://localhost:8000/skigebiete/top-schnee")
+      .then((res) => res.json())
+      .then((data) => setTopSchnee(data))
+      .catch((err) => console.error(err));
+  }, []);
+
   return (
     <header
       className="hero"
@@ -21,7 +31,11 @@ export const Header = () => {
           <span className="badge-icon">❄️</span>
           <div>
             <div className="badge-label">Beste Schneehöhe</div>
-            <div className="badge-value">245 cm in Zermatt</div>
+            <div className="badge-value">
+              {topSchnee
+                ? `${topSchnee.schnee_haupt} cm in ${topSchnee.station_name}`
+                : "Lade Daten..."}
+            </div>
           </div>
         </div>
 
