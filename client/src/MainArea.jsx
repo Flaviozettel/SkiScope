@@ -227,6 +227,38 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
             />
           </Source>
 
+          {/* Pisten-Polygone Layer */}
+          <Source
+            id="pisten"
+            type="vector"
+            tiles={[
+              `http://192.168.4.228:8080/geoserver/skiscope/ows?service=WMS&version=1.1.1&request=GetMap&layers=skiscope:Pisten_Polygone&bbox={bbox-epsg-3857}&width=256&height=256&srs=EPSG:3857&format=application/vnd.mapbox-vector-tile`,
+            ]}
+            tileSize={512}
+          >
+            <Layer
+              id="pisten-layer"
+              type="line"
+              source-layer="Pisten_Polygone"
+              paint={{
+                "line-width": 3,
+                "line-color": [
+                  "match",
+                  ["get", "piste_difficulty"],
+                  "easy",
+                  "#0000FF", // Blau
+                  "intermediate",
+                  "#FF0000", // Rot
+                  "advanced",
+                  "#000000", // Schwarz
+                  "freeride",
+                  "#FFD700", // Gelb
+                  "#888888", // Default
+                ],
+              }}
+            />
+          </Source>
+
           {/* Marker */}
           {skigebiete?.features?.map((feature, i) => {
             const [lng, lat] = feature.geometry.coordinates; // Koordinaten
