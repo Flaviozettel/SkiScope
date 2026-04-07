@@ -1,9 +1,4 @@
 import { useState, useEffect } from "react"; // React Hooks
-import DatePicker from "react-datepicker"; // Datepicker Komponente
-import "react-datepicker/dist/react-datepicker.css"; // Styles für Datepicker
-import { registerLocale } from "react-datepicker"; // Locale Funktion = für deutsche Sprache
-import de from "date-fns/locale/de"; // deutsches Locale
-registerLocale("de", de); // Locale registrieren
 import Map, { Source, Layer, Marker, Popup } from "react-map-gl/maplibre"; // MapLibre Komponenten
 import "maplibre-gl/dist/maplibre-gl.css"; // Map Styles
 
@@ -42,7 +37,7 @@ const OSM_STYLE = {
   sources: {
     osm: {
       type: "raster", // Raster Tiles
-      tiles: ["https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"], // Tile URL, für graue Karte: https://tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png
+      tiles: ["https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"], // Tile URL
       tileSize: 256,
       attribution: "© OpenStreetMap",
     },
@@ -56,12 +51,10 @@ export const MainArea = ({ schneeBounds, aktivDatum, setAktivDatum }) => {
   const [activeDay, setActiveDay] = useState(0); // ausgewählter Tag
   const [scoreOpen, setScoreOpen] = useState(false); // Dropdown offen?
   const [selectedScore, setSelectedScore] = useState(0); // gewählter Score
-  const [pickerOffen, setPickerOffen] = useState(false); // Datepicker sichtbar?
-  const [gewaehlteWoche, setGewaehlteWoche] = useState(null); // gewählte Woche
   const [selectedMarker, setSelectedMarker] = useState(null); // aktiver Marker
 
   // Startdatum bestimmen
-  const startDatum = gewaehlteWoche ? getMontag(gewaehlteWoche) : new Date();
+  const startDatum = new Date(); // IMMER heute
   const DAYS = generiereWoche(startDatum); // Woche generieren
 
   // Beim Start → erstes Datum setzen
@@ -74,6 +67,12 @@ export const MainArea = ({ schneeBounds, aktivDatum, setAktivDatum }) => {
     setActiveDay(i); // UI aktualisieren
     setAktivDatum(DAYS[i].datum); // Datum setzen
   };
+
+  // HEUTE als Referenz
+  const heuteISO = new Date().toISOString().split("T")[0];
+
+  // falls Zukunft → letztes verfügbares Datum verwenden
+  const safeDatum = aktivDatum > heuteISO ? heuteISO : aktivDatum;
 
   return (
     <main className="main">
@@ -114,44 +113,6 @@ export const MainArea = ({ schneeBounds, aktivDatum, setAktivDatum }) => {
             <div className="day-icon">{d.icon}</div>
           </div>
         ))}
-
-        {/* Datepicker Button */}
-        <div className="day-picker" onClick={() => setPickerOffen(!pickerOffen)}>
-          <span style={{ fontSize: 20 }}>📅</span>
-          <span>
-            Datum
-            <br />
-            wählen
-          </span>
-        </div>
-
-        {/* Datepicker Popup */}
-        {pickerOffen && (
-          <div
-            style={{
-              position: "absolute",
-              zIndex: 1000,
-              top: "100%",
-              left: "55%",
-              transform: "translateX(-55%)",
-            }}
-          >
-            <DatePicker
-              inline
-              selected={gewaehlteWoche}
-              onChange={(datum) => {
-                const montag = getMontag(datum); // Woche berechnen
-                setGewaehlteWoche(montag);
-                setActiveDay(0);
-                setAktivDatum(montag.toISOString().split("T")[0]);
-                setPickerOffen(false);
-              }}
-              showWeekNumbers
-              locale="de"
-              calendarStartDay={1}
-            />
-          </div>
-        )}
       </div>
 
       {/* Top Empfehlung */}
@@ -253,11 +214,11 @@ export const MainArea = ({ schneeBounds, aktivDatum, setAktivDatum }) => {
         >
           {/* Schneehöhen Layer */}
           <Source
-            key={aktivDatum}
+            key={safeDatum}
             id="schnee"
             type="vector"
             tiles={[
-              `http://192.168.4.228:8080/geoserver/skiscope/ows?service=WMS&version=1.1.1&request=GetMap&layers=skiscope:schneehoehen_datum&bbox={bbox-epsg-3857}&width=256&height=256&srs=EPSG:3857&format=application/vnd.mapbox-vector-tile&viewparams=datum:${aktivDatum}`,
+              `http://192.168.4.228:8080/geoserver/skiscope/ows?service=WMS&version=1.1.1&request=GetMap&layers=skiscope:schneehoehen_datum&bbox={bbox-epsg-3857}&width=256&height=256&srs=EPSG:3857&format=application/vnd.mapbox-vector-tile&viewparams=datum:${safeDatum}`,
             ]}
             tileSize={512}
             minzoom={0}

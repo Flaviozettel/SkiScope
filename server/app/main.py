@@ -217,3 +217,4 @@ def get_top_schnee():
         }
     else:
         return {"error": "Keine Daten gefunden"}
+    
