@@ -167,6 +167,45 @@ def _name(val) -> str:
     return str(val).strip() if val is not None else ""
 
 
+# Bekannte IDs aus strecken_typen / strecken_stati.
+# Unbekannte IDs werden auf None gesetzt (→ NULL in DB) und geloggt.
+# Bei neuen API-IDs: Lookup-Tabelle im Schema ergänzen und hier hinzufügen.
+KNOWN_TYP_IDS = {
+    4000,4001,4002,4004,4005,4006,4008,4009,4010,4011,4013,4014,4015,4016,4017,4018,
+    4100,4101,4102,4103,4104,4105,4106,4107,4108,4109,
+    4200,4201,4202,4203,4204,4205,4206,
+    4400,4401,4402,4403,4405,
+    4500,4501,
+}
+KNOWN_STATUS_IDS = {
+    800,801,802,803,804,805,806,807,
+    3000,3001,3002,3003,
+    1200,1201,1202,1203,1204,
+}
+
+def _typ_id(inf: dict, key: str = "type") -> int | None:
+    """Typ-ID aus API-Objekt lesen; None wenn unbekannt (verhindert FK-Fehler)."""
+    tid = (inf.get(key) or {}).get("id")
+    if tid is None:
+        return None
+    if tid not in KNOWN_TYP_IDS:
+        log.warning("Unbekannte typ_id=%s – wird als NULL gespeichert. "
+                    "Lookup-Tabelle prüfen.", tid)
+        return None
+    return tid
+
+def _status_id(inf: dict, key: str = "condition") -> int | None:
+    """Status-ID aus API-Objekt lesen; None wenn unbekannt."""
+    sid = (inf.get(key) or {}).get("id")
+    if sid is None:
+        return None
+    if sid not in KNOWN_STATUS_IDS:
+        log.warning("Unbekannte status_id=%s – wird als NULL gespeichert. "
+                    "Lookup-Tabelle prüfen.", sid)
+        return None
+    return sid
+
+
 # ══════════════════════════════════════════════════════════════
 #  DATENEXTRAKTION
 # ══════════════════════════════════════════════════════════════
@@ -244,8 +283,8 @@ def extract_pisten(s: dict) -> list[dict]:
         rows.append({
             "station_id":      s.get("id"),
             "piste_name":      _name(sl.get("name")),   # int möglich (Samnaun)
-            "typ_id":          (inf.get("type")      or {}).get("id"),
-            "status_id":       (inf.get("condition") or {}).get("id"),
+            "typ_id":          _typ_id(inf, "type"),
+            "status_id":       _status_id(inf, "condition"),
             "laenge_m_gesamt": _num(inf.get("totalLength")),
             "laenge_m_heute":  _num(inf.get("totalLengthToday")),
             "sort_order":      inf.get("sortOrder"),
@@ -260,8 +299,8 @@ def extract_lifte(s: dict) -> list[dict]:
         rows.append({
             "station_id": s.get("id"),
             "lift_name":  _name(li.get("name")),
-            "typ_id":     (inf.get("type")   or {}).get("id"),
-            "status_id":  (inf.get("status") or {}).get("id"),  # Lifte: 'status' statt 'condition'
+            "typ_id":     _typ_id(inf, "type"),
+            "status_id":  _status_id(inf, "status"),  # Lifte: 'status' statt 'condition'
             "sort_order": inf.get("sortOrder"),
         })
     return rows
@@ -275,8 +314,8 @@ def extract_langlauf(s: dict) -> list[dict]:
         rows.append({
             "station_id":          s.get("id"),
             "loipe_name":          _name(tr.get("name")),
-            "typ_id":              (inf.get("type")      or {}).get("id"),
-            "status_id":           (inf.get("condition") or {}).get("id"),
+            "typ_id":              _typ_id(inf, "type"),
+            "status_id":           _status_id(inf, "condition"),
             "laenge_m_gesamt":     _num(inf.get("totalLength")),
             "laenge_m_heute":      _num(inf.get("totalLengthToday")),
             "letzte_praeparation": _date(inf.get("lastPreparation")),
@@ -299,8 +338,8 @@ def extract_schlittelwege(s: dict) -> list[dict]:
             "station_id":          s.get("id"),
             "weg_name":            _name(ru.get("name")),
             "beschreibung":        desc,
-            "typ_id":              (inf.get("type")      or {}).get("id"),
-            "status_id":           (inf.get("condition") or {}).get("id"),
+            "typ_id":              _typ_id(inf, "type"),
+            "status_id":           _status_id(inf, "condition"),
             "laenge_m_gesamt":     _num(inf.get("totalLength")),
             "laenge_m_heute":      _num(inf.get("totalLengthToday")),
             "letzte_praeparation": _date(inf.get("lastPreparation")),
@@ -317,8 +356,8 @@ def extract_winterwandern(s: dict) -> list[dict]:
         rows.append({
             "station_id":      s.get("id"),
             "weg_name":        _name(tr.get("name")),
-            "typ_id":          (inf.get("type")      or {}).get("id"),
-            "status_id":       (inf.get("condition") or {}).get("id"),
+            "typ_id":          _typ_id(inf, "type"),
+            "status_id":       _status_id(inf, "condition"),
             "laenge_m_gesamt": _num(inf.get("totalLength")),
             "laenge_m_heute":  _num(inf.get("totalLengthToday")),
             "sort_order":      inf.get("sortOrder"),
