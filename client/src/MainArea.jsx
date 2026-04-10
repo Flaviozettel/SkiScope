@@ -53,6 +53,17 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
     setAktivDatum(DAYS[0].datum);
   }, []);
 
+  useEffect(() => {
+    if (!aktivDatum) return;
+
+    fetch(`http://localhost:8000/schnee?datum=${aktivDatum}`)
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("Import geprüft:", data);
+      })
+      .catch((err) => console.error("Fehler beim Import:", err));
+  }, [aktivDatum]);
+
   // Klick auf Tag
   const handleDayClick = (i) => {
     setActiveDay(i); // UI aktualisieren
@@ -200,7 +211,7 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
       <div className="map-container">
         <Map
           initialViewState={{ longitude: 8.3, latitude: 46.8, zoom: 8 }} // Startposition
-          style={{ width: "100%", height: "100%" }}
+          style={{ width: "100%", height: "150%" }}
           mapStyle={OSM_STYLE}
         >
           {/* Schneehöhen Layer */}
@@ -237,11 +248,43 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
             tileSize={512}
           >
             <Layer
-              id="pisten-layer"
-              type="line"
+              id="pisten-fill"
+              type="fill"
               source-layer="Pisten_Polygone"
               paint={{
-                "line-width": 3,
+                "fill-color": [
+                  "match",
+                  ["get", "piste_difficulty"],
+                  "easy",
+                  "#0000FF", // blau
+                  "intermediate",
+                  "#FF0000", // rot
+                  "advanced",
+                  "#000000", // schwarz
+                  "freeride",
+                  "#FFD700", // gelb
+                  "#CCCCCC", // default
+                ],
+                "fill-opacity": 0.4,
+              }}
+            />
+          </Source>
+
+          {/* Pisten Linien Layer */}
+          <Source
+            id="pisten-linien"
+            type="vector"
+            tiles={[
+              `http://192.168.4.228:8080/geoserver/skiscope/ows?service=WMS&version=1.1.1&request=GetMap&layers=skiscope:Pisten_Linien&bbox={bbox-epsg-3857}&width=256&height=256&srs=EPSG:3857&format=application/vnd.mapbox-vector-tile`,
+            ]}
+            tileSize={512}
+          >
+            <Layer
+              id="pisten-linien-layer"
+              type="line"
+              source-layer="Pisten_Linien"
+              paint={{
+                "line-width": 2,
                 "line-color": [
                   "match",
                   ["get", "piste_difficulty"],
@@ -255,6 +298,47 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
                   "#FFD700", // Gelb
                   "#888888", // Default
                 ],
+              }}
+            />
+          </Source>
+
+          {/* Lifte-Bahnen-Polygone Layer */}
+          <Source
+            id="lifte"
+            type="vector"
+            tiles={[
+              `http://192.168.4.228:8080/geoserver/skiscope/ows?service=WMS&version=1.1.1&request=GetMap&layers=skiscope:Lifte_Bahnen_Polygone&bbox={bbox-epsg-3857}&width=256&height=256&srs=EPSG:3857&format=application/vnd.mapbox-vector-tile`,
+            ]}
+            tileSize={512}
+          >
+            <Layer
+              id="lifte-fill"
+              type="fill"
+              source-layer="Lifte_Bahnen_Polygone"
+              paint={{
+                "fill-color": "grey",
+                "fill-opacity": 0.4,
+              }}
+            />
+          </Source>
+
+          {/* Lifte-Bahnen-Linien Layer */}
+          <Source
+            id="lifte-linien"
+            type="vector"
+            tiles={[
+              `http://192.168.4.228:8080/geoserver/skiscope/ows?service=WMS&version=1.1.1&request=GetMap&layers=skiscope:Lifte_Bahnen_Linien&bbox={bbox-epsg-3857}&width=256&height=256&srs=EPSG:3857&format=application/vnd.mapbox-vector-tile`,
+            ]}
+            tileSize={512}
+          >
+            <Layer
+              id="lifte-linien-layer"
+              type="line"
+              source-layer="Lifte_Bahnen_Linien"
+              paint={{
+                "line-width": 2,
+                "line-color": "grey",
+                "line-dasharray": [1, 1],
               }}
             />
           </Source>

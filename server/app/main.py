@@ -20,19 +20,6 @@ load_dotenv()
 # Entwicklungsmodus → immer neu generieren
 DEV_MODE = True
 
-# Farbskala für Schneehöhen (für PNG Rendering)
-COLOR_RAMP = """\
-nv  0   0   0   0
-0   0   0   0   0
-1   210 240 255 100 
-10  160 210 240 140
-20  100 180 230 170
-40  70  140 210 190
-80  40  100 180 210
-120 20  60  150 220
-200 240 248 255 230
-300 255 255 255 240
-"""
 
 # Datenbank-Verbindungsdaten
 DB_PARAMS = {
@@ -63,12 +50,45 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from datetime import date, timedelta
 
+
+def auto_importiere_letzte_woche():
+    heute = date.today()
+
+    for i in range(7):
+        datum = (heute - timedelta(days=i)).isoformat()
+
+        conn = get_db_conn()
+        cur = conn.cursor()
+
+        cur.execute(
+            "SELECT count(*) FROM schneehoehen WHERE datum = %s",
+            (datum,)
+        )
+        count = cur.fetchone()[0]
+
+        cur.close()
+        conn.close()
+
+        if count == 0:
+            print(f"Lade Daten für {datum}...")
+
+            url = f"https://snow-maps-hs.slf.ch/public/hs/map/HS1D-v2/{datum}/geojson"
+
+            try:
+                antwort = requests.get(url, timeout=30)
+                antwort.raise_for_status()
+                data = antwort.json()
+
+                importiere_schnee_in_db(datum, data)
+
+            except Exception as e:
+                print(f"Fehler bei {datum}: {e}")
 
 # Funktion: speichert Schneehöhen in DB
 def importiere_schnee_in_db(datum, data):
     from datetime import date
-
     datum = date.fromisoformat(datum)
 
     conn = get_db_conn()
@@ -102,30 +122,10 @@ def importiere_schnee_in_db(datum, data):
     conn.close()
 
 
-# Funktion: importiert Daten automatisch, falls nicht vorhanden
-def auto_importiere_wenn_noetig(datum):
-    conn = get_db_conn()
-    cur = conn.cursor()
-
-    # prüfen ob Daten existieren
-    cur.execute("SELECT count(*) FROM schneehoehen WHERE datum = %s", (datum,))
-    count = cur.fetchone()[0]
-
-    cur.close()
-    conn.close()
-
-    # wenn keine Daten → importieren
-    if count == 0:
-        url = f"https://snow-maps-hs.slf.ch/public/hs/map/HS1D-v2/{datum}/geojson"
-
-        try:
-            antwort = requests.get(url, timeout=30)
-            antwort.raise_for_status()
-            data = antwort.json()
-            importiere_schnee_in_db(datum, data)
-        except Exception as e:
-            print(f"Import fehlgeschlagen für {datum}: {e}")
-
+@app.get("/schnee")
+def get_schnee():
+    auto_importiere_letzte_woche()
+    return {"status": "ok", "range": "last_7_days"}
 
 # API Endpoint: Daten für ein Datum importieren
 @app.get("/schnee/import")
