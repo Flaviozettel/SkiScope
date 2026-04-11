@@ -2,8 +2,6 @@ import { useState, useEffect } from "react"; // React Hooks
 import Map, { Source, Layer, Marker, Popup } from "react-map-gl/maplibre"; // MapLibre Komponenten
 import "maplibre-gl/dist/maplibre-gl.css"; // Map Styles
 
-import skigebiete from "./data/skigebiete_schnee.json"; // GeoJSON mit Skigebieten
-
 // Dropdown Optionen
 const SCORE_OPTIONS = ["SkiScope SCORE", "Schneehöhe", "Pistenkilometer"];
 
@@ -25,15 +23,16 @@ function generiereWoche(startDatum) {
 // OpenStreetMap Raster Style
 const OSM_STYLE = {
   version: 8,
+  glyphs: "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
   sources: {
     osm: {
-      type: "raster", // Raster Tiles
-      tiles: ["https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"], // Tile URL
+      type: "raster",
+      tiles: ["https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"],
       tileSize: 256,
       attribution: "© OpenStreetMap",
     },
   },
-  layers: [{ id: "osm", type: "raster", source: "osm" }], // Layer anzeigen
+  layers: [{ id: "osm", type: "raster", source: "osm" }],
 };
 
 // Hauptkomponente
@@ -47,6 +46,16 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
   // Startdatum bestimmen
   const startDatum = new Date(); // IMMER heute
   const DAYS = generiereWoche(startDatum); // Woche generieren
+
+  //Skigebiete
+  const [skigebiete, setSkigebiete] = useState([]);
+
+  useEffect(() => {
+    fetch("http://localhost:8000/skigebiete")
+      .then((res) => res.json())
+      .then((data) => setSkigebiete(data))
+      .catch(console.error);
+  }, []);
 
   // Beim Start → erstes Datum setzen
   useEffect(() => {
@@ -298,41 +307,92 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
               id="lifte-linien-layer"
               type="line"
               source-layer="Lifte_Bahnen_Linien"
+              filter={["all", ["!=", ["get", "art"], "goods"]]}
               paint={{
                 "line-width": 2,
                 "line-color": "grey",
                 "line-dasharray": [1, 1],
               }}
             />
+            <Layer
+              id="lifte-labels"
+              type="symbol"
+              source="lifte-linien"
+              source-layer="Lifte_Bahnen_Linien"
+              minzoom={12}
+              filter={["all", ["!=", ["get", "art"], "goods"], ["!=", ["get", "art"], "transport"]]}
+              layout={{
+                "symbol-placement": "line",
+                "symbol-spacing": 250,
+
+                "text-field": [
+                  "match",
+                  ["get", "art"],
+
+                  "gondola",
+                  "Gondel",
+                  "funicular",
+                  "Standseilbahn",
+                  "chair_lift",
+                  "Sessellift",
+                  "t-bar",
+                  "Bügellift",
+                  "platter",
+                  "Tellerlift",
+                  "rope_tow",
+                  "Seillift",
+                  "magic_carpet",
+                  "Zauberteppich",
+                  "zip_line",
+                  "Zipline",
+                  "cable_car",
+                  "Seilbahn",
+
+                  "", // fallback
+                ],
+
+                "text-size": 11,
+                "text-anchor": "center",
+                "text-rotation-alignment": "map",
+                "symbol-spacing": 250,
+                "text-allow-overlap": false,
+              }}
+              paint={{
+                "text-color": "#2b2b2b",
+                "text-halo-color": "#ffffff",
+                "text-halo-width": 1.5,
+              }}
+            />
           </Source>
 
           {/* Marker */}
-          {skigebiete?.features?.map((feature, i) => {
-            const [lng, lat] = feature.geometry.coordinates; // Koordinaten
-            const p = feature.properties; // Eigenschaften
-
-            return (
-              <Marker
-                key={i}
-                longitude={lng}
-                latitude={lat}
-                anchor="center"
-                onClick={() => setSelectedMarker({ lng, lat, p })}
-              >
-                <div
-                  style={{
-                    width: 12,
-                    height: 12,
-                    borderRadius: "50%",
-                    background: "#2d6cdf",
-                    border: "2px solid white",
-                    boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
-                    cursor: "pointer",
-                  }}
-                />
-              </Marker>
-            );
-          })}
+          {skigebiete.map((g, i) => (
+            <Marker
+              key={i}
+              longitude={g.lon}
+              latitude={g.lat}
+              anchor="center"
+              onClick={(e) => {
+                e.originalEvent.stopPropagation();
+                setSelectedMarker(g);
+              }}
+            >
+              <div
+                style={{
+                  width: 14,
+                  height: 14,
+                  borderRadius: "50%",
+                  background: "#2d6cdf",
+                  border: "2px solid white",
+                  boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
+                  cursor: "pointer",
+                  transition: "transform 0.15s ease",
+                }}
+                onMouseEnter={(e) => (e.target.style.transform = "scale(1.2)")}
+                onMouseLeave={(e) => (e.target.style.transform = "scale(1)")}
+              />
+            </Marker>
+          ))}
 
           {/* Popup */}
           {selectedMarker && (

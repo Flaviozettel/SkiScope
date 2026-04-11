@@ -91,7 +91,7 @@ export const Sidebar = () => {
       <button
         className="btn"
         onClick={() => {
-          console.log({ profile, skill, lifts });
+          console.log({ profile, skill, lifts, snow, liftComfort });
         }}
       >
         Ranking aktualisieren

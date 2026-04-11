@@ -126,7 +126,7 @@ body {
   box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
   display: flex;
   flex: 1;
-  overflow: vi;
+  overflow: visible;
 }
 
 /* ── SIDEBAR ───────────────────────────────────── */
