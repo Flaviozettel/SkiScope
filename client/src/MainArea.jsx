@@ -43,11 +43,14 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
   const [selectedScore, setSelectedScore] = useState(0); // gewählter Score
   const [selectedMarker, setSelectedMarker] = useState(null); // aktiver Marker
 
+  // FIX 1: tooltipData State in die Komponente verschoben (war vorher ausserhalb)
+  const [tooltipData, setTooltipData] = useState(null);
+
   // Startdatum bestimmen
   const startDatum = new Date(); // IMMER heute
   const DAYS = generiereWoche(startDatum); // Woche generieren
 
-  //Skigebiete
+  // Skigebiete
   const [skigebiete, setSkigebiete] = useState([]);
 
   useEffect(() => {
@@ -84,6 +87,62 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
 
   // falls Zukunft → letztes verfügbares Datum verwenden
   const safeDatum = aktivDatum > heuteISO ? heuteISO : aktivDatum;
+
+  // FIX 1: Tooltip-Fetch in einen eigenen Handler verschoben
+  const handleMapClick = async (e) => {
+    const features = e.target.queryRenderedFeatures(e.point, {
+      layers: ["skigebiete-fill"],
+    });
+
+    if (!features.length) {
+      setSelectedMarker(null);
+      setTooltipData(null);
+      return;
+    }
+
+    const f = features[0];
+
+    // DEBUG: Alle verfügbaren Properties loggen → im Browser-Console prüfen welche Felder existieren
+    console.log("🗺️ Feature Properties:", f.properties);
+
+    // name_2 ist der erwartete Feldname aus GeoServer – falls leer, alle möglichen Alternativen prüfen
+    const name =
+      f.properties.name_2 || f.properties.Name_2 || f.properties.name || f.properties.NAME;
+    console.log("📍 Skigebiet name:", name);
+
+    if (!name) {
+      console.warn(
+        "⚠️ Kein Namensfeld im Feature gefunden. Verfügbare Keys:",
+        Object.keys(f.properties),
+      );
+      return;
+    }
+
+    setSelectedMarker({
+      lng: e.lngLat.lng,
+      lat: e.lngLat.lat,
+      name,
+    });
+
+    try {
+      const url = `http://localhost:8000/skigebiet?name_2=${encodeURIComponent(name)}`;
+      console.log("🔗 Fetch URL:", url);
+
+      const res = await fetch(url);
+      const data = await res.json();
+      console.log("📦 API Antwort:", data);
+
+      // Falls API einen Fehler zurückgibt (z.B. {"error": "Kein Skigebiet gefunden"})
+      if (data.error) {
+        console.warn("⚠️ API Fehler:", data.error);
+        setTooltipData({ _error: data.error, name });
+      } else {
+        setTooltipData(data);
+      }
+    } catch (err) {
+      console.error("❌ Fetch Fehler:", err);
+    }
+  };
 
   return (
     <main className="main">
@@ -185,24 +244,11 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
           maxZoom={20}
           style={{ width: "100%", height: "100%" }}
           mapStyle={OSM_STYLE}
-          onClick={(e) => {
-            const features = e.target.queryRenderedFeatures(e.point, {
-              layers: ["skigebiete-layer"],
-            });
-
-            if (!features.length) return;
-
-            const f = features[0];
-
-            setSelectedMarker({
-              lng: f.geometry.coordinates[0],
-              lat: f.geometry.coordinates[1],
-              p: f.properties,
-            });
-          }}
+          // FIX 1: onClick verwendet jetzt den eigenen Handler mit korrektem Fetch
+          onClick={handleMapClick}
           onMouseMove={(e) => {
             const features = e.target.queryRenderedFeatures(e.point, {
-              layers: ["skigebiete-layer"],
+              layers: ["skigebiete-fill"],
             });
 
             e.target.getCanvas().style.cursor = features.length ? "pointer" : "";
@@ -245,6 +291,7 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
               id="pisten-fill"
               type="fill"
               source-layer="Pisten_Polygone"
+              filter={["!=", ["get", "piste_difficulty"], "freeride"]}
               paint={{
                 "fill-color": [
                   "match",
@@ -255,8 +302,6 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
                   "#FF0000", // rot
                   "advanced",
                   "#000000", // schwarz
-                  "freeride",
-                  "#FFD700", // gelb
                   "#CCCCCC", // default
                 ],
                 "fill-opacity": 0.4,
@@ -277,20 +322,19 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
               id="pisten-linien-layer"
               type="line"
               source-layer="Pisten_Linien"
+              filter={["!=", ["get", "piste_difficulty"], "freeride"]}
               paint={{
                 "line-width": 2,
                 "line-color": [
                   "match",
                   ["get", "piste_difficulty"],
                   "easy",
-                  "#0000FF", // Blau
+                  "#0000FF",
                   "intermediate",
-                  "#FF0000", // Rot
+                  "#FF0000",
                   "advanced",
-                  "#000000", // Schwarz
-                  "freeride",
-                  "#FFD700", // Gelb
-                  "#888888", // Default
+                  "#000000",
+                  "#888888",
                 ],
               }}
             />
@@ -345,12 +389,11 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
               filter={["all", ["!=", ["get", "art"], "goods"], ["!=", ["get", "art"], "transport"]]}
               layout={{
                 "symbol-placement": "line",
+                // FIX 3: symbol-spacing Duplikat entfernt
                 "symbol-spacing": 250,
-
                 "text-field": [
                   "match",
                   ["get", "art"],
-
                   "gondola",
                   "Gondel",
                   "funicular",
@@ -369,14 +412,11 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
                   "Zipline",
                   "cable_car",
                   "Seilbahn",
-
                   "", // fallback
                 ],
-
                 "text-size": 11,
                 "text-anchor": "center",
                 "text-rotation-alignment": "map",
-                "symbol-spacing": 250,
                 "text-allow-overlap": false,
               }}
               paint={{
@@ -387,52 +427,269 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
             />
           </Source>
 
-          {/* Marker */}
+          {/* Skigebiete */}
           <Source
             id="skigebiete"
             type="vector"
             tiles={[
-              `http://192.168.4.228:8080/geoserver/skiscope/ows?service=WMS&version=1.1.1&request=GetMap&layers=skiscope:skigebiete&bbox={bbox-epsg-3857}&width=256&height=256&srs=EPSG:3857&format=application/vnd.mapbox-vector-tile`,
+              `http://192.168.4.228:8080/geoserver/skiscope/ows?service=WMS&version=1.1.1&request=GetMap&layers=skiscope:Skigebiete_Polygone&bbox={bbox-epsg-3857}&width=256&height=256&srs=EPSG:3857&format=application/vnd.mapbox-vector-tile`,
             ]}
             tileSize={512}
-          />
-          <Layer
-            id="skigebiete-layer"
-            type="circle"
-            source="skigebiete"
-            source-layer="skigebiete" // WICHTIG: interner Layername!
-            paint={{
-              "circle-radius": 6,
-              "circle-color": "#2d6cdf",
-              "circle-stroke-width": 2,
-              "circle-stroke-color": "#ffffff",
-            }}
-          />
+          >
+            {/* FIX 4: Layer innerhalb von Source verschoben */}
+            <Layer
+              id="skigebiete-fill"
+              type="fill"
+              source-layer="Skigebiete_Polygone"
+              paint={{
+                "fill-color": "#2d6cdf",
+                "fill-opacity": 0.25,
+              }}
+            />
+
+            <Layer
+              id="skigebiete-outline"
+              type="line"
+              source-layer="Skigebiete_Polygone"
+              paint={{
+                "line-color": "#1f4ea3",
+                "line-width": 2,
+              }}
+            />
+          </Source>
 
           {/* Popup */}
-          {selectedMarker && (
+          {selectedMarker && tooltipData && (
             <Popup
               longitude={selectedMarker.lng}
               latitude={selectedMarker.lat}
-              anchor="bottom"
-              onClose={() => setSelectedMarker(null)}
+              onClose={() => {
+                setSelectedMarker(null);
+                setTooltipData(null);
+              }}
               closeOnClick={false}
+              maxWidth="300px"
             >
-              <div style={{ fontSize: 12, lineHeight: 1.6 }}>
-                <strong>{selectedMarker.p.Skigebiet}</strong>
-                <br />
-                ❄️ Schnee: {selectedMarker.p.Schneezustand ?? "unbekannt"}
-                <br />
-                🌡️ {selectedMarker.p.Temperature}°C
-                <br />
-                🎿 {selectedMarker.p.PisteKm} km
-                <br />
-                🚡 {selectedMarker.p.Lifte} Lifte
+              <div
+                style={{
+                  width: 272,
+                  fontFamily: "'Inter', Arial, sans-serif",
+                  padding: "4px 2px 0",
+                }}
+              >
+                {/* Fehlerfall */}
+                {tooltipData._error ? (
+                  <div style={{ color: "#c0392b", fontSize: 12 }}>
+                    ⚠️ Keine Daten für «{selectedMarker.name}»
+                  </div>
+                ) : (
+                  <>
+                    {/* Name + Chevron */}
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        marginBottom: 14,
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontSize: 16,
+                          fontWeight: 800,
+                          color: "#1a1a2e",
+                          letterSpacing: "-0.3px",
+                          lineHeight: 1.2,
+                          flex: 1,
+                          marginRight: 8,
+                        }}
+                      >
+                        {tooltipData.name || selectedMarker.name}
+                      </div>
+                      <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#2d6cdf"
+                        strokeWidth="2.5"
+                      >
+                        <path d="m6 9 6 6 6-6" />
+                      </svg>
+                    </div>
+
+                    {/* Geöffnet */}
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 10,
+                        fontSize: 13,
+                        color: "#333",
+                        marginBottom: 10,
+                      }}
+                    >
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#555"
+                        strokeWidth="1.8"
+                      >
+                        <circle cx="12" cy="12" r="10" />
+                        <polyline points="12 6 12 12 16 14" />
+                      </svg>
+                      Geöffnet
+                    </div>
+
+                    {/* Lifte */}
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 10,
+                        fontSize: 13,
+                        color: "#333",
+                        marginBottom: 10,
+                      }}
+                    >
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#555"
+                        strokeWidth="1.8"
+                      >
+                        <path d="M3 7h18M8 7V4m8 3V4M5 20l3-9m8 9-3-9" />
+                      </svg>
+                      {tooltipData.lifte_offen ?? "—"}/{tooltipData.lifte_total ?? "—"} Lifte
+                    </div>
+
+                    {/* Schnee */}
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 10,
+                        fontSize: 13,
+                        color: "#333",
+                        marginBottom: 16,
+                      }}
+                    >
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#555"
+                        strokeWidth="1.8"
+                      >
+                        <line x1="12" y1="2" x2="12" y2="22" />
+                        <line x1="2" y1="12" x2="22" y2="12" />
+                        <line x1="5" y1="5" x2="19" y2="19" />
+                        <line x1="19" y1="5" x2="5" y2="19" />
+                      </svg>
+                      {tooltipData.schnee ?? "—"} cm Schnee
+                    </div>
+
+                    {/* Pisten-Balken blau/rot/schwarz — echte DB-Werte */}
+                    {(() => {
+                      const blau = tooltipData.km_blau || 0;
+                      const rot = tooltipData.km_rot || 0;
+                      const schwarz = tooltipData.km_schwarz || 0;
+                      const total = tooltipData.km_total || 0;
+                      const barTotal = blau + rot + schwarz || 1;
+                      return (
+                        <>
+                          <div
+                            style={{
+                              height: 10,
+                              borderRadius: 5,
+                              overflow: "hidden",
+                              display: "flex",
+                              marginBottom: 6,
+                            }}
+                          >
+                            <div
+                              style={{
+                                width: `${(blau / barTotal) * 100}%`,
+                                background: "#2d6cdf",
+                              }}
+                            />
+                            <div
+                              style={{ width: `${(rot / barTotal) * 100}%`, background: "#e84040" }}
+                            />
+                            <div
+                              style={{
+                                width: `${(schwarz / barTotal) * 100}%`,
+                                background: "#1a1a2e",
+                              }}
+                            />
+                          </div>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 12,
+                              fontSize: 11,
+                              color: "#888",
+                              marginBottom: 14,
+                            }}
+                          >
+                            <span>{blau} km</span>
+                            <span>{rot} km</span>
+                            <span>{schwarz} km</span>
+                            <span
+                              style={{
+                                marginLeft: "auto",
+                                fontWeight: 800,
+                                fontSize: 13,
+                                color: "#1a1a2e",
+                              }}
+                            >
+                              {total} km
+                            </span>
+                          </div>
+                        </>
+                      );
+                    })()}
+
+                    {/* Footer */}
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        borderTop: "1px solid #f0f0f0",
+                        paddingTop: 10,
+                        fontSize: 11,
+                        color: "#aaa",
+                      }}
+                    >
+                      <span>Aktualisiert: 1 Std.</span>
+                      {tooltipData.lawinengefahr_url ? (
+                        <a
+                          href={tooltipData.lawinengefahr_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ color: "#2d6cdf", fontWeight: 700, textDecoration: "none" }}
+                        >
+                          Lawinengefahr
+                        </a>
+                      ) : (
+                        <span style={{ color: "#ccc" }}>Lawinengefahr</span>
+                      )}
+                    </div>
+                  </>
+                )}
               </div>
             </Popup>
           )}
         </Map>
       </div>
+
       {/* Legende */}
       <div className="legende">
         <div className="legende-title">❄️ Schneehöhe (cm)</div>
