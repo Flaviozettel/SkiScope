@@ -185,6 +185,28 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
           maxZoom={20}
           style={{ width: "100%", height: "100%" }}
           mapStyle={OSM_STYLE}
+          onClick={(e) => {
+            const features = e.target.queryRenderedFeatures(e.point, {
+              layers: ["skigebiete-layer"],
+            });
+
+            if (!features.length) return;
+
+            const f = features[0];
+
+            setSelectedMarker({
+              lng: f.geometry.coordinates[0],
+              lat: f.geometry.coordinates[1],
+              p: f.properties,
+            });
+          }}
+          onMouseMove={(e) => {
+            const features = e.target.queryRenderedFeatures(e.point, {
+              layers: ["skigebiete-layer"],
+            });
+
+            e.target.getCanvas().style.cursor = features.length ? "pointer" : "";
+          }}
         >
           {/* Schneehöhen Layer */}
           <Source
@@ -366,33 +388,26 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
           </Source>
 
           {/* Marker */}
-          {skigebiete.map((g, i) => (
-            <Marker
-              key={i}
-              longitude={g.lon}
-              latitude={g.lat}
-              anchor="center"
-              onClick={(e) => {
-                e.originalEvent.stopPropagation();
-                setSelectedMarker(g);
-              }}
-            >
-              <div
-                style={{
-                  width: 14,
-                  height: 14,
-                  borderRadius: "50%",
-                  background: "#2d6cdf",
-                  border: "2px solid white",
-                  boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
-                  cursor: "pointer",
-                  transition: "transform 0.15s ease",
-                }}
-                onMouseEnter={(e) => (e.target.style.transform = "scale(1.2)")}
-                onMouseLeave={(e) => (e.target.style.transform = "scale(1)")}
-              />
-            </Marker>
-          ))}
+          <Source
+            id="skigebiete"
+            type="vector"
+            tiles={[
+              `http://192.168.4.228:8080/geoserver/skiscope/ows?service=WMS&version=1.1.1&request=GetMap&layers=skiscope:skigebiete&bbox={bbox-epsg-3857}&width=256&height=256&srs=EPSG:3857&format=application/vnd.mapbox-vector-tile`,
+            ]}
+            tileSize={512}
+          />
+          <Layer
+            id="skigebiete-layer"
+            type="circle"
+            source="skigebiete"
+            source-layer="skigebiete" // WICHTIG: interner Layername!
+            paint={{
+              "circle-radius": 6,
+              "circle-color": "#2d6cdf",
+              "circle-stroke-width": 2,
+              "circle-stroke-color": "#ffffff",
+            }}
+          />
 
           {/* Popup */}
           {selectedMarker && (
