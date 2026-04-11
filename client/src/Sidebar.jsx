@@ -21,8 +21,6 @@ export const Sidebar = () => {
     sessel: true,
     gondel: true,
   });
-  const [snow, setSnow] = useState(85);
-  const [liftComfort, setLiftComfort] = useState(40);
 
   const profile = PROFILES[profileIndex];
 
@@ -84,50 +82,16 @@ export const Sidebar = () => {
       {/* CONFIG */}
       <div className="section-title">Konfiguration</div>
       <div className="config-label">Skill-Level</div>
-      <select
-        className="skill-select"
-        value={skill}
-        onChange={(e) => setSkill(e.target.value)}
-      >
+      <select className="skill-select" value={skill} onChange={(e) => setSkill(e.target.value)}>
         <option>Pro</option>
         <option>Medium</option>
         <option>Anfänger</option>
       </select>
 
-      <div className="weight-label">
-        Schneequalität <span>{snow}%</span>
-      </div>
-      <input
-        type="range"
-        className="slider"
-        min={0}
-        max={100}
-        value={snow}
-        style={{
-          background: `linear-gradient(to right, #2d6cdf ${snow}%, #ddd ${snow}%)`,
-        }}
-        onChange={(e) => setSnow(Number(e.target.value))}
-      />
-
-      <div className="weight-label">
-        Lift Komfort <span>{liftComfort}%</span>
-      </div>
-      <input
-        type="range"
-        className="slider"
-        min={0}
-        max={100}
-        value={liftComfort}
-        style={{
-          background: `linear-gradient(to right, #2d6cdf ${liftComfort}%, #ddd ${liftComfort}%)`,
-        }}
-        onChange={(e) => setLiftComfort(Number(e.target.value))}
-      />
-
       <button
         className="btn"
         onClick={() => {
-          console.log({ profile, skill, lifts, snow, liftComfort });
+          console.log({ profile, skill, lifts });
         }}
       >
         Ranking aktualisieren

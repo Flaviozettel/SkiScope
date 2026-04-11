@@ -168,50 +168,13 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
         </div>
       </div>
 
-      {/* Legende */}
-      <div className="legende">
-        <div className="legende-title">❄️ Schneehöhe (cm)</div>
-
-        {/* Farbskala */}
-        <div style={{ display: "flex", gap: 4, marginTop: 4 }}>
-          {[
-            { value: "1", color: "#CDFFCD" },
-            { value: "20", color: "#99F0B2" },
-            { value: "50", color: "#53BD9F" },
-            { value: "80", color: "#3296B4" },
-            { value: "120", color: "#0670B0" },
-            { value: "200", color: "#054F8C" },
-            { value: "300+", color: "#610432" },
-          ].map((item) => (
-            <div
-              key={item.value}
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 3,
-              }}
-            >
-              <div
-                style={{
-                  width: 32,
-                  height: 14,
-                  borderRadius: 3,
-                  background: item.color,
-                  border: "1px solid #e0e6ef",
-                }}
-              />
-              <span style={{ fontSize: 9, color: "#aaa" }}>{item.value}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* Karte */}
       <div className="map-container">
         <Map
           initialViewState={{ longitude: 8.3, latitude: 46.8, zoom: 8 }} // Startposition
-          style={{ width: "100%", height: "150%" }}
+          minZoom={7}
+          maxZoom={20}
+          style={{ width: "100%", height: "100%" }}
           mapStyle={OSM_STYLE}
         >
           {/* Schneehöhen Layer */}
@@ -223,13 +186,13 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
               `http://192.168.4.228:8080/geoserver/skiscope/ows?service=WMS&version=1.1.1&request=GetMap&layers=skiscope:schneehoehen_datum&bbox={bbox-epsg-3857}&width=256&height=256&srs=EPSG:3857&format=application/vnd.mapbox-vector-tile&viewparams=datum:${safeDatum}`,
             ]}
             tileSize={512}
-            minzoom={0}
-            maxzoom={24}
           >
             <Layer
               id="schnee-layer"
               type="fill"
               source-layer="schneehoehen_datum"
+              minzoom={0}
+              maxzoom={13}
               paint={{
                 "fill-color": ["get", "fill"],
                 "fill-opacity": 0.35,
@@ -394,6 +357,44 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
             </Popup>
           )}
         </Map>
+      </div>
+      {/* Legende */}
+      <div className="legende">
+        <div className="legende-title">❄️ Schneehöhe (cm)</div>
+
+        {/* Farbskala */}
+        <div style={{ display: "flex", gap: 4, marginTop: 4 }}>
+          {[
+            { value: "1", color: "#CDFFCD" },
+            { value: "20", color: "#99F0B2" },
+            { value: "50", color: "#53BD9F" },
+            { value: "80", color: "#3296B4" },
+            { value: "120", color: "#0670B0" },
+            { value: "200", color: "#054F8C" },
+            { value: "300+", color: "#610432" },
+          ].map((item) => (
+            <div
+              key={item.value}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 3,
+              }}
+            >
+              <div
+                style={{
+                  width: 32,
+                  height: 14,
+                  borderRadius: 3,
+                  background: item.color,
+                  border: "1px solid #e0e6ef",
+                }}
+              />
+              <span style={{ fontSize: 9, color: "#aaa" }}>{item.value}</span>
+            </div>
+          ))}
+        </div>
       </div>
     </main>
   );
