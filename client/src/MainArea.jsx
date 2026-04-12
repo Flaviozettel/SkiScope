@@ -1,26 +1,39 @@
-import { useState, useEffect } from "react"; // React Hooks
-import Map, { Source, Layer, Marker, Popup } from "react-map-gl/maplibre"; // MapLibre Komponenten
-import "maplibre-gl/dist/maplibre-gl.css"; // Map Styles
+// ============================================================
+// MainArea.jsx – Hauptbereich mit Wochenleiste und Karte
+//
+// Zeigt eine 7-Tage-Auswahl, lädt Schneehöhen- und
+// Skigebiets-Daten vom Backend und stellt diese auf einer
+// interaktiven MapLibre-Karte dar. Klick auf ein Skigebiet
+// öffnet ein Popup mit Detailinformationen.
+// ============================================================
 
-// Dropdown Optionen
+import { useState, useEffect } from "react";
+import Map, { Source, Layer, Marker, Popup } from "react-map-gl/maplibre";
+import "maplibre-gl/dist/maplibre-gl.css";
+
+// Optionen für das "Empfohlen nach"-Dropdown
 const SCORE_OPTIONS = ["SkiScope SCORE", "Schneehöhe", "Pistenkilometer"];
 
-// Funktion: erstellt 7 Tage ab Startdatum
+// GeoServer-Basis-URL (lokales Netzwerk)
+const GEOSERVER =
+  "http://192.168.4.228:8080/geoserver/skiscope/ows?service=WMS&version=1.1.1&request=GetMap";
+
+// Hilfsfunktion: Erstellt ein Array mit 7 aufeinanderfolgenden Tagen ab startDatum
 function generiereWoche(startDatum) {
   return Array.from({ length: 7 }, (_, i) => {
     const d = new Date(startDatum);
-    d.setDate(d.getDate() + i); // jeden Tag erhöhen
+    d.setDate(d.getDate() + i);
 
     return {
-      datum: d.toISOString().split("T")[0], // ISO Datum für API
-      dayShort: i === 0 ? null : d.toLocaleDateString("de-CH", { weekday: "short" }).toUpperCase(), // Wochentag
-      date: d.toLocaleDateString("de-CH", { day: "numeric", month: "short" }), // Anzeige Datum
-      icon: "❄️", // Icon
+      datum: d.toISOString().split("T")[0], // ISO-Format für API-Aufrufe
+      dayShort: i === 0 ? null : d.toLocaleDateString("de-CH", { weekday: "short" }).toUpperCase(),
+      date: d.toLocaleDateString("de-CH", { day: "numeric", month: "short" }),
+      icon: "❄️",
     };
   });
 }
 
-// OpenStreetMap Raster Style
+// MapLibre-Kartenstil: heller OpenStreetMap-Hintergrund (CartoCDN)
 const OSM_STYLE = {
   version: 8,
   glyphs: "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
@@ -35,24 +48,37 @@ const OSM_STYLE = {
   layers: [{ id: "osm", type: "raster", source: "osm" }],
 };
 
-// Hauptkomponente
-export const MainArea = ({ aktivDatum, setAktivDatum }) => {
-  // States
-  const [activeDay, setActiveDay] = useState(0); // ausgewählter Tag
-  const [scoreOpen, setScoreOpen] = useState(false); // Dropdown offen?
-  const [selectedScore, setSelectedScore] = useState(0); // gewählter Score
-  const [selectedMarker, setSelectedMarker] = useState(null); // aktiver Marker
+// Hilfsfunktion: Erstellt eine GeoServer-Tile-URL für einen bestimmten Layer
+function geoserverTileUrl(layer, extraParams = "") {
+  return `${GEOSERVER}&layers=skiscope:${layer}&bbox={bbox-epsg-3857}&width=256&height=256&srs=EPSG:3857&format=application/vnd.mapbox-vector-tile${extraParams}`;
+}
 
-  // FIX 1: tooltipData State in die Komponente verschoben (war vorher ausserhalb)
+export const MainArea = ({ aktivDatum, setAktivDatum }) => {
+  // Index des aktuell markierten Tages in der Wochenleiste
+  const [activeDay, setActiveDay] = useState(0);
+
+  // Steuert ob das Score-Dropdown offen ist
+  const [scoreOpen, setScoreOpen] = useState(false);
+
+  // Index der aktuell gewählten Score-Option
+  const [selectedScore, setSelectedScore] = useState(0);
+
+  // Koordinaten und station_id des zuletzt angeklickten Kartenmarkers
+  const [selectedMarker, setSelectedMarker] = useState(null);
+
+  // Detaildaten des angeklickten Skigebiets (aus Backend)
   const [tooltipData, setTooltipData] = useState(null);
 
-  // Startdatum bestimmen
-  const startDatum = new Date(); // IMMER heute
-  const DAYS = generiereWoche(startDatum); // Woche generieren
+  // Woche immer ab heute berechnen
+  const startDatum = new Date();
+  const DAYS = generiereWoche(startDatum);
 
-  // Skigebiete
+  // Alle Skigebiete (Name + Koordinaten) für die Karte
   const [skigebiete, setSkigebiete] = useState([]);
 
+  // ── EFFEKTE ──────────────────────────────────────────────
+
+  // Skigebiete einmalig beim Mounten laden
   useEffect(() => {
     fetch("http://localhost:8000/skigebiete")
       .then((res) => res.json())
@@ -60,40 +86,41 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
       .catch(console.error);
   }, []);
 
-  // Beim Start → erstes Datum setzen
+  // Beim ersten Render das heutige Datum als aktives Datum setzen
   useEffect(() => {
     setAktivDatum(DAYS[0].datum);
   }, []);
 
+  // Sobald sich das aktive Datum ändert: Schneehöhen-Import prüfen
   useEffect(() => {
     if (!aktivDatum) return;
 
     fetch(`http://localhost:8000/schnee?datum=${aktivDatum}`)
       .then((res) => res.json())
-      .then((data) => {
-        console.log("Import geprüft:", data);
-      })
+      .then((data) => console.log("Import geprüft:", data))
       .catch((err) => console.error("Fehler beim Import:", err));
   }, [aktivDatum]);
 
-  // Klick auf Tag
+  // ── HANDLER ──────────────────────────────────────────────
+
+  // Klick auf einen Tag in der Wochenleiste: UI und globales Datum aktualisieren
   const handleDayClick = (i) => {
-    setActiveDay(i); // UI aktualisieren
-    setAktivDatum(DAYS[i].datum); // Datum setzen
+    setActiveDay(i);
+    setAktivDatum(DAYS[i].datum);
   };
 
-  // HEUTE als Referenz
+  // Datum für den Schneelayer: liegt das gewählte Datum in der Zukunft,
+  // wird stattdessen das heutige Datum verwendet (API hat noch keine Zukunftsdaten)
   const heuteISO = new Date().toISOString().split("T")[0];
-
-  // falls Zukunft → letztes verfügbares Datum verwenden
   const safeDatum = aktivDatum > heuteISO ? heuteISO : aktivDatum;
 
-  // FIX 1: Tooltip-Fetch in einen eigenen Handler verschoben
+  // Klick auf die Karte: Skigebiet-Feature ermitteln und Detaildaten laden
   const handleMapClick = async (e) => {
     const features = e.target.queryRenderedFeatures(e.point, {
-      layers: ["skigebiete-fill"],
+      layers: ["skigebiete-points-layer"],
     });
 
+    // Kein Skigebiet getroffen → Popup schliessen
     if (!features.length) {
       setSelectedMarker(null);
       setTooltipData(null);
@@ -101,39 +128,34 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
     }
 
     const f = features[0];
-
-    // DEBUG: Alle verfügbaren Properties loggen → im Browser-Console prüfen welche Felder existieren
     console.log("🗺️ Feature Properties:", f.properties);
 
-    // name_2 ist der erwartete Feldname aus GeoServer – falls leer, alle möglichen Alternativen prüfen
-    const name =
-      f.properties.name_2 || f.properties.Name_2 || f.properties.name || f.properties.NAME;
-    console.log("📍 Skigebiet name:", name);
+    const station_id = Number(f.properties.neuneuneu_station_id);
 
-    if (!name) {
-      console.warn(
-        "⚠️ Kein Namensfeld im Feature gefunden. Verfügbare Keys:",
-        Object.keys(f.properties),
-      );
+    if (!station_id) {
+      console.warn("⚠️ Keine station_id im Feature!");
       return;
     }
 
+    // Marker-Position und ID merken
     setSelectedMarker({
       lng: e.lngLat.lng,
       lat: e.lngLat.lat,
-      name,
+      station_id,
     });
 
+    // Detaildaten vom Backend laden
     try {
-      const url = `http://localhost:8000/skigebiet?name_2=${encodeURIComponent(name)}`;
+      const url = `http://localhost:8000/skigebiet?station_id=${station_id}`;
       console.log("🔗 Fetch URL:", url);
 
+      const name = f.properties.name || "Unbekanntes Skigebiet";
       const res = await fetch(url);
       const data = await res.json();
       console.log("📦 API Antwort:", data);
 
-      // Falls API einen Fehler zurückgibt (z.B. {"error": "Kein Skigebiet gefunden"})
       if (data.error) {
+        // Backend hat keinen Eintrag gefunden → Fehler im Popup anzeigen
         console.warn("⚠️ API Fehler:", data.error);
         setTooltipData({ _error: data.error, name });
       } else {
@@ -144,16 +166,18 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
     }
   };
 
+  // ── RENDER ───────────────────────────────────────────────
+
   return (
     <main className="main">
-      {/* Header Bereich */}
+      {/* ── HEADER-BEREICH ─────────────────────────────── */}
       <div className="prognose-header">
         <div className="prognose-title">
           <h2>Wochen Prognose</h2>
           <p>Basierend auf aktuellen Echtzeit-Wetterdaten der Bergstationen.</p>
         </div>
 
-        {/* Suchfeld */}
+        {/* Suchfeld für Skigebiete */}
         <div className="search-box">
           <svg
             width="14"
@@ -163,20 +187,20 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
             stroke="#aaa"
             strokeWidth="2.5"
           >
-            <circle cx="11" cy="11" r="8" /> {/* Lupe Kreis */}
-            <path d="m21 21-4.35-4.35" /> {/* Lupe Griff */}
+            <circle cx="11" cy="11" r="8" />
+            <path d="m21 21-4.35-4.35" />
           </svg>
           <input type="text" placeholder="Skigebiet suchen..." className="search-input" />
         </div>
       </div>
 
-      {/* Wochenleiste */}
+      {/* ── WOCHENLEISTE ───────────────────────────────── */}
       <div className="week" style={{ position: "relative" }}>
         {DAYS.map((d, i) => (
           <div
             key={i}
-            className={`day ${i === activeDay ? "active" : ""}`} // aktiver Tag
-            onClick={() => handleDayClick(i)} // Klick
+            className={`day ${i === activeDay ? "active" : ""}`}
+            onClick={() => handleDayClick(i)}
           >
             <div className="day-label">{i === 0 ? "Heute" : d.dayShort}</div>
             <div className="day-date">{d.date}</div>
@@ -185,14 +209,14 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
         ))}
       </div>
 
-      {/* Top Empfehlung */}
+      {/* ── EMPFEHLUNG-HEADER ──────────────────────────── */}
       <div className="empfehlung-header">
         <div className="empfehlung-title">
           <div className="empfehlung-title-bar"></div>
           <h3>Top Empfehlung für dich</h3>
         </div>
 
-        {/* Dropdown Steuerung */}
+        {/* Score-Dropdown: Sortierkriterium wählen */}
         <div className="empfehlung-controls">
           <span className="empfohlen-label">Empfohlen nach:</span>
 
@@ -201,7 +225,7 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
               className={`skiscope-score-btn ${scoreOpen ? "open" : ""}`}
               onClick={() => setScoreOpen((v) => !v)}
             >
-              {SCORE_OPTIONS[selectedScore]} {/* aktueller Wert */}
+              {SCORE_OPTIONS[selectedScore]}
               <svg
                 className={`dropdown-chevron ${scoreOpen ? "rotated" : ""}`}
                 width="11"
@@ -215,7 +239,6 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
               </svg>
             </button>
 
-            {/* Dropdown Optionen */}
             {scoreOpen && (
               <div className="score-dropdown">
                 {SCORE_OPTIONS.map((opt, i) => (
@@ -236,32 +259,29 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
         </div>
       </div>
 
-      {/* Karte */}
+      {/* ── KARTE ──────────────────────────────────────── */}
       <div className="map-container">
         <Map
-          initialViewState={{ longitude: 8.3, latitude: 46.8, zoom: 8 }} // Startposition
+          initialViewState={{ longitude: 8.3, latitude: 46.8, zoom: 8 }}
           minZoom={7}
           maxZoom={20}
           style={{ width: "100%", height: "100%" }}
           mapStyle={OSM_STYLE}
-          // FIX 1: onClick verwendet jetzt den eigenen Handler mit korrektem Fetch
           onClick={handleMapClick}
           onMouseMove={(e) => {
+            // Cursor auf "pointer" ändern wenn Maus über Skigebiet-Punkt ist
             const features = e.target.queryRenderedFeatures(e.point, {
-              layers: ["skigebiete-fill"],
+              layers: ["skigebiete-points-layer"],
             });
-
             e.target.getCanvas().style.cursor = features.length ? "pointer" : "";
           }}
         >
-          {/* Schneehöhen Layer */}
+          {/* Schneehöhen-Flächen (datumabhängig via safeDatum) */}
           <Source
             key={safeDatum}
             id="schnee"
             type="vector"
-            tiles={[
-              `http://192.168.4.228:8080/geoserver/skiscope/ows?service=WMS&version=1.1.1&request=GetMap&layers=skiscope:schneehoehen_datum&bbox={bbox-epsg-3857}&width=256&height=256&srs=EPSG:3857&format=application/vnd.mapbox-vector-tile&viewparams=datum:${safeDatum}`,
-            ]}
+            tiles={[geoserverTileUrl("schneehoehen_datum", `&viewparams=datum:${safeDatum}`)]}
             tileSize={512}
           >
             <Layer
@@ -271,20 +291,18 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
               minzoom={0}
               maxzoom={13}
               paint={{
-                "fill-color": ["get", "fill"],
+                "fill-color": ["get", "fill"], // Farbe aus GeoServer-Daten
                 "fill-opacity": 0.35,
                 "fill-antialias": true,
               }}
             />
           </Source>
 
-          {/* Pisten-Polygone Layer */}
+          {/* Pisten-Polygone (blau/rot/schwarz nach Schwierigkeit) */}
           <Source
             id="pisten"
             type="vector"
-            tiles={[
-              `http://192.168.4.228:8080/geoserver/skiscope/ows?service=WMS&version=1.1.1&request=GetMap&layers=skiscope:Pisten_Polygone&bbox={bbox-epsg-3857}&width=256&height=256&srs=EPSG:3857&format=application/vnd.mapbox-vector-tile`,
-            ]}
+            tiles={[geoserverTileUrl("Pisten_Polygone")]}
             tileSize={512}
           >
             <Layer
@@ -309,13 +327,11 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
             />
           </Source>
 
-          {/* Pisten Linien Layer */}
+          {/* Pisten-Linien (gleiche Farblogik wie Polygone) */}
           <Source
             id="pisten-linien"
             type="vector"
-            tiles={[
-              `http://192.168.4.228:8080/geoserver/skiscope/ows?service=WMS&version=1.1.1&request=GetMap&layers=skiscope:Pisten_Linien&bbox={bbox-epsg-3857}&width=256&height=256&srs=EPSG:3857&format=application/vnd.mapbox-vector-tile`,
-            ]}
+            tiles={[geoserverTileUrl("Pisten_Linien")]}
             tileSize={512}
           >
             <Layer
@@ -340,13 +356,11 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
             />
           </Source>
 
-          {/* Lifte-Bahnen-Polygone Layer */}
+          {/* Lifte/Bahnen-Polygone (grau, halbtransparent) */}
           <Source
             id="lifte"
             type="vector"
-            tiles={[
-              `http://192.168.4.228:8080/geoserver/skiscope/ows?service=WMS&version=1.1.1&request=GetMap&layers=skiscope:Lifte_Bahnen_Polygone&bbox={bbox-epsg-3857}&width=256&height=256&srs=EPSG:3857&format=application/vnd.mapbox-vector-tile`,
-            ]}
+            tiles={[geoserverTileUrl("Lifte_Bahnen_Polygone")]}
             tileSize={512}
           >
             <Layer
@@ -360,15 +374,14 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
             />
           </Source>
 
-          {/* Lifte-Bahnen-Linien Layer */}
+          {/* Lifte/Bahnen-Linien mit gestricheltem Stil und Beschriftungen */}
           <Source
             id="lifte-linien"
             type="vector"
-            tiles={[
-              `http://192.168.4.228:8080/geoserver/skiscope/ows?service=WMS&version=1.1.1&request=GetMap&layers=skiscope:Lifte_Bahnen_Linien&bbox={bbox-epsg-3857}&width=256&height=256&srs=EPSG:3857&format=application/vnd.mapbox-vector-tile`,
-            ]}
+            tiles={[geoserverTileUrl("Lifte_Bahnen_Linien")]}
             tileSize={512}
           >
+            {/* Gestrichelte Linien für alle Lifttypen ausser "goods" */}
             <Layer
               id="lifte-linien-layer"
               type="line"
@@ -380,6 +393,8 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
                 "line-dasharray": [1, 1],
               }}
             />
+
+            {/* Beschriftungen entlang der Linien (ab Zoom 12) */}
             <Layer
               id="lifte-labels"
               type="symbol"
@@ -389,7 +404,6 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
               filter={["all", ["!=", ["get", "art"], "goods"], ["!=", ["get", "art"], "transport"]]}
               layout={{
                 "symbol-placement": "line",
-                // FIX 3: symbol-spacing Duplikat entfernt
                 "symbol-spacing": 250,
                 "text-field": [
                   "match",
@@ -412,7 +426,7 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
                   "Zipline",
                   "cable_car",
                   "Seilbahn",
-                  "", // fallback
+                  "", // Fallback: kein Text
                 ],
                 "text-size": 11,
                 "text-anchor": "center",
@@ -427,38 +441,27 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
             />
           </Source>
 
-          {/* Skigebiete */}
+          {/* Skigebiet-Mittelpunkte als blaue Kreise */}
           <Source
-            id="skigebiete"
+            id="skigebiete-points"
             type="vector"
-            tiles={[
-              `http://192.168.4.228:8080/geoserver/skiscope/ows?service=WMS&version=1.1.1&request=GetMap&layers=skiscope:Skigebiete_Polygone&bbox={bbox-epsg-3857}&width=256&height=256&srs=EPSG:3857&format=application/vnd.mapbox-vector-tile`,
-            ]}
+            tiles={[geoserverTileUrl("Skigebiete_Zentroide")]}
             tileSize={512}
           >
-            {/* FIX 4: Layer innerhalb von Source verschoben */}
             <Layer
-              id="skigebiete-fill"
-              type="fill"
-              source-layer="Skigebiete_Polygone"
+              id="skigebiete-points-layer"
+              type="circle"
+              source-layer="Skigebiete_Zentroide"
               paint={{
-                "fill-color": "#2d6cdf",
-                "fill-opacity": 0.25,
-              }}
-            />
-
-            <Layer
-              id="skigebiete-outline"
-              type="line"
-              source-layer="Skigebiete_Polygone"
-              paint={{
-                "line-color": "#1f4ea3",
-                "line-width": 2,
+                "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 4, 12, 8],
+                "circle-color": "#2d6cdf",
+                "circle-stroke-color": "#ffffff",
+                "circle-stroke-width": 1.5,
               }}
             />
           </Source>
 
-          {/* Popup */}
+          {/* ── POPUP ────────────────────────────────────── */}
           {selectedMarker && tooltipData && (
             <Popup
               longitude={selectedMarker.lng}
@@ -477,14 +480,14 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
                   padding: "4px 2px 0",
                 }}
               >
-                {/* Fehlerfall */}
+                {/* Fehlerfall: Backend hat kein Skigebiet gefunden */}
                 {tooltipData._error ? (
                   <div style={{ color: "#c0392b", fontSize: 12 }}>
                     ⚠️ Keine Daten für «{selectedMarker.name}»
                   </div>
                 ) : (
                   <>
-                    {/* Name + Chevron */}
+                    {/* Name und Chevron-Icon */}
                     <div
                       style={{
                         display: "flex",
@@ -518,7 +521,7 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
                       </svg>
                     </div>
 
-                    {/* Geöffnet */}
+                    {/* Status: provisorisch geöffnet */}
                     <div
                       style={{
                         display: "flex",
@@ -543,7 +546,7 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
                       Geöffnet provisorisch
                     </div>
 
-                    {/* Lifte */}
+                    {/* Lifte: offen / total */}
                     <div
                       style={{
                         display: "flex",
@@ -567,7 +570,7 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
                       {tooltipData.lifte_offen ?? "—"}/{tooltipData.lifte_total ?? "—"} Lifte
                     </div>
 
-                    {/* Schnee */}
+                    {/* Schneehöhe in cm */}
                     <div
                       style={{
                         display: "flex",
@@ -594,15 +597,17 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
                       {tooltipData.schnee ?? "—"} cm Schnee
                     </div>
 
-                    {/* Pisten-Balken blau/rot/schwarz — echte DB-Werte */}
+                    {/* Pisten-Balken: blau / rot / schwarz mit km-Angaben */}
                     {(() => {
                       const blau = tooltipData.km_blau || 0;
                       const rot = tooltipData.km_rot || 0;
                       const schwarz = tooltipData.km_schwarz || 0;
                       const total = tooltipData.km_total || 0;
-                      const barTotal = blau + rot + schwarz || 1;
+                      const barTotal = blau + rot + schwarz || 1; // Division durch 0 vermeiden
+
                       return (
                         <>
+                          {/* Farbbalken proportional zu km-Anteil */}
                           <div
                             style={{
                               height: 10,
@@ -619,7 +624,10 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
                               }}
                             />
                             <div
-                              style={{ width: `${(rot / barTotal) * 100}%`, background: "#e84040" }}
+                              style={{
+                                width: `${(rot / barTotal) * 100}%`,
+                                background: "#e84040",
+                              }}
                             />
                             <div
                               style={{
@@ -628,6 +636,8 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
                               }}
                             />
                           </div>
+
+                          {/* km-Beschriftungen unter dem Balken */}
                           <div
                             style={{
                               display: "flex",
@@ -656,7 +666,7 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
                       );
                     })()}
 
-                    {/* Footer */}
+                    {/* Popup-Fusszeile: Aktualisierungszeit und Lawinengefahr-Link */}
                     <div
                       style={{
                         display: "flex",
@@ -674,7 +684,11 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
                           href={tooltipData.lawinengefahr_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          style={{ color: "#2d6cdf", fontWeight: 700, textDecoration: "none" }}
+                          style={{
+                            color: "#2d6cdf",
+                            fontWeight: 700,
+                            textDecoration: "none",
+                          }}
                         >
                           Lawinengefahr
                         </a>
@@ -690,11 +704,11 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
         </Map>
       </div>
 
-      {/* Legende */}
+      {/* ── SCHNEEHÖHEN-LEGENDE ────────────────────────── */}
       <div className="legende">
         <div className="legende-title">❄️ Schneehöhe (cm)</div>
 
-        {/* Farbskala */}
+        {/* Farbskala mit Schwellenwerten */}
         <div style={{ display: "flex", gap: 4, marginTop: 4 }}>
           {[
             { value: "1", color: "#CDFFCD" },

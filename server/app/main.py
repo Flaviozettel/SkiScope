@@ -1,14 +1,30 @@
+# ============================================================
+# main.py – FastAPI-Backend für SkiScope
+#
+# Stellt folgende Endpunkte bereit:
+#   GET /skigebiete/top-schnee   → Skigebiet mit höchster Schneehöhe
+#   GET /skigebiete              → Alle Skigebiete (Name + Koordinaten)
+#   GET /skigebiet?station_id=   → Detaildaten eines Skigebiets
+#   GET /schnee                  → Schneehöhen der letzten 7 Tage prüfen/importieren
+#   GET /schnee/import?datum=    → Schneehöhen für ein bestimmtes Datum importieren
+# ============================================================
+
+import json
+import requests
+from datetime import date, timedelta
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import psycopg2
 import os
 from dotenv import load_dotenv
 
+# Umgebungsvariablen aus .env laden (DB-Zugangsdaten)
 load_dotenv()
 
 app = FastAPI()
 
-# CORS
+# ── CORS ─────────────────────────────────────────────────────
+# Erlaubt Anfragen vom lokalen Vite-Dev-Server
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
@@ -16,7 +32,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# DB
+# ── DATENBANKVERBINDUNG ───────────────────────────────────────
 DB_PARAMS = {
     "host": os.getenv("DB_HOST"),
     "dbname": os.getenv("DB_NAME"),
@@ -25,14 +41,14 @@ DB_PARAMS = {
 }
 
 def get_db_conn():
+    """Öffnet und gibt eine neue PostgreSQL-Verbindung zurück."""
     return psycopg2.connect(**DB_PARAMS)
 
 
-# -------------------------
-# TOP SCHNEE
-# -------------------------
+# ── ENDPUNKT: Top-Schneehöhe ──────────────────────────────────
 @app.get("/skigebiete/top-schnee")
 def get_top_schnee():
+    """Gibt das Skigebiet mit der höchsten Pistengeschneehöhe zurück."""
     conn = get_db_conn()
     cur = conn.cursor()
 
@@ -54,11 +70,10 @@ def get_top_schnee():
     return {"error": "Keine Daten"}
 
 
-# -------------------------
-# ALLE SKIGEBIETE (fuer Frontend-Liste)
-# -------------------------
+# ── ENDPUNKT: Alle Skigebiete ─────────────────────────────────
 @app.get("/skigebiete")
 def get_all_skigebiete():
+    """Gibt alle Skigebiete mit Name und Koordinaten zurück (für die Karte)."""
     conn = get_db_conn()
     cur = conn.cursor()
 
@@ -75,66 +90,109 @@ def get_all_skigebiete():
     return [{"name": row[0], "lon": row[1], "lat": row[2]} for row in rows]
 
 
-# -------------------------
-# EINZELNES SKIGEBIET - 3-stufige Fuzzy-Suche
-#
-# Problem: name_2 im GeoJSON stimmt oft nicht exakt mit station_name in der DB
-# Loesung: 3 Stufen von genau nach ungenau
-#
-# Stufe 3 (pg_trgm) optional aktivieren mit:
-#   CREATE EXTENSION IF NOT EXISTS pg_trgm;
-# -------------------------
-@app.get("/skigebiet")
-def get_skigebiet(name_2: str):
+# ── HILFSFUNKTION: Letzte 7 Tage automatisch importieren ──────
+def auto_importiere_letzte_woche():
+    """
+    Prüft die letzten 7 Tage und importiert fehlende Schneehöhen-Daten
+    vom SLF-API (Swiss Institute for Snow and Avalanche Research).
+    """
+    heute = date.today()
+
+    for i in range(7):
+        datum = (heute - timedelta(days=i)).isoformat()
+
+        # Prüfen ob Daten für diesen Tag bereits in der DB vorhanden sind
+        conn = get_db_conn()
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT count(*) FROM schneehoehen WHERE datum = %s",
+            (datum,)
+        )
+        count = cur.fetchone()[0]
+        cur.close()
+        conn.close()
+
+        if count == 0:
+            print(f"Lade Daten für {datum}...")
+
+            url = f"https://snow-maps-hs.slf.ch/public/hs/map/HS1D-v2/{datum}/geojson"
+
+            try:
+                antwort = requests.get(url, timeout=30)
+                antwort.raise_for_status()
+                data = antwort.json()
+                importiere_schnee_in_db(datum, data)
+            except Exception as e:
+                print(f"Fehler bei {datum}: {e}")
+
+
+# ── HILFSFUNKTION: GeoJSON-Daten in DB speichern ─────────────
+def importiere_schnee_in_db(datum, data):
+    """
+    Speichert Schneehöhen-GeoJSON-Features als PostGIS-Geometrien in der DB.
+    Polygon-Geometrien werden automatisch in MultiPolygon konvertiert
+    damit der Typ konsistent bleibt.
+    """
+    datum = date.fromisoformat(datum)
+
     conn = get_db_conn()
     cur = conn.cursor()
-    row = None
 
-    # Stufe 1: Exakter Match, case-insensitiv
-    # z.B. "Zermatt" -> trifft "Zermatt" oder "zermatt"
-    COLS = """
-        station_name, anzahl_lifte_offen, anzahl_lifte,
-        schneetiefe_piste_cm, km_pisten_gesamt,
-        anzahl_blau, anzahl_rot, anzahl_schwarz,
-        lawinengefahr_url
+    for feature in data["features"]:
+        geom_type = feature["geometry"]["type"]
+
+        # Polygon → MultiPolygon normalisieren
+        if geom_type == "Polygon":
+            geom = {
+                "type": "MultiPolygon",
+                "coordinates": [feature["geometry"]["coordinates"]]
+            }
+        else:
+            geom = feature["geometry"]
+
+        cur.execute("""
+            INSERT INTO schneehoehen (datum, value, fill, geom)
+            VALUES (%s, %s, %s, ST_SetSRID(ST_GeomFromGeoJSON(%s), 4326))
+            ON CONFLICT (datum, value) DO NOTHING
+        """, (
+            datum,
+            feature["properties"]["value"],
+            feature["properties"]["fill"],
+            json.dumps(geom)
+        ))
+
+    conn.commit()
+    cur.close()
+    conn.close()
+
+
+# ── ENDPUNKT: Einzelnes Skigebiet ─────────────────────────────
+@app.get("/skigebiet")
+def get_skigebiet(station_id: int):
     """
+    Gibt Detaildaten eines Skigebiets anhand der station_id zurück:
+    Liftanzahl, Schneehöhe, Pistenkilometer (blau/rot/schwarz) und Lawinenlink.
+    """
+    conn = get_db_conn()
+    cur = conn.cursor()
 
-    cur.execute(f"""
-        SELECT {COLS}
+    cur.execute("""
+        SELECT
+            station_name, anzahl_lifte_offen, anzahl_lifte,
+            schneetiefe_piste_cm, km_pisten_gesamt,
+            anzahl_blau, anzahl_rot, anzahl_schwarz,
+            lawinengefahr_url
         FROM skigebiete_kennzahlen
-        WHERE station_name ILIKE %s
+        WHERE station_id = %s
         LIMIT 1
-    """, (name_2,))
+    """, (station_id,))
+
     row = cur.fetchone()
-
-    if not row:
-        cur.execute(f"""
-            SELECT {COLS}
-            FROM skigebiete_kennzahlen
-            WHERE station_name ILIKE %(like_name)s
-               OR %(name)s ILIKE '%%' || station_name || '%%'
-            LIMIT 1
-        """, {"like_name": f"%{name_2}%", "name": name_2})
-        row = cur.fetchone()
-
-    if not row:
-        try:
-            cur.execute(f"""
-                SELECT {COLS}
-                FROM skigebiete_kennzahlen
-                WHERE similarity(station_name, %s) > 0.2
-                ORDER BY similarity(station_name, %s) DESC
-                LIMIT 1
-            """, (name_2, name_2))
-            row = cur.fetchone()
-        except Exception:
-            conn.rollback()
-
     cur.close()
     conn.close()
 
     if not row:
-        return {"error": f"Kein Skigebiet gefunden fuer: {name_2}"}
+        return {"error": f"Kein Skigebiet gefunden fuer ID: {station_id}"}
 
     return {
         "name": row[0],
@@ -147,3 +205,29 @@ def get_skigebiet(name_2: str):
         "km_schwarz": row[7] or 0,
         "lawinengefahr_url": row[8] or None,
     }
+
+
+# ── ENDPUNKT: Schneehöhen prüfen/importieren ─────────────────
+@app.get("/schnee")
+def get_schnee():
+    """Löst den automatischen Import der letzten 7 Tage aus (falls Daten fehlen)."""
+    auto_importiere_letzte_woche()
+    return {"status": "ok", "range": "last_7_days"}
+
+
+# ── ENDPUNKT: Manueller Import für ein bestimmtes Datum ───────
+@app.get("/schnee/import")
+def importiere_schnee(datum: str = None):
+    """
+    Importiert Schneehöhen-Daten für ein bestimmtes Datum direkt vom SLF-API.
+    Erwartet datum im Format YYYY-MM-DD als Query-Parameter.
+    """
+    url = f"https://snow-maps-hs.slf.ch/public/hs/map/HS1D-v2/{datum}/geojson"
+
+    antwort = requests.get(url, timeout=30)
+    antwort.raise_for_status()
+
+    data = antwort.json()
+    importiere_schnee_in_db(datum, data)
+
+    return {"status": "ok", "datum": datum, "features": len(data["features"])}

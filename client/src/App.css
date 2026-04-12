@@ -1,5 +1,21 @@
+/* ============================================================
+   App.css – Globale Stile für SkiScope
+   
+   Struktur:
+   1. Reset & Basis
+   2. Layout (.app)
+   3. Header / Hero
+   4. Outer Card Shell
+   5. Sidebar
+   6. Main Area
+   7. Dropdowns
+   8. Footer
+   9. Legende
+   ============================================================ */
+
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap");
 
+/* ── 1. RESET & BASIS ──────────────────────────────────────── */
 * {
   box-sizing: border-box;
 }
@@ -13,16 +29,16 @@ body {
   overflow: hidden;
 }
 
-/* Layout */
+/* ── 2. LAYOUT ─────────────────────────────────────────────── */
 .app {
   display: flex;
   flex-direction: column;
+  height: 100vh;
   min-height: 100vh;
   background: #f0f2f5;
-  height: 100vh;
 }
 
-/* ── HEADER / HERO ─────────────────────────────── */
+/* ── 3. HEADER / HERO ──────────────────────────────────────── */
 .hero {
   height: 80px;
   color: white;
@@ -32,6 +48,7 @@ body {
   background-position: center top;
 }
 
+/* Dunkles Overlay über dem Hintergrundbild */
 .hero-overlay {
   background: rgba(0, 0, 0, 0.25);
   height: 100%;
@@ -42,6 +59,7 @@ body {
   position: relative;
 }
 
+/* Logo – absolut zentriert */
 .logo-container {
   position: absolute;
   top: 50%;
@@ -58,14 +76,7 @@ body {
   letter-spacing: -0.5px;
 }
 
-.logo-dot {
-  width: 30px;
-  height: 30px;
-  background: white;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
+/* Slogan – unten links im Hero */
 .hero-text {
   max-width: 480px;
 }
@@ -85,6 +96,7 @@ body {
   opacity: 0.9;
 }
 
+/* Schneehöhen-Badge – oben rechts im Hero */
 .hero-badge {
   position: absolute;
   top: 24px;
@@ -118,7 +130,8 @@ body {
   font-weight: 700;
 }
 
-/* ── OUTER CARD SHELL ──────────────────────────── */
+/* ── 4. OUTER CARD SHELL ───────────────────────────────────── */
+/* Weisser Hauptcontainer der Sidebar + MainArea umschliesst */
 .page-card {
   background: white;
   border-radius: 0;
@@ -129,7 +142,7 @@ body {
   overflow: visible;
 }
 
-/* ── SIDEBAR ───────────────────────────────────── */
+/* ── 5. SIDEBAR ────────────────────────────────────────────── */
 .sidebar {
   width: 210px;
   flex-shrink: 0;
@@ -169,10 +182,12 @@ body {
   color: #1a1a2e;
 }
 
+/* Abschnitts-Container mit Abstand nach unten */
 .section {
   margin-bottom: 20px;
 }
 
+/* Abschnittstitel mit Filtericon (SVG via CSS) */
 .section-title {
   font-size: 9px;
   font-weight: 700;
@@ -194,6 +209,7 @@ body {
     no-repeat center/contain;
 }
 
+/* Lift-Checkbox-Zeile */
 .lift-item {
   display: flex;
   align-items: center;
@@ -203,17 +219,6 @@ body {
   color: #333;
 }
 
-.lift-checkbox {
-  width: 16px;
-  height: 16px;
-  background: #2d6cdf;
-  border-radius: 3px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .lift-checkbox::after {
   content: "✓";
   color: white;
@@ -221,25 +226,7 @@ body {
   font-weight: 700;
 }
 
-.lift-hint {
-  font-size: 11px;
-  color: #aaa;
-  line-height: 1.4;
-  margin-top: 8px;
-}
-
-.config-section-title {
-  font-size: 9px;
-  font-weight: 700;
-  color: #aaa;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 14px;
-}
-
+/* Label über Inputs in der Konfiguration */
 .config-label {
   font-size: 9px;
   font-weight: 700;
@@ -249,6 +236,7 @@ body {
   margin-bottom: 6px;
 }
 
+/* Skill-Level Dropdown */
 .skill-select {
   width: 80px;
   padding: 5px 8px;
@@ -261,28 +249,10 @@ body {
   appearance: auto;
 }
 
-.weight-label {
-  font-size: 11px;
-  color: #666;
-  margin-bottom: 4px;
-  display: flex;
-  justify-content: space-between;
-}
-
 .weight-label span {
   font-size: 11px;
   color: #2d6cdf;
   font-weight: 600;
-}
-
-.slider {
-  width: 100%;
-  height: 4px;
-  border-radius: 4px;
-  appearance: none;
-  background: #ddd;
-  margin-bottom: 14px;
-  cursor: pointer;
 }
 
 .slider::-webkit-slider-thumb {
@@ -296,6 +266,7 @@ body {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 }
 
+/* Primär-Button (z.B. "Ranking aktualisieren") */
 .btn {
   width: 100%;
   padding: 10px;
@@ -315,7 +286,7 @@ body {
   background: #1f54b8;
 }
 
-/* ── MAIN AREA ─────────────────────────────────── */
+/* ── 6. MAIN AREA ──────────────────────────────────────────── */
 .main {
   display: flex;
   flex-direction: column;
@@ -326,6 +297,7 @@ body {
   height: 100%;
 }
 
+/* Titelzeile über der Wochenleiste */
 .prognose-header {
   display: flex;
   align-items: flex-start;
@@ -346,6 +318,7 @@ body {
   margin: 0;
 }
 
+/* Suchfeld (Textinput ohne Rahmen) */
 .search-input {
   border: none;
   outline: none;
@@ -359,6 +332,7 @@ body {
   color: #aaa;
 }
 
+/* Umrandeter Container um Suchicon + Textinput */
 .search-box {
   display: flex;
   align-items: center;
@@ -376,6 +350,7 @@ body {
   flex-shrink: 0;
 }
 
+/* ── WOCHENLEISTE ──────────────────────────────────────────── */
 .week {
   display: flex;
   gap: 4px;
@@ -383,6 +358,7 @@ body {
   align-items: stretch;
 }
 
+/* Einzelner Tag-Button */
 .day {
   display: flex;
   flex-direction: column;
@@ -421,6 +397,7 @@ body {
   font-size: 12px;
 }
 
+/* Aktiver Tag – blau hervorgehoben */
 .day.active {
   background: #2d6cdf;
   border-color: #2d6cdf;
@@ -432,7 +409,9 @@ body {
   color: white;
 }
 
+/* Gepunkteter Platzhalter für zukünftigen Datepicker */
 .day-picker {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -450,6 +429,7 @@ body {
   gap: 4px;
 }
 
+/* ── EMPFEHLUNG-HEADER ─────────────────────────────────────── */
 .empfehlung-header {
   display: flex;
   align-items: center;
@@ -463,6 +443,7 @@ body {
   gap: 0;
 }
 
+/* Blauer vertikaler Akzentbalken links vom Titel */
 .empfehlung-title-bar {
   width: 4px;
   height: 20px;
@@ -485,32 +466,13 @@ body {
   gap: 8px;
 }
 
-.view-btn {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 5px 10px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  background: white;
-  font-size: 11px;
-  color: #555;
-  cursor: pointer;
-}
-
 .empfohlen-label {
   font-size: 11px;
   color: #aaa;
   margin-left: 8px;
 }
 
-.skiscope-score {
-  font-size: 11px;
-  font-weight: 700;
-  color: #2d6cdf;
-  cursor: pointer;
-}
-
+/* Karten-Container – nimmt verbleibende Höhe ein */
 .map-container {
   flex: 1;
   min-height: 0;
@@ -522,12 +484,13 @@ body {
   z-index: 0;
 }
 
-/* ── DROPDOWNS ─────────────────────────────────── */
+/* ── 7. DROPDOWNS ──────────────────────────────────────────── */
 .profile-dropdown-wrapper,
 .score-dropdown-wrapper {
   position: relative;
 }
 
+/* Klickbarer Profil-Block in der Sidebar */
 .profile-block--clickable {
   cursor: pointer;
   border-radius: 8px;
@@ -547,6 +510,7 @@ body {
   background: #eef2fb;
 }
 
+/* Chevron-Icon dreht sich beim Öffnen des Dropdowns */
 .dropdown-chevron {
   transition: transform 0.2s;
   flex-shrink: 0;
@@ -556,6 +520,7 @@ body {
   transform: rotate(180deg);
 }
 
+/* Profil-Dropdown-Liste */
 .profile-dropdown {
   position: absolute;
   top: calc(100% + 4px);
@@ -590,6 +555,7 @@ body {
   color: #2d6cdf;
 }
 
+/* Score-Auswahl-Button (Empfehlung nach …) */
 .skiscope-score-btn {
   display: flex;
   align-items: center;
@@ -607,6 +573,7 @@ body {
   text-decoration: underline;
 }
 
+/* Score-Dropdown-Liste */
 .score-dropdown {
   position: absolute;
   top: calc(100% + 6px);
@@ -638,7 +605,7 @@ body {
   background: #eef2fb;
 }
 
-/* Footer */
+/* ── 8. FOOTER ─────────────────────────────────────────────── */
 footer {
   text-align: center;
   font-size: 11px;
@@ -653,7 +620,7 @@ footer a {
   color: #aaa;
 }
 
-/* ── LEGENDE ───────────────────────────────────── */
+/* ── 9. LEGENDE ────────────────────────────────────────────── */
 .legende {
   margin-bottom: 12px;
   margin-top: 8px;
@@ -669,31 +636,4 @@ footer a {
   color: #666;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-}
-
-.legende-gradient {
-  height: 14px;
-  border-radius: 6px;
-  background: linear-gradient(
-    to right,
-    rgba(0, 0, 0, 0) 0%,
-    rgba(210, 240, 255, 0.6) 5%,
-    rgba(160, 210, 240, 0.7) 20%,
-    rgba(70, 140, 210, 0.8) 40%,
-    rgba(40, 100, 180, 0.85) 60%,
-    rgba(20, 60, 150, 0.9) 75%,
-    rgba(240, 248, 255, 0.95) 100%
-  );
-  border: 1px solid #e0e6ef;
-}
-
-.legende-labels {
-  display: flex;
-  justify-content: space-between;
-  font-size: 10px;
-  color: #aaa;
-}
-
-.day-picker {
-  position: relative;
 }
