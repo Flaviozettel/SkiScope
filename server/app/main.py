@@ -10,9 +10,10 @@
 # ============================================================
 
 import json
+from fastapi import FastAPI, BackgroundTasks, HTTPException
 import requests
 from datetime import date, timedelta
-from fastapi.middleware.cors import CORSMiddleware, BackgroundTasks, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 import psycopg2
 import os
 from dotenv import load_dotenv
