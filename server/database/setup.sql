@@ -237,12 +237,12 @@ CREATE TABLE winterwandern (
 
 
 -- Hier Werte die im frontend dann nicht verwendet werden löschen umd die Datenbank schlank zu halten.
-CREATE TABLE wetter_skigebiet (
+CREATE TABLE wetter_skigebiet_h (
     station_id                      INTEGER      REFERENCES skigebiete(station_id),
     zeitpunkt                       TIMESTAMPTZ  NOT NULL,
     typ                             VARCHAR(20)  NOT NULL,
     temperatur_2m                   NUMERIC(5,1),
-    realtive_luftfeuchtigkeit_2m    NUMERIC(5,1),
+    relative_luftfeuchtigkeit_2m    NUMERIC(5,1),
     gefuehlte_temperatur            NUMERIC(5,1),
     niederschlag                    NUMERIC(5,1),
     regen                           NUMERIC(5,1),
@@ -250,7 +250,6 @@ CREATE TABLE wetter_skigebiet (
     wind_boehen_10m                 NUMERIC(5,1),
     schneefall                      NUMERIC(5,1),
     schnee_tiefe                    NUMERIC(5,1),
-    wetter_code_wmo                 NUMERIC(5,1),
     bewoelkung_cover                NUMERIC(5,1),
     bewoelkung_tief                 NUMERIC(5,1),
     bewoelkung_mittel               NUMERIC(5,1),
@@ -259,6 +258,23 @@ CREATE TABLE wetter_skigebiet (
     sonnenscheindauer               NUMERIC(5,1),
     wetter_modell                   VARCHAR(20),
     PRIMARY KEY (station_id, zeitpunkt)
+);
+
+CREATE TABLE wetter_skigebiet_d (
+    station_id                     INTEGER      REFERENCES skigebiete(station_id),
+    tag                            date NOT NULL,
+    aktualisiert                   TIMESTAMPTZ  NOT NULL DEFAULT now(),
+    daily_wetter_code_wmo          NUMERIC(5,1),
+    daily_temperature_2m_max       NUMERIC(5,1),
+    daily_temperature_2m_min       NUMERIC(5,1),
+    daily_sunrise                  TIMESTAMP,
+    daily_sunset                   TIMESTAMP,
+    daily_uv_index_max             NUMERIC(5,1),
+    daily_snowfall_sum             NUMERIC(5,1),
+    daily_rain_sum                 NUMERIC(5,1),
+    daily_sunshine_duration        NUMERIC(5,1),
+    daily_wind_speed_10m_mean      NUMERIC(5,1),
+    PRIMARY KEY (station_id, tag)
 )
 
 
