@@ -236,6 +236,32 @@ CREATE TABLE winterwandern (
 );
 
 
+-- Hier Werte die im frontend dann nicht verwendet werden löschen umd die Datenbank schlank zu halten.
+CREATE TABLE wetter_skigebiet (
+    station_id                      INTEGER      PRIMARY KEY REFERENCES skigebiete(station_id),
+    zeitpunkt                       TIMESTAMPTZ  NOT NULL,
+    typ                             VARCHAR(20)  NOT NULL,
+    temperatur_2m                   NUMERIC(5,1),
+    realtive_luftfeuchtigkeit_2m    NUMERIC(5,1),
+    gefuehlte_temperatur            NUMERIC(5,1),
+    niederschlag                    NUMERIC(5,1),
+    regen                           NUMERIC(5,1),
+    wind_geschwindigkeit_10m        NUMERIC(5,1),
+    wind_boehen_10m                 NUMERIC(5,1),
+    schneefall                      NUMERIC(5,1),
+    schnee_tiefe                    NUMERIC(5,1),
+    wetter_code_wmo                 NUMERIC(5,1),
+    bewoelkung_cover                NUMERIC(5,1),
+    bewoelkung_tief                 NUMERIC(5,1),
+    bewoelkung_mittel               NUMERIC(5,1),
+    bewoelkung_hoch                 NUMERIC(5,1),
+    schneefall_hoehe                NUMERIC(5,1),
+    sonnenscheindauer               NUMERIC(5,1),
+    wetter_modell                   VARCHAR(20)
+)
+
+
+
 -- ============================================================
 --  INDIZES (diese sind zwingend nötig um den VIEW performant zu machen.
 -- ============================================================
