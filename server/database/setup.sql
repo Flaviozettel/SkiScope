@@ -238,7 +238,7 @@ CREATE TABLE winterwandern (
 
 -- Hier Werte die im frontend dann nicht verwendet werden löschen umd die Datenbank schlank zu halten.
 CREATE TABLE wetter_skigebiet (
-    station_id                      INTEGER      PRIMARY KEY REFERENCES skigebiete(station_id),
+    station_id                      INTEGER      REFERENCES skigebiete(station_id),
     zeitpunkt                       TIMESTAMPTZ  NOT NULL,
     typ                             VARCHAR(20)  NOT NULL,
     temperatur_2m                   NUMERIC(5,1),
@@ -257,7 +257,8 @@ CREATE TABLE wetter_skigebiet (
     bewoelkung_hoch                 NUMERIC(5,1),
     schneefall_hoehe                NUMERIC(5,1),
     sonnenscheindauer               NUMERIC(5,1),
-    wetter_modell                   VARCHAR(20)
+    wetter_modell                   VARCHAR(20),
+    PRIMARY KEY (station_id, datum)
 )
 
 
