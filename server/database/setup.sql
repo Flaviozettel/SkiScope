@@ -258,7 +258,7 @@ CREATE TABLE wetter_skigebiet (
     schneefall_hoehe                NUMERIC(5,1),
     sonnenscheindauer               NUMERIC(5,1),
     wetter_modell                   VARCHAR(20),
-    PRIMARY KEY (station_id, datum)
+    PRIMARY KEY (station_id, zeitpunkt)
 )
 
 
