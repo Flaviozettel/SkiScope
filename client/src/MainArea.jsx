@@ -10,6 +10,11 @@
 import { useState, useEffect } from "react";
 import Map, { Source, Layer, Marker, Popup } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { useRef } from "react";
+import maplibregl from "maplibre-gl";
+import { createScratLayer } from "./scratLayer";
+
 
 // GeoServer-Basis-URL (lokales Netzwerk)
 const GEOSERVER =
@@ -75,6 +80,15 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
 
   // Alle Skigebiete (Name + Koordinaten) für die Karte
   const [skigebiete, setSkigebiete] = useState([]);
+
+   // Scrat anzeigen wenn Karte geneigt ist
+  const [showScrat, setShowScrat] = useState(false);
+  const scratLayerRef = useRef(null);
+  const scratAddedRef = useRef(false);
+  const mapRef = useRef();
+
+
+
 
   // ── EFFEKTE ──────────────────────────────────────────────
 
@@ -219,21 +233,53 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
 
       {/* ── KARTE ──────────────────────────────────────── */}
       <div className="map-container">
-        <Map
-          initialViewState={{ longitude: 8.3, latitude: 46.8, zoom: 8 }}
-          minZoom={7}
-          maxZoom={20}
-          style={{ width: "100%", height: "100%" }}
-          mapStyle={OSM_STYLE}
-          onClick={handleMapClick}
-          onMouseMove={(e) => {
-            // Cursor auf "pointer" ändern wenn Maus über Skigebiet-Punkt ist
-            const features = e.target.queryRenderedFeatures(e.point, {
-              layers: ["skigebiete-points-layer"],
-            });
-            e.target.getCanvas().style.cursor = features.length ? "pointer" : "";
-          }}
-        >
+       <Map
+        ref={mapRef}
+        initialViewState={{ longitude: 8.3, latitude: 46.8, zoom: 8 }}
+        maxZoom={20}
+        maxPitch={85}
+        style={{ width: "100%", height: "100%" }}
+        mapStyle={OSM_STYLE}
+        onClick={handleMapClick}
+        onLoad={(e) => {
+          const map = e.target;
+
+          const layer = createScratLayer(map, 8.3, 46.8);
+
+          scratLayerRef.current = layer;
+          scratAddedRef.current = false;
+        }}
+        onMove={(e) => {
+          const pitch = e.viewState.pitch || 0;
+
+          const map = mapRef.current?.getMap?.();
+          const layer = scratLayerRef.current;
+          if (!map || !layer) return;
+
+          const isVisible = pitch > 10;
+
+          // hinzufügen
+          if (isVisible && !scratAddedRef.current) {
+            map.addLayer(layer);
+            scratAddedRef.current = true;
+          }
+
+          // entfernen
+          if (!isVisible && scratAddedRef.current) {
+            if (map.getLayer(layer.id)) {
+              map.removeLayer(layer.id);
+            }
+            scratAddedRef.current = false;
+          }
+        }}
+        onMouseMove={(e) => {
+          /* Dein bestehender Code für den Cursor-Pointer bleibt hier stehen */
+          const features = e.target.queryRenderedFeatures(e.point, {
+            layers: ["skigebiete-points-layer"],
+          });
+          e.target.getCanvas().style.cursor = features.length ? "pointer" : "";
+        }}  
+      >
           {/* Schneehöhen-Flächen (datumabhängig via safeDatum) */}
           <Source
             key={safeDatum}
