@@ -240,7 +240,6 @@ CREATE TABLE winterwandern (
 CREATE TABLE wetter_skigebiet_h (
     station_id                      INTEGER      REFERENCES skigebiete(station_id),
     zeitpunkt                       TIMESTAMPTZ  NOT NULL,
-    typ                             VARCHAR(20)  NOT NULL,
     temperatur_2m                   NUMERIC(5,1),
     relative_luftfeuchtigkeit_2m    NUMERIC(5,1),
     gefuehlte_temperatur            NUMERIC(5,1),
@@ -272,7 +271,7 @@ CREATE TABLE wetter_skigebiet_d (
     daily_uv_index_max             NUMERIC(5,1),
     daily_snowfall_sum             NUMERIC(5,1),
     daily_rain_sum                 NUMERIC(5,1),
-    daily_sunshine_duration        NUMERIC(5,1),
+    daily_sunshine_duration        NUMERIC(8,1),
     daily_wind_speed_10m_mean      NUMERIC(5,1),
     PRIMARY KEY (station_id, tag)
 );
