@@ -11,9 +11,6 @@ import { useState, useEffect } from "react";
 import Map, { Source, Layer, Marker, Popup } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 
-// Optionen für das "Empfohlen nach"-Dropdown
-const SCORE_OPTIONS = ["SkiScope SCORE", "Schneehöhe", "Pistenkilometer"];
-
 // GeoServer-Basis-URL (lokales Netzwerk)
 const GEOSERVER =
   "http://192.168.4.228:8080/geoserver/skiscope/ows?service=WMS&version=1.1.1&request=GetMap";
@@ -214,48 +211,6 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
         <div className="empfehlung-title">
           <div className="empfehlung-title-bar"></div>
           <h3>Top Empfehlung für dich</h3>
-        </div>
-
-        {/* Score-Dropdown: Sortierkriterium wählen */}
-        <div className="empfehlung-controls">
-          <span className="empfohlen-label">Empfohlen nach:</span>
-
-          <div className="score-dropdown-wrapper">
-            <button
-              className={`skiscope-score-btn ${scoreOpen ? "open" : ""}`}
-              onClick={() => setScoreOpen((v) => !v)}
-            >
-              {SCORE_OPTIONS[selectedScore]}
-              <svg
-                className={`dropdown-chevron ${scoreOpen ? "rotated" : ""}`}
-                width="11"
-                height="11"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#2d6cdf"
-                strokeWidth="2.5"
-              >
-                <path d="m6 9 6 6 6-6" />
-              </svg>
-            </button>
-
-            {scoreOpen && (
-              <div className="score-dropdown">
-                {SCORE_OPTIONS.map((opt, i) => (
-                  <div
-                    key={i}
-                    className={`score-option ${i === selectedScore ? "selected" : ""}`}
-                    onClick={() => {
-                      setSelectedScore(i);
-                      setScoreOpen(false);
-                    }}
-                  >
-                    {opt}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
         </div>
       </div>
 
