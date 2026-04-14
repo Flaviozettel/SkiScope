@@ -24,6 +24,10 @@ import requests_cache
 from retry_requests import retry
 from datetime import date as date_class, datetime, timezone, timedelta
 
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+
 # Umgebungsvariablen aus .env laden (DB-Zugangsdaten)
 load_dotenv("/home/gisadmin/skiscope/.env")
 
