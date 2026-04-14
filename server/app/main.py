@@ -473,14 +473,14 @@ def save_stundendaten_to_db(data: list[dict]):
     for row in data:
         cur.execute("""
             INSERT INTO wetter_skigebiet_h (
-                station_id, zeitpunkt, typ,
+                station_id, zeitpunkt,
                 temperatur_2m, relative_luftfeuchtigkeit_2m, gefuehlte_temperatur,
                 niederschlag, regen, wind_geschwindigkeit_10m, wind_boehen_10m,
                 schneefall, schnee_tiefe, bewoelkung_cover, bewoelkung_tief,
                 bewoelkung_mittel, bewoelkung_hoch, schneefall_hoehe,
                 sonnenscheindauer, wetter_modell
             ) VALUES (
-                %(station_id)s, %(zeitpunkt)s, %(typ)s,
+                %(station_id)s, %(zeitpunkt)s,
                 %(temperatur_2m)s, %(relative_luftfeuchtigkeit_2m)s, %(gefuehlte_temperatur)s,
                 %(niederschlag)s, %(regen)s, %(wind_geschwindigkeit_10m)s, %(wind_boehen_10m)s,
                 %(schneefall)s, %(schnee_tiefe)s, %(bewoelkung_cover)s, %(bewoelkung_tief)s,
@@ -488,7 +488,6 @@ def save_stundendaten_to_db(data: list[dict]):
                 %(sonnenscheindauer)s, %(wetter_modell)s
             )
             ON CONFLICT (station_id, zeitpunkt) DO UPDATE SET
-                typ                         = EXCLUDED.typ,
                 temperatur_2m               = EXCLUDED.temperatur_2m,
                 relative_luftfeuchtigkeit_2m = EXCLUDED.relative_luftfeuchtigkeit_2m,
                 gefuehlte_temperatur        = EXCLUDED.gefuehlte_temperatur,
@@ -592,7 +591,7 @@ def get_wetterprognose(
         cur = conn.cursor()
         cur.execute("""
             SELECT
-                zeitpunkt, typ,
+                zeitpunkt,
                 temperatur_2m, relative_luftfeuchtigkeit_2m, gefuehlte_temperatur,
                 niederschlag, regen, wind_geschwindigkeit_10m, wind_boehen_10m,
                 schneefall, schnee_tiefe, bewoelkung_cover, bewoelkung_tief,
@@ -616,7 +615,6 @@ def get_wetterprognose(
                 return [
                     {
                         "zeitpunkt": r[0].isoformat(),
-                        "typ": r[1],
                         "temperatur_2m": r[2],
                         "relative_luftfeuchtigkeit_2m": r[3],
                         "gefuehlte_temperatur": r[4],
@@ -645,7 +643,6 @@ def get_wetterprognose(
         return [
             {
                 "zeitpunkt": d["zeitpunkt"].isoformat(),
-                "typ": d["typ"],
                 "temperatur_2m": d["temperatur_2m"],
                 "relative_luftfeuchtigkeit_2m": d["relative_luftfeuchtigkeit_2m"],
                 "gefuehlte_temperatur": d["gefuehlte_temperatur"],
