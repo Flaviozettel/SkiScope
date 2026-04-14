@@ -15,6 +15,9 @@ import "maplibre-gl/dist/maplibre-gl.css";
 const GEOSERVER =
   "http://192.168.4.228:8080/geoserver/skiscope/ows?service=WMS&version=1.1.1&request=GetMap";
 
+// API-Basis-URL (Backend)
+const API_BASE = "http://192.168.4.228:8000";
+
 // Hilfsfunktion: Erstellt ein Array mit 7 aufeinanderfolgenden Tagen ab startDatum
 function generiereWoche(startDatum) {
   return Array.from({ length: 7 }, (_, i) => {
@@ -77,7 +80,7 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
 
   // Skigebiete einmalig beim Mounten laden
   useEffect(() => {
-    fetch("http://localhost:8000/skigebiete")
+    fetch(`${API_BASE}/skigebiete`)
       .then((res) => res.json())
       .then((data) => setSkigebiete(data))
       .catch(console.error);
@@ -92,7 +95,7 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
   useEffect(() => {
     if (!aktivDatum) return;
 
-    fetch(`http://localhost:8000/schnee?datum=${aktivDatum}`)
+    fetch(`${API_BASE}/schnee?datum=${aktivDatum}`)
       .then((res) => res.json())
       .then((data) => console.log("Import geprüft:", data))
       .catch((err) => console.error("Fehler beim Import:", err));
@@ -143,7 +146,7 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
 
     // Detaildaten vom Backend laden
     try {
-      const url = `http://localhost:8000/skigebiet?station_id=${station_id}`;
+      const url = `${API_BASE}/skigebiet?station_id=${station_id}`;
       console.log("🔗 Fetch URL:", url);
 
       const name = f.properties.name || "Unbekanntes Skigebiet";
