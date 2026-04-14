@@ -256,7 +256,7 @@ CREATE TABLE wetter_skigebiet_h (
     bewoelkung_hoch                 NUMERIC(5,1),
     schneefall_hoehe                NUMERIC(5,1),
     sonnenscheindauer               NUMERIC(5,1),
-    wetter_modell                   VARCHAR(20),
+    wetter_modell                   VARCHAR(50),
     PRIMARY KEY (station_id, zeitpunkt)
 );
 
@@ -275,8 +275,20 @@ CREATE TABLE wetter_skigebiet_d (
     daily_sunshine_duration        NUMERIC(5,1),
     daily_wind_speed_10m_mean      NUMERIC(5,1),
     PRIMARY KEY (station_id, tag)
-)
+);
 
+CREATE TABLE skigebiet_geom (
+    station_id      INTEGER      PRIMARY KEY REFERENCES skigebiete(station_id),
+    centerpoint     GEOMETRY(Point, 4326)
+);
+
+CREATE TABLE pisten_geom (
+    piste_geom_id        INTEGER     PRIMARY KEY,
+    station_id           INTEGER     REFERENCES skigebiete(station_id),
+    geom_mline                       GEOMETRY(MultiLineString, 4326),
+    geom_mpolygon                    GEOMETRY(MultiPolygon, 4326),
+    farbe                            VARCHAR(20)
+);
 
 
 -- ============================================================
