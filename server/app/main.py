@@ -25,7 +25,7 @@ from retry_requests import retry
 from datetime import date as date_class, datetime, timezone, timedelta
 
 # Umgebungsvariablen aus .env laden (DB-Zugangsdaten)
-load_dotenv()
+load_dotenv("/home/gisadmin/skiscope/.env")
 
 app = FastAPI()
 
@@ -41,9 +41,10 @@ app.add_middleware(
 # ── DATENBANKVERBINDUNG ───────────────────────────────────────
 DB_PARAMS = {
     "host": os.getenv("DB_HOST"),
+    "port": os.getenv("DB_PORT"),
     "dbname": os.getenv("DB_NAME"),
     "user": os.getenv("DB_USER"),
-    "password": os.getenv("DB_PASSWORD"),
+    "password": os.getenv("DB_PASS"),
 }
 
 def get_db_conn():
@@ -259,15 +260,19 @@ class WetterprognoseType(str, Enum):
 # Hilfsfunktionen
 def get_station_coords(station_id: int) -> tuple[float, float]:
     """Holt Latitude und Longitude aus der skigebiete-Tabelle."""
-    conn = get_db_conn()
-    cur = conn.cursor()
-    cur.execute("SELECT latitude, longitude FROM skigebiete WHERE station_id = %s", (station_id,))
-    row = cur.fetchone()
-    cur.close()
-    conn.close()
-    if not row:
-        raise HTTPException(status_code=404, detail=f"Station {station_id} nicht gefunden")
-    return row[0], row[1]
+    try:
+        conn = get_db_conn()
+        cur = conn.cursor()
+        cur.execute("SELECT latitude, longitude FROM skigebiete WHERE station_id = %s", (station_id,))
+        row = cur.fetchone()
+        cur.close()
+        conn.close()
+        if not row:
+            #raise HTTPException(status_code=404, detail=f"Station {station_id} nicht gefunden")
+            return 46.9481, 7.4474  # Koordinaten Bern als Fallback danach wider löschen!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    except Exception as e:
+        print(f"Fehler beim Abrufen der Koordinaten für Station {station_id}: {e}")
+        return 46.9481, 7.4474  # Koordinaten Bern als Fallback danach wider löschen!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
 def is_cache_fresh(aktualisiert: datetime) -> bool:
