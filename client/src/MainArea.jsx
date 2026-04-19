@@ -74,9 +74,52 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
   // Detaildaten des angeklickten Skigebiets (aus Backend)
   const [tooltipData, setTooltipData] = useState(null);
 
-  // Woche immer ab heute berechnen
-  const startDatum = new Date();
-  const DAYS = generiereWoche(startDatum);
+  // Wetter
+  const WMO_MAP = {
+  0: { icon: "☀️", text: "Klar" },
+  1: { icon: "🌤️", text: "Überwiegend klar" },
+  2: { icon: "⛅", text: "Teilweise bewölkt" },
+  3: { icon: "☁️", text: "Bedeckt" },
+
+  45: { icon: "🌫️", text: "Nebel" },
+  48: { icon: "🌫️", text: "Raureifnebel" },
+
+  51: { icon: "🌦️", text: "Leichter Niesel" },
+  53: { icon: "🌦️", text: "Niesel" },
+  55: { icon: "🌧️", text: "Starker Niesel" },
+
+  61: { icon: "🌧️", text: "Leichter Regen" },
+  63: { icon: "🌧️", text: "Regen" },
+  65: { icon: "🌧️", text: "Starker Regen" },
+
+  71: { icon: "🌨️", text: "Leichter Schnee" },
+  73: { icon: "🌨️", text: "Schnee" },
+  75: { icon: "❄️", text: "Starker Schneefall" },
+
+  80: { icon: "🌦️", text: "Regenschauer" },
+  81: { icon: "🌧️", text: "Starke Schauer" },
+  82: { icon: "⛈️", text: "Heftige Schauer" },
+
+  95: { icon: "⛈️", text: "Gewitter" },
+  96: { icon: "⛈️", text: "Gewitter mit Hagel" },
+  99: { icon: "⛈️", text: "Starkes Gewitter" },
+};
+
+const [wetter, setWetter] = useState([]);
+
+
+  // Woche 
+  const DAYS = wetter.map((w, i) => {
+    const d = new Date(w.tag);
+
+    return {
+      datum: w.tag,
+      dayShort: i === 0
+        ? "Heute"
+        : d.toLocaleDateString("de-CH", { weekday: "short" }).toUpperCase(),
+      date: d.toLocaleDateString("de-CH", { day: "numeric", month: "short" }),
+    };
+});
 
   // Alle Skigebiete (Name + Koordinaten) für die Karte
   const [skigebiete, setSkigebiete] = useState([]);
@@ -88,8 +131,7 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
   const mapRef = useRef();
 
 
-
-
+  
   // ── EFFEKTE ──────────────────────────────────────────────
 
   // Skigebiete einmalig beim Mounten laden
@@ -101,9 +143,11 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
   }, []);
 
   // Beim ersten Render das heutige Datum als aktives Datum setzen
-  useEffect(() => {
-    setAktivDatum(DAYS[0].datum);
-  }, []);
+    useEffect(() => {
+      if (wetter.length > 0) {
+        setAktivDatum(wetter[0].tag);
+      }
+    }, [wetter]);
 
   // Sobald sich das aktive Datum ändert: Schneehöhen-Import prüfen
   useEffect(() => {
@@ -114,6 +158,15 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
       .then((data) => console.log("Import geprüft:", data))
       .catch((err) => console.error("Fehler beim Import:", err));
   }, [aktivDatum]);
+
+
+  // Wetterdaten laden
+  useEffect(() => {
+  fetch(`${API_BASE}/skigebiet/wetterprognose?station_id=2&type=woche`)
+    .then(res => res.json())
+    .then(data => setWetter(data))
+    .catch(console.error);
+}, []);
 
   // ── HANDLER ──────────────────────────────────────────────
 
@@ -210,17 +263,34 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
 
       {/* ── WOCHENLEISTE ───────────────────────────────── */}
       <div className="week" style={{ position: "relative" }}>
-        {DAYS.map((d, i) => (
-          <div
-            key={i}
-            className={`day ${i === activeDay ? "active" : ""}`}
-            onClick={() => handleDayClick(i)}
-          >
-            <div className="day-label">{i === 0 ? "Heute" : d.dayShort}</div>
-            <div className="day-date">{d.date}</div>
-            <div className="day-icon">{d.icon}</div>
-          </div>
-        ))}
+        {wetter.map((w, i) => {
+          const d = new Date(w.tag);
+
+          return (
+            <div
+              key={i}
+              className={`day ${i === activeDay ? "active" : ""}`}
+              onClick={() => {
+                setActiveDay(i);
+                setAktivDatum(w.tag);
+              }}
+            >
+              <div className="day-label">
+                {i === 0
+                  ? "Heute"
+                  : d.toLocaleDateString("de-CH", { weekday: "short" }).toUpperCase()}
+              </div>
+
+              <div className="day-date">
+                {d.toLocaleDateString("de-CH", { day: "numeric", month: "short" })}
+              </div>
+
+              <div className="day-icon">
+                {WMO_MAP[Math.round(w.daily_wetter_code_wmo)]?.icon || "❓"}
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {/* ── EMPFEHLUNG-HEADER ──────────────────────────── */}
@@ -236,7 +306,7 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
        <Map
         ref={mapRef}
         initialViewState={{ longitude: 8.3, latitude: 46.8, zoom: 8 }}
-        maxZoom={20}
+        maxZoom={19}
         maxPitch={85}
         style={{ width: "100%", height: "100%" }}
         mapStyle={OSM_STYLE}
@@ -295,9 +365,22 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
               minzoom={0}
               maxzoom={13}
               paint={{
-                "fill-color": ["get", "fill"], // Farbe aus GeoServer-Daten
-                "fill-opacity": 0.35,
-                "fill-antialias": true,
+                "fill-color": [
+                  "interpolate",
+                  ["linear"],
+                  ["get", "value"],
+
+                  1,   "#f7fbff",
+                  20,  "#deebf7",
+                  50,  "#c6dbef",
+                  80,  "#9ecae1",
+                  120, "#6baed6",
+                  200, "#3182bd",
+                  300, "#08519c",
+                  400, "#08306b"
+                ],
+                "fill-opacity": 0.65,
+                "fill-antialias": true
               }}
             />
           </Source>
@@ -314,6 +397,8 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
               type="fill"
               source-layer="Pisten_Polygone"
               filter={["!=", ["get", "piste_difficulty"], "freeride"]}
+              maxzoom={20}
+              minzoom={13}
               paint={{
                 "fill-color": [
                   "match",
@@ -343,6 +428,8 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
               type="line"
               source-layer="Pisten_Linien"
               filter={["!=", ["get", "piste_difficulty"], "freeride"]}
+              maxzoom={20}
+              minzoom={13}
               paint={{
                 "line-width": 2,
                 "line-color": [
@@ -371,6 +458,8 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
               id="lifte-fill"
               type="fill"
               source-layer="Lifte_Bahnen_Polygone"
+              maxzoom={20}
+              minzoom={13}
               paint={{
                 "fill-color": "grey",
                 "fill-opacity": 0.4,
@@ -391,6 +480,8 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
               type="line"
               source-layer="Lifte_Bahnen_Linien"
               filter={["all", ["!=", ["get", "art"], "goods"]]}
+              maxzoom={20}
+              minzoom={13}
               paint={{
                 "line-width": 2,
                 "line-color": "grey",
@@ -715,13 +806,14 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
         {/* Farbskala mit Schwellenwerten */}
         <div style={{ display: "flex", gap: 4, marginTop: 4 }}>
           {[
-            { value: "1", color: "#CDFFCD" },
-            { value: "20", color: "#99F0B2" },
-            { value: "50", color: "#53BD9F" },
-            { value: "80", color: "#3296B4" },
-            { value: "120", color: "#0670B0" },
-            { value: "200", color: "#054F8C" },
-            { value: "300+", color: "#610432" },
+            { value: "1", color: "#f7fbff" },
+            { value: "20", color: "#deebf7", },
+            { value: "50", color: "#c6dbef" },
+            { value: "80", color: "#9ecae1" },
+            { value: "120", color: "#6baed6" },
+            { value: "200", color: "#3182bd" },
+            { value: "300", color: "#08519c" },
+            { value: "400+", color: "#08306b" },
           ].map((item) => (
             <div
               key={item.value}
