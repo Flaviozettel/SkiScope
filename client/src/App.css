@@ -364,23 +364,31 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 6px 8px;
+
+  width: 72px;
+  height: 72px;
+
+  padding: 8px;
+
   background: #f7f9fc;
-  border-radius: 8px;
+  border-radius: 12px;
   border: 1px solid #e8ecf0;
-  text-align: center;
+
+  gap: 4px;
   cursor: pointer;
-  min-width: 48px;
-  gap: 2px;
-  transition: background 0.15s;
+
+  transition:
+    transform 0.15s,
+    background 0.15s;
 }
 
 .day:hover {
+  transform: translateY(-2px);
   background: #eef2fb;
 }
 
 .day-label {
-  font-size: 8px;
+  font-size: 13px;
   font-weight: 700;
   color: #aaa;
   text-transform: uppercase;
@@ -394,7 +402,7 @@ body {
 }
 
 .day-icon {
-  font-size: 12px;
+  font-size: 16px;
 }
 
 /* Aktiver Tag – blau hervorgehoben */
@@ -636,4 +644,162 @@ footer a {
   color: #666;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+.week {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+  align-items: center;
+}
+
+/* neuer Inline-Titel */
+.week-title {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.week-title h2 {
+  font-size: 18px;
+  font-weight: 900;
+  margin: 0 0 3px;
+  letter-spacing: -0.5px;
+}
+
+.week-title p {
+  font-size: 11px;
+  color: #aaa;
+  margin: 0;
+}
+
+/* ── MAP OVERLAY LEGENDE ───────────────────────────── */
+.map-legende {
+  position: absolute;
+  bottom: 14px;
+  left: 14px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(6px);
+  border: 1px solid #e8ecf0;
+  border-radius: 12px;
+  padding: 10px 12px;
+  z-index: 10;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+
+.legende-scale {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.legende-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 9px;
+  color: #666;
+}
+
+.legende-color {
+  width: 28px;
+  height: 10px;
+  border-radius: 3px;
+  border: 1px solid #ddd;
+  margin-bottom: 2px;
+}
+
+/* ── Top Schnee neben Wochenleiste ─────────────── */
+.top-snow-badge {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  background: #eef4ff;
+  border: 1px solid #dbe6ff;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #2d6cdf;
+  white-space: nowrap;
+}
+
+/* ── Beste Schneehöhe Kachel (angepasst an day-Stil) ── */
+.day.snow-day {
+  background: #f7f9fc; /* exakt wie normale Kacheln */
+  border: 1px solid #e8ecf0; /* exakt wie normale Kacheln */
+}
+
+/* kein extra „Badge-Look“, nur leichte Akzentfarbe */
+.day.snow-day .day-label {
+  color: #2d6cdf;
+  font-weight: 700;
+}
+
+/* optional leicht stärkerer Icon-Kontrast */
+.day.snow-day .day-icon {
+  opacity: 0.9;
+}
+
+/* Badge in Wochenleiste – identischer Stil wie Header */
+.week-badge {
+  position: relative; /* wichtig: kein absolute mehr */
+  top: auto;
+  right: auto;
+  margin-left: auto; /* schiebt es nach rechts */
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #1a1a2e; /* weil jetzt auf hellem Hintergrund */
+  font-size: 11px;
+}
+
+/* gleiche Typo wie Header */
+.week-badge .badge-label {
+  font-size: 10px;
+  opacity: 0.8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1.2;
+}
+
+.week-badge .badge-value {
+  font-size: 12px;
+  font-weight: 700;
+}
+.week-badge {
+  position: relative;
+  margin-left: auto;
+
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+
+  border-radius: 8px;
+  padding: 8px 14px;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  color: #1a1a2e; /* wichtig: lesbar auf hellem Hintergrund */
+}
+
+.week-badge .badge-label {
+  font-size: 10px;
+  opacity: 0.7;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.week-badge .badge-value {
+  font-size: 12px;
+  font-weight: 700;
 }

@@ -70,6 +70,16 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
     [12.1, 48.8], // Nordost (leicht erweitert)
   ];
 
+  // beste Schneehöhe
+  const [topSchnee, setTopSchnee] = useState(null);
+
+  useEffect(() => {
+    fetch(`${API_BASE}/skigebiete/top-schnee`)
+      .then((res) => res.json())
+      .then((data) => setTopSchnee(data))
+      .catch(console.error);
+  }, []);
+
   // Wetter
   const WMO_MAP = {
     0: { icon: "☀️", text: "Klar" },
@@ -228,16 +238,8 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
 
   return (
     <main className="main">
-      {/* ── HEADER-BEREICH ─────────────────────────────── */}
-      <div className="prognose-header">
-        <div className="prognose-title">
-          <h2>Wochen Prognose</h2>
-          <p>Basierend auf aktuellen Echtzeit-Wetterdaten der Bergstationen.</p>
-        </div>
-      </div>
-
-      {/* ── WOCHENLEISTE ───────────────────────────────── */}
-      <div className="week" style={{ position: "relative" }}>
+      {/* ── WOCHENLEISTE + TITEL IN EINER ZEILE ───────────────── */}
+      <div className="week">
         {wetter.map((w, i) => {
           const d = new Date(w.tag);
 
@@ -266,13 +268,18 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
             </div>
           );
         })}
-      </div>
+        <div className="hero-badge week-badge">
+          <span className="badge-icon">❄️</span>
 
-      {/* ── EMPFEHLUNG-HEADER ──────────────────────────── */}
-      <div className="empfehlung-header">
-        <div className="empfehlung-title">
-          <div className="empfehlung-title-bar"></div>
-          <h3>Top Empfehlung für dich</h3>
+          <div>
+            <div className="badge-label">Beste Schneehöhe</div>
+
+            <div className="badge-value">
+              {topSchnee
+                ? `${topSchnee.schnee_haupt} cm in ${topSchnee.station_name}`
+                : "Lade Daten..."}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -335,6 +342,27 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
             e.target.getCanvas().style.cursor = features.length ? "pointer" : "";
           }}
         >
+          <div className="map-legende">
+            <div className="legende-title">❄️ Schneehöhe (cm)</div>
+
+            <div className="legende-scale">
+              {[
+                { value: "1", color: "#d6e6f5" },
+                { value: "20", color: "#b3d1ea" },
+                { value: "50", color: "#80b8e0" },
+                { value: "80", color: "#4da0d6" },
+                { value: "120", color: "#1f78c1" },
+                { value: "200", color: "#0f5aa6" },
+                { value: "300", color: "#083d7a" },
+                { value: "400+", color: "#041f4a" },
+              ].map((item) => (
+                <div key={item.value} className="legende-item">
+                  <div className="legende-color" style={{ background: item.color }} />
+                  <span>{item.value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
           {/* Schneehöhen-Flächen (datumabhängig via safeDatum) */}
           <Source
             key={safeDatum}
@@ -800,46 +828,6 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
             </Popup>
           )}
         </Map>
-      </div>
-
-      {/* ── SCHNEEHÖHEN-LEGENDE ────────────────────────── */}
-      <div className="legende">
-        <div className="legende-title">❄️ Schneehöhe (cm)</div>
-
-        {/* Farbskala mit Schwellenwerten */}
-        <div style={{ display: "flex", gap: 4, marginTop: 4 }}>
-          {[
-            { value: "1", color: "#d6e6f5" },
-            { value: "20", color: "#b3d1ea" },
-            { value: "50", color: "#80b8e0" },
-            { value: "80", color: "#4da0d6" },
-            { value: "120", color: "#1f78c1" },
-            { value: "200", color: "#0f5aa6" },
-            { value: "300", color: "#083d7a" },
-            { value: "400+", color: "#041f4a" },
-          ].map((item) => (
-            <div
-              key={item.value}
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: 3,
-              }}
-            >
-              <div
-                style={{
-                  width: 32,
-                  height: 14,
-                  borderRadius: 3,
-                  background: item.color,
-                  border: "1px solid #e0e6ef",
-                }}
-              />
-              <span style={{ fontSize: 9, color: "#aaa" }}>{item.value}</span>
-            </div>
-          ))}
-        </div>
       </div>
     </main>
   );

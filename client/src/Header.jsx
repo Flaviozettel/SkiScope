@@ -35,19 +35,6 @@ export const Header = () => {
           <div className="logo">❄ SkiScope</div>
         </div>
 
-        {/* Schneehöhen-Badge – oben rechts */}
-        <div className="hero-badge">
-          <span className="badge-icon">❄️</span>
-          <div>
-            <div className="badge-label">Beste Schneehöhe</div>
-            <div className="badge-value">
-              {topSchnee
-                ? `${topSchnee.schnee_haupt} cm in ${topSchnee.station_name}`
-                : "Lade Daten..."}
-            </div>
-          </div>
-        </div>
-
         {/* Slogan – unten links */}
         <div className="hero-text">
           <h1>Finde dein perfektes Skigebiet.</h1>
