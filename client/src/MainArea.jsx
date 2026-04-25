@@ -10,11 +10,8 @@
 import { useState, useEffect } from "react";
 import Map, { Source, Layer, Marker, Popup } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { useRef } from "react";
-import maplibregl from "maplibre-gl";
 import { createScratLayer } from "./scratLayer";
-
 
 // GeoServer-Basis-URL (lokales Netzwerk)
 const GEOSERVER =
@@ -23,34 +20,27 @@ const GEOSERVER =
 // API-Basis-URL (Backend)
 const API_BASE = "http://192.168.4.228:8000";
 
-// Hilfsfunktion: Erstellt ein Array mit 7 aufeinanderfolgenden Tagen ab startDatum
-function generiereWoche(startDatum) {
-  return Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(startDatum);
-    d.setDate(d.getDate() + i);
-
-    return {
-      datum: d.toISOString().split("T")[0], // ISO-Format für API-Aufrufe
-      dayShort: i === 0 ? null : d.toLocaleDateString("de-CH", { weekday: "short" }).toUpperCase(),
-      date: d.toLocaleDateString("de-CH", { day: "numeric", month: "short" }),
-      icon: "❄️",
-    };
-  });
-}
-
 // MapLibre-Kartenstil: heller OpenStreetMap-Hintergrund (CartoCDN)
-const OSM_STYLE = {
+const SWISSTOPO_STYLE = {
   version: 8,
-  glyphs: "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
+  glyphs: "https://fonts.openmaptiles.org/{fontstack}/{range}.pbf",
   sources: {
-    osm: {
+    swisstopo: {
       type: "raster",
-      tiles: ["https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"],
+      tiles: [
+        "https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-grau/default/current/3857/{z}/{x}/{y}.jpeg",
+      ],
       tileSize: 256,
-      attribution: "© OpenStreetMap",
+      attribution: "© swisstopo",
     },
   },
-  layers: [{ id: "osm", type: "raster", source: "osm" }],
+  layers: [
+    {
+      id: "swisstopo",
+      type: "raster",
+      source: "swisstopo",
+    },
+  ],
 };
 
 // Hilfsfunktion: Erstellt eine GeoServer-Tile-URL für einen bestimmten Layer
@@ -74,64 +64,66 @@ export const MainArea = ({ aktivDatum, setAktivDatum }) => {
   // Detaildaten des angeklickten Skigebiets (aus Backend)
   const [tooltipData, setTooltipData] = useState(null);
 
+  // Karte
+  const SWITZERLAND_BOUNDS = [
+    [4.7, 45.0], // Südwest (leicht erweitert)
+    [12.1, 48.8], // Nordost (leicht erweitert)
+  ];
+
   // Wetter
   const WMO_MAP = {
-  0: { icon: "☀️", text: "Klar" },
-  1: { icon: "🌤️", text: "Überwiegend klar" },
-  2: { icon: "⛅", text: "Teilweise bewölkt" },
-  3: { icon: "☁️", text: "Bedeckt" },
+    0: { icon: "☀️", text: "Klar" },
+    1: { icon: "🌤️", text: "Überwiegend klar" },
+    2: { icon: "⛅", text: "Teilweise bewölkt" },
+    3: { icon: "☁️", text: "Bedeckt" },
 
-  45: { icon: "🌫️", text: "Nebel" },
-  48: { icon: "🌫️", text: "Raureifnebel" },
+    45: { icon: "🌫️", text: "Nebel" },
+    48: { icon: "🌫️", text: "Raureifnebel" },
 
-  51: { icon: "🌦️", text: "Leichter Niesel" },
-  53: { icon: "🌦️", text: "Niesel" },
-  55: { icon: "🌧️", text: "Starker Niesel" },
+    51: { icon: "🌦️", text: "Leichter Niesel" },
+    53: { icon: "🌦️", text: "Niesel" },
+    55: { icon: "🌧️", text: "Starker Niesel" },
 
-  61: { icon: "🌧️", text: "Leichter Regen" },
-  63: { icon: "🌧️", text: "Regen" },
-  65: { icon: "🌧️", text: "Starker Regen" },
+    61: { icon: "🌧️", text: "Leichter Regen" },
+    63: { icon: "🌧️", text: "Regen" },
+    65: { icon: "🌧️", text: "Starker Regen" },
 
-  71: { icon: "🌨️", text: "Leichter Schnee" },
-  73: { icon: "🌨️", text: "Schnee" },
-  75: { icon: "❄️", text: "Starker Schneefall" },
+    71: { icon: "🌨️", text: "Leichter Schnee" },
+    73: { icon: "🌨️", text: "Schnee" },
+    75: { icon: "❄️", text: "Starker Schneefall" },
 
-  80: { icon: "🌦️", text: "Regenschauer" },
-  81: { icon: "🌧️", text: "Starke Schauer" },
-  82: { icon: "⛈️", text: "Heftige Schauer" },
+    80: { icon: "🌦️", text: "Regenschauer" },
+    81: { icon: "🌧️", text: "Starke Schauer" },
+    82: { icon: "⛈️", text: "Heftige Schauer" },
 
-  95: { icon: "⛈️", text: "Gewitter" },
-  96: { icon: "⛈️", text: "Gewitter mit Hagel" },
-  99: { icon: "⛈️", text: "Starkes Gewitter" },
-};
+    95: { icon: "⛈️", text: "Gewitter" },
+    96: { icon: "⛈️", text: "Gewitter mit Hagel" },
+    99: { icon: "⛈️", text: "Starkes Gewitter" },
+  };
 
-const [wetter, setWetter] = useState([]);
+  const [wetter, setWetter] = useState([]);
 
-
-  // Woche 
+  // Woche
   const DAYS = wetter.map((w, i) => {
     const d = new Date(w.tag);
 
     return {
       datum: w.tag,
-      dayShort: i === 0
-        ? "Heute"
-        : d.toLocaleDateString("de-CH", { weekday: "short" }).toUpperCase(),
+      dayShort:
+        i === 0 ? "Heute" : d.toLocaleDateString("de-CH", { weekday: "short" }).toUpperCase(),
       date: d.toLocaleDateString("de-CH", { day: "numeric", month: "short" }),
     };
-});
+  });
 
   // Alle Skigebiete (Name + Koordinaten) für die Karte
   const [skigebiete, setSkigebiete] = useState([]);
 
-   // Scrat anzeigen wenn Karte geneigt ist
+  // Scrat anzeigen wenn Karte geneigt ist
   const [showScrat, setShowScrat] = useState(false);
   const scratLayerRef = useRef(null);
   const scratAddedRef = useRef(false);
   const mapRef = useRef();
 
-
-  
   // ── EFFEKTE ──────────────────────────────────────────────
 
   // Skigebiete einmalig beim Mounten laden
@@ -143,11 +135,11 @@ const [wetter, setWetter] = useState([]);
   }, []);
 
   // Beim ersten Render das heutige Datum als aktives Datum setzen
-    useEffect(() => {
-      if (wetter.length > 0) {
-        setAktivDatum(wetter[0].tag);
-      }
-    }, [wetter]);
+  useEffect(() => {
+    if (wetter.length > 0) {
+      setAktivDatum(wetter[0].tag);
+    }
+  }, [wetter]);
 
   // Sobald sich das aktive Datum ändert: Schneehöhen-Import prüfen
   useEffect(() => {
@@ -159,14 +151,13 @@ const [wetter, setWetter] = useState([]);
       .catch((err) => console.error("Fehler beim Import:", err));
   }, [aktivDatum]);
 
-
   // Wetterdaten laden
   useEffect(() => {
-  fetch(`${API_BASE}/skigebiet/wetterprognose?station_id=2&type=woche`)
-    .then(res => res.json())
-    .then(data => setWetter(data))
-    .catch(console.error);
-}, []);
+    fetch(`${API_BASE}/skigebiet/wetterprognose?station_id=2&type=woche`)
+      .then((res) => res.json())
+      .then((data) => setWetter(data))
+      .catch(console.error);
+  }, []);
 
   // ── HANDLER ──────────────────────────────────────────────
 
@@ -243,22 +234,6 @@ const [wetter, setWetter] = useState([]);
           <h2>Wochen Prognose</h2>
           <p>Basierend auf aktuellen Echtzeit-Wetterdaten der Bergstationen.</p>
         </div>
-
-        {/* Suchfeld für Skigebiete */}
-        <div className="search-box">
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#aaa"
-            strokeWidth="2.5"
-          >
-            <circle cx="11" cy="11" r="8" />
-            <path d="m21 21-4.35-4.35" />
-          </svg>
-          <input type="text" placeholder="Skigebiet suchen..." className="search-input" />
-        </div>
       </div>
 
       {/* ── WOCHENLEISTE ───────────────────────────────── */}
@@ -303,53 +278,63 @@ const [wetter, setWetter] = useState([]);
 
       {/* ── KARTE ──────────────────────────────────────── */}
       <div className="map-container">
-       <Map
-        ref={mapRef}
-        initialViewState={{ longitude: 8.3, latitude: 46.8, zoom: 8 }}
-        maxZoom={19}
-        maxPitch={85}
-        style={{ width: "100%", height: "100%" }}
-        mapStyle={OSM_STYLE}
-        onClick={handleMapClick}
-        onLoad={(e) => {
-          const map = e.target;
+        <Map
+          ref={mapRef}
+          initialViewState={{ longitude: 8.3, latitude: 46.8, zoom: 8 }}
+          maxZoom={19}
+          minZoom={3}
+          maxPitch={85}
+          maxBounds={SWITZERLAND_BOUNDS}
+          style={{ width: "100%", height: "100%" }}
+          mapStyle={SWISSTOPO_STYLE}
+          onClick={handleMapClick}
+          onLoad={(e) => {
+            const map = e.target;
 
-          const layer = createScratLayer(map, 8.3, 46.8);
+            const layer = createScratLayer(map, 8.3, 46.8);
 
-          scratLayerRef.current = layer;
-          scratAddedRef.current = false;
-        }}
-        onMove={(e) => {
-          const pitch = e.viewState.pitch || 0;
-
-          const map = mapRef.current?.getMap?.();
-          const layer = scratLayerRef.current;
-          if (!map || !layer) return;
-
-          const isVisible = pitch > 10;
-
-          // hinzufügen
-          if (isVisible && !scratAddedRef.current) {
-            map.addLayer(layer);
-            scratAddedRef.current = true;
-          }
-
-          // entfernen
-          if (!isVisible && scratAddedRef.current) {
-            if (map.getLayer(layer.id)) {
-              map.removeLayer(layer.id);
-            }
+            scratLayerRef.current = layer;
             scratAddedRef.current = false;
-          }
-        }}
-        onMouseMove={(e) => {
-          /* Dein bestehender Code für den Cursor-Pointer bleibt hier stehen */
-          const features = e.target.queryRenderedFeatures(e.point, {
-            layers: ["skigebiete-points-layer"],
-          });
-          e.target.getCanvas().style.cursor = features.length ? "pointer" : "";
-        }}  
-      >
+
+            // Punkte nach ganz oben bringen
+            map.on("idle", () => {
+              if (map.getLayer("skigebiete-points-layer")) {
+                map.moveLayer("skigebiete-points-layer");
+                map.moveLayer("lifte-labels");
+              }
+            });
+          }}
+          onMove={(e) => {
+            const pitch = e.viewState.pitch || 0;
+
+            const map = mapRef.current?.getMap?.();
+            const layer = scratLayerRef.current;
+            if (!map || !layer) return;
+
+            const isVisible = pitch > 10;
+
+            // hinzufügen
+            if (isVisible && !scratAddedRef.current) {
+              map.addLayer(layer);
+              scratAddedRef.current = true;
+            }
+
+            // entfernen
+            if (!isVisible && scratAddedRef.current) {
+              if (map.getLayer(layer.id)) {
+                map.removeLayer(layer.id);
+              }
+              scratAddedRef.current = false;
+            }
+          }}
+          onMouseMove={(e) => {
+            /* Dein bestehender Code für den Cursor-Pointer bleibt hier stehen */
+            const features = e.target.queryRenderedFeatures(e.point, {
+              layers: ["skigebiete-points-layer"],
+            });
+            e.target.getCanvas().style.cursor = features.length ? "pointer" : "";
+          }}
+        >
           {/* Schneehöhen-Flächen (datumabhängig via safeDatum) */}
           <Source
             key={safeDatum}
@@ -369,18 +354,28 @@ const [wetter, setWetter] = useState([]);
                   "interpolate",
                   ["linear"],
                   ["get", "value"],
-
-                  1,   "#f7fbff",
-                  20,  "#deebf7",
-                  50,  "#c6dbef",
-                  80,  "#9ecae1",
-                  120, "#6baed6",
-                  200, "#3182bd",
-                  300, "#08519c",
-                  400, "#08306b"
+                  1,
+                  "#d6e6f5",
+                  20,
+                  "#b3d1ea",
+                  50,
+                  "#80b8e0",
+                  80,
+                  "#4da0d6",
+                  120,
+                  "#1f78c1",
+                  200,
+                  "#0f5aa6",
+                  300,
+                  "#083d7a",
+                  400,
+                  "#041f4a",
                 ],
-                "fill-opacity": 0.65,
-                "fill-antialias": true
+                "fill-opacity": 0.35,
+                "fill-antialias": true,
+              }}
+              layout={{
+                "fill-sort-key": ["get", "value"],
               }}
             />
           </Source>
@@ -476,15 +471,25 @@ const [wetter, setWetter] = useState([]);
           >
             {/* Gestrichelte Linien für alle Lifttypen ausser "goods" */}
             <Layer
-              id="lifte-linien-layer"
+              id="lifte-outline"
               type="line"
               source-layer="Lifte_Bahnen_Linien"
-              filter={["all", ["!=", ["get", "art"], "goods"]]}
-              maxzoom={20}
               minzoom={13}
               paint={{
-                "line-width": 2,
-                "line-color": "grey",
+                "line-color": "#ffffff",
+                "line-width": 7,
+                "line-opacity": 0.7,
+              }}
+            />
+
+            <Layer
+              id="lifte-main"
+              type="line"
+              source-layer="Lifte_Bahnen_Linien"
+              minzoom={13}
+              paint={{
+                "line-color": "#111",
+                "line-width": 3,
                 "line-dasharray": [1, 1],
               }}
             />
@@ -493,13 +498,13 @@ const [wetter, setWetter] = useState([]);
             <Layer
               id="lifte-labels"
               type="symbol"
-              source="lifte-linien"
               source-layer="Lifte_Bahnen_Linien"
-              minzoom={12}
+              minzoom={13}
               filter={["all", ["!=", ["get", "art"], "goods"], ["!=", ["get", "art"], "transport"]]}
               layout={{
                 "symbol-placement": "line",
                 "symbol-spacing": 250,
+                "text-font": ["Open Sans Regular"],
                 "text-field": [
                   "match",
                   ["get", "art"],
@@ -523,10 +528,7 @@ const [wetter, setWetter] = useState([]);
                   "Seilbahn",
                   "", // Fallback: kein Text
                 ],
-                "text-size": 11,
-                "text-anchor": "center",
-                "text-rotation-alignment": "map",
-                "text-allow-overlap": false,
+                "text-size": ["interpolate", ["linear"], ["zoom"], 12, 10, 16, 13],
               }}
               paint={{
                 "text-color": "#2b2b2b",
@@ -546,6 +548,7 @@ const [wetter, setWetter] = useState([]);
             <Layer
               id="skigebiete-points-layer"
               type="circle"
+              source="skigebiete-points"
               source-layer="Skigebiete_Zentroide"
               paint={{
                 "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 4, 12, 8],
@@ -806,14 +809,14 @@ const [wetter, setWetter] = useState([]);
         {/* Farbskala mit Schwellenwerten */}
         <div style={{ display: "flex", gap: 4, marginTop: 4 }}>
           {[
-            { value: "1", color: "#f7fbff" },
-            { value: "20", color: "#deebf7", },
-            { value: "50", color: "#c6dbef" },
-            { value: "80", color: "#9ecae1" },
-            { value: "120", color: "#6baed6" },
-            { value: "200", color: "#3182bd" },
-            { value: "300", color: "#08519c" },
-            { value: "400+", color: "#08306b" },
+            { value: "1", color: "#d6e6f5" },
+            { value: "20", color: "#b3d1ea" },
+            { value: "50", color: "#80b8e0" },
+            { value: "80", color: "#4da0d6" },
+            { value: "120", color: "#1f78c1" },
+            { value: "200", color: "#0f5aa6" },
+            { value: "300", color: "#083d7a" },
+            { value: "400+", color: "#041f4a" },
           ].map((item) => (
             <div
               key={item.value}

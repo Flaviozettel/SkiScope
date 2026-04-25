@@ -189,7 +189,7 @@ body {
 
 /* Abschnittstitel mit Filtericon (SVG via CSS) */
 .section-title {
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 700;
   color: #aaa;
   text-transform: uppercase;
