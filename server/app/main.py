@@ -6,7 +6,6 @@
 #   GET /skigebiete              → Alle Skigebiete (Name + Koordinaten)
 #   GET /skigebiet?station_id=   → Detaildaten eines Skigebiets
 #   GET /schnee                  → Schneehöhen der letzten 7 Tage prüfen/importieren
-#   GET /schnee/import?datum=    → Schneehöhen für ein bestimmtes Datum importieren
 # ============================================================
 
 import json
@@ -224,24 +223,6 @@ def get_schnee():
     """Löst den automatischen Import der letzten 7 Tage aus (falls Daten fehlen)."""
     auto_importiere_letzte_woche()
     return {"status": "ok", "range": "last_7_days"}
-
-
-# ── ENDPUNKT: Manueller Import für ein bestimmtes Datum ───────
-@app.get("/schnee/import")
-def importiere_schnee(datum: str = None):
-    """
-    Importiert Schneehöhen-Daten für ein bestimmtes Datum direkt vom SLF-API.
-    Erwartet datum im Format YYYY-MM-DD als Query-Parameter.
-    """
-    url = f"https://snow-maps-hs.slf.ch/public/hs/map/HS1D-v2/{datum}/geojson"
-
-    antwort = requests.get(url, timeout=30)
-    antwort.raise_for_status()
-
-    data = antwort.json()
-    importiere_schnee_in_db(datum, data)
-
-    return {"status": "ok", "datum": datum, "features": len(data["features"])}
 
 # -------------------------
 # Wetterprognose von DB abfragen und falls nötig von API holen und in DB speichern
