@@ -1,32 +1,66 @@
 /* ============================================================
-   App.css – Globale Stile für SkiScope
-   
+   App.css – Apple-like Glassmorphism Design für SkiScope
+
    Struktur:
    1. Reset & Basis
-   2. Layout (.app)
-   3. Header / Hero
-   4. Outer Card Shell
+   2. Layout
+   3. Header / Hero  ← komplett neu, schlank + Glas
+   4. Card Shell
    5. Sidebar
    6. Main Area
-   7. Dropdowns
-   8. Footer
-   9. Legende
+   7. Wochenleiste
+   8. Wetter-Sidebar (neu, links neben Karte)
+   9. Karte + Popup (Glas-Popup)
+  10. Snow Badge (klickbar)
+  11. Dropdowns
+  12. Footer
+  13. Legende
    ============================================================ */
 
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=DM+Mono:wght@400;500&display=swap");
 
-/* ── 1. RESET & BASIS ──────────────────────────────────────── */
-* {
+/* ── CSS VARIABLEN ─────────────────────────────────────────── */
+:root {
+  --accent: #2d6cdf;
+  --accent-soft: rgba(45, 108, 223, 0.1);
+  --accent-border: rgba(45, 108, 223, 0.2);
+  --glass-border: rgba(0, 0, 0, 0.1);
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.6) inset;
+  --surface: #f5f7fa;
+  --surface-2: #ffffff;
+  --border: rgba(0, 0, 0, 0.07);
+  --text-primary: #111318;
+  --text-secondary: #6b7280;
+  --text-tertiary: #9ca3af;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.07), 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* ── 1. RESET ──────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  margin: 0;
-  font-family: "Inter", Arial, sans-serif;
-  background: #f0f2f5;
-  color: #1a1a2e;
+  font-family:
+    "DM Sans",
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+  background: var(--surface);
+  color: var(--text-primary);
   height: 100%;
   overflow: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* ── 2. LAYOUT ─────────────────────────────────────────────── */
@@ -34,120 +68,152 @@ body {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  min-height: 100vh;
-  background: #f0f2f5;
+  background: var(--surface);
 }
 
-/* ── 3. HEADER / HERO ──────────────────────────────────────── */
+/* ── 3. HEADER ────────────────────── */
 .hero {
-  height: 80px;
-  color: white;
+  height: 64px;
   position: relative;
-  z-index: 1;
+  z-index: 10;
   background-size: cover;
-  background-position: center top;
+  background-position: center 40%;
+  flex-shrink: 0;
 }
 
-/* Dunkles Overlay über dem Hintergrundbild */
-.hero-overlay {
-  background: rgba(0, 0, 0, 0.25);
-  height: 100%;
-  padding: 0 40px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  position: relative;
-}
-
-/* Logo – absolut zentriert */
-.logo-container {
+/* Starkes Gradient-Overlay – dunkler am Rand, transparent in Mitte */
+.hero-gradient {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  inset: 0;
+  background: linear-gradient(
+    to right,
+    rgba(10, 20, 50, 0.75) 0%,
+    rgba(10, 20, 50, 0.45) 30%,
+    rgba(10, 20, 50, 0.45) 70%,
+    rgba(10, 20, 50, 0.75) 100%
+  );
+}
+
+/* Frosted-glass Leiste am Boden des Headers */
+.hero::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.hero-inner {
+  position: relative;
+  height: 100%;
   display: flex;
   align-items: center;
-  gap: 10px;
+  padding: 0 24px;
+  gap: 0;
 }
 
-.logo {
-  font-size: 50px;
-  font-weight: 700;
-  letter-spacing: -0.5px;
-}
-
-/* Slogan – unten links im Hero */
-.hero-text {
-  max-width: 480px;
-}
-
-.hero-text h1 {
-  font-size: 20px;
-  font-weight: 900;
-  margin: 0 0 6px;
-  text-shadow: 1px 2px 6px rgba(0, 0, 0, 0.6);
-  line-height: 1.15;
-}
-
-.hero-text p {
-  font-size: 12px;
-  margin: 0;
-  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.6);
-  opacity: 0.9;
-}
-
-/* Schneehöhen-Badge – oben rechts im Hero */
-.hero-badge {
-  position: absolute;
-  top: 24px;
-  right: 40px;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(6px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 8px;
-  padding: 8px 14px;
+/* Logo */
+.logo-mark {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: white;
-  font-size: 11px;
+  flex-shrink: 0;
 }
 
-.hero-badge .badge-icon {
-  font-size: 16px;
+.logo-snowflake {
+  font-size: 40px;
+  filter: drop-shadow(0 0 8px rgba(147, 200, 255, 0.8));
+  color: #ffffff;
 }
 
-.hero-badge .badge-label {
-  font-size: 10px;
-  opacity: 0.8;
+.logo-text {
+  font-size: 40px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Tagline – zentriert */
+.hero-tagline {
+  flex: 1;
+  text-align: center;
+  font-size: 20px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.75);
+  letter-spacing: 0.1px;
+}
+
+/* Snow Badge im Header – Glas */
+.hero-snow-badge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  background: rgba(255, 255, 255, 0.5); /* weniger weiss */
+  backdrop-filter: blur(14px) saturate(180%);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-md);
+
+  padding: 7px 14px;
+  flex-shrink: 0;
+
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+}
+
+.hero-snow-badge:hover {
+  border: 2px solid rgba(255, 255, 255, 0.6);
+
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.3),
+    0 4px 20px rgba(45, 108, 223, 0.25); /* blauer Glow passend zu deiner Map */
+}
+
+.snow-badge-icon {
+  font-size: 18px;
+}
+
+.snow-badge-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.snow-badge-label {
+  font-size: 9px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.65);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  line-height: 1.2;
+  letter-spacing: 0.7px;
 }
 
-.hero-badge .badge-value {
+.snow-badge-value {
   font-size: 12px;
   font-weight: 700;
+  color: #fff;
 }
 
-/* ── 4. OUTER CARD SHELL ───────────────────────────────────── */
-/* Weisser Hauptcontainer der Sidebar + MainArea umschliesst */
+/* ── 4. CARD SHELL ─────────────────────────────────────────── */
 .page-card {
-  background: white;
-  border-radius: 0;
-  margin: 0 20px 0;
-  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+  background: var(--surface-2);
+  margin: 0 16px 0;
+  box-shadow: var(--shadow-md);
   display: flex;
   flex: 1;
-  overflow: visible;
+  overflow: hidden;
+  border-radius: 0;
+  border-top: 1px solid var(--border);
 }
 
 /* ── 5. SIDEBAR ────────────────────────────────────────────── */
 .sidebar {
   width: 210px;
   flex-shrink: 0;
-  background: white;
-  border-right: 1px solid #e8ecf0;
+  background: var(--surface-2);
+  border-right: 1px solid var(--border);
   padding: 20px 16px;
   display: flex;
   flex-direction: column;
@@ -159,45 +225,43 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding-bottom: 18px;
-  border-bottom: 1px solid #e8ecf0;
-  margin-bottom: 18px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
 }
 
 .profile-icon {
-  font-size: 22px;
+  font-size: 20px;
 }
 
 .profile-label {
   font-size: 9px;
-  color: #999;
+  color: var(--text-tertiary);
   text-transform: uppercase;
-  letter-spacing: 0.6px;
+  letter-spacing: 0.7px;
   font-weight: 600;
 }
 
 .profile-name {
   font-size: 13px;
   font-weight: 600;
-  color: #1a1a2e;
+  color: var(--text-primary);
 }
 
-/* Abschnitts-Container mit Abstand nach unten */
 .section {
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
-/* Abschnittstitel mit Filtericon (SVG via CSS) */
 .section-title {
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 700;
-  color: #aaa;
+  color: var(--text-tertiary);
   text-transform: uppercase;
-  letter-spacing: 0.8px;
+  letter-spacing: 0.9px;
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .section-title::before {
@@ -209,7 +273,6 @@ body {
     no-repeat center/contain;
 }
 
-/* Lift-Checkbox-Zeile */
 .lift-item {
   display: flex;
   align-items: center;
@@ -219,39 +282,30 @@ body {
   color: #333;
 }
 
-.lift-checkbox::after {
-  content: "✓";
-  color: white;
-  font-size: 10px;
-  font-weight: 700;
-}
-
-/* Label über Inputs in der Konfiguration */
 .config-label {
   font-size: 9px;
   font-weight: 700;
-  color: #aaa;
+  color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.6px;
   margin-bottom: 6px;
 }
 
-/* Skill-Level Dropdown */
 .skill-select {
   width: 80px;
   padding: 5px 8px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
   font-size: 13px;
-  color: #333;
-  background: white;
+  color: var(--text-primary);
+  background: var(--surface);
   margin-bottom: 16px;
-  appearance: auto;
+  font-family: inherit;
 }
 
 .weight-label span {
   font-size: 11px;
-  color: #2d6cdf;
+  color: var(--accent);
   font-weight: 600;
 }
 
@@ -260,30 +314,35 @@ body {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: #2d6cdf;
+  background: var(--accent);
   cursor: pointer;
   border: 2px solid white;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* Primär-Button (z.B. "Ranking aktualisieren") */
 .btn {
   width: 100%;
   padding: 10px;
-  background: #2d6cdf;
+  background: var(--accent);
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.5px;
   text-transform: uppercase;
   cursor: pointer;
-  transition: background 0.2s;
+  transition:
+    background 0.2s,
+    transform 0.1s;
+  font-family: inherit;
 }
 
 .btn:hover {
   background: #1f54b8;
+}
+.btn:active {
+  transform: scale(0.98);
 }
 
 /* ── 6. MAIN AREA ──────────────────────────────────────────── */
@@ -291,217 +350,416 @@ body {
   display: flex;
   flex-direction: column;
   flex: 1;
-  background: white;
-  padding: 16px 20px 8px;
+  background: var(--surface-2);
+  padding: 14px 18px 10px;
   overflow: hidden;
   height: 100%;
+  gap: 12px;
 }
 
-/* Titelzeile über der Wochenleiste */
-.prognose-header {
+/* ── 7. WOCHENLEISTE ───────────────────────────────────────── */
+.week {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 18px;
-}
-
-.prognose-title h2 {
-  font-size: 18px;
-  font-weight: 900;
-  margin: 0 0 3px;
-  letter-spacing: -0.5px;
-}
-
-.prognose-title p {
-  font-size: 11px;
-  color: #aaa;
-  margin: 0;
-}
-
-/* Suchfeld (Textinput ohne Rahmen) */
-.search-input {
-  border: none;
-  outline: none;
-  font-size: 13px;
-  color: #333;
-  background: transparent;
-  width: 140px;
-}
-
-.search-input::placeholder {
-  color: #aaa;
-}
-
-/* Umrandeter Container um Suchicon + Textinput */
-.search-box {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 7px 14px;
-  font-size: 13px;
-  color: #aaa;
-  cursor: pointer;
-  min-width: 160px;
-}
-
-.search-box svg {
+  gap: 6px;
+  align-items: stretch;
   flex-shrink: 0;
 }
 
-/* ── WOCHENLEISTE ──────────────────────────────────────────── */
-.week {
-  display: flex;
-  gap: 4px;
-  margin-bottom: 16px;
-  align-items: stretch;
-}
-
-/* Einzelner Tag-Button */
+/* Tag-Kachel */
 .day {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-
-  width: 72px;
-  height: 72px;
-
-  padding: 8px;
-
-  background: #f7f9fc;
-  border-radius: 12px;
-  border: 1px solid #e8ecf0;
-
-  gap: 4px;
+  width: 68px;
+  height: 68px;
+  padding: 6px;
+  gap: 3px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.06),
+    0 1px 0 rgba(255, 255, 255, 0.8) inset;
   cursor: pointer;
-
   transition:
-    transform 0.15s,
-    background 0.15s;
-}
-
-.day:hover {
-  transform: translateY(-2px);
-  background: #eef2fb;
+    transform 0.15s ease,
+    background 0.15s ease,
+    box-shadow 0.15s ease,
+    border-color 0.15s ease;
 }
 
 .day-label {
-  font-size: 13px;
+  font-size: 10px;
   font-weight: 700;
-  color: #aaa;
+  color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .day-date {
   font-size: 11px;
-  font-weight: 700;
-  color: #333;
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
 .day-icon {
-  font-size: 16px;
+  font-size: 18px;
 }
 
-/* Aktiver Tag – blau hervorgehoben */
+/* Aktiver Tag */
 .day.active {
-  background: #2d6cdf;
-  border-color: #2d6cdf;
-  color: white;
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow:
+    0 4px 16px rgba(45, 108, 223, 0.4),
+    0 1px 0 rgba(255, 255, 255, 0.25) inset;
+  transform: translateY(-2px);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 .day.active .day-label,
 .day.active .day-date {
-  color: white;
+  color: rgba(255, 255, 255, 0.92);
 }
 
-/* Gepunkteter Platzhalter für zukünftigen Datepicker */
-.day-picker {
-  position: relative;
+/* ── SNOW BADGE (klickbar, mit Rahmen) ─────────────────────── */
+.snow-badge-week {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: var(--surface);
+  border: 1.5px solid var(--accent-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  font-family: inherit;
+  white-space: nowrap;
+  text-decoration: none;
+  box-shadow: var(--shadow-sm);
+}
+
+.snow-badge-week:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(45, 108, 223, 0.18);
+}
+
+.snow-badge-week:active {
+  transform: scale(0.98);
+}
+
+.snow-badge-week-icon {
+  font-size: 20px;
+}
+
+.snow-badge-week-label {
+  font-size: 9px;
+  font-weight: 700;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  line-height: 1.2;
+}
+
+.snow-badge-week-value {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.snow-badge-week-arrow {
+  color: var(--accent);
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+/* ── 8. MAP + WETTER WRAPPER ───────────────────────────────── */
+.map-weather-wrapper {
+  display: flex;
+  flex: 1;
+  gap: 10px;
+  min-height: 0;
+}
+
+/* ── WETTER-SIDEBAR links ─────────────────────────────────── */
+.weather-sidebar {
+  width: 160px;
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 8px 10px;
-  background: #f7f9fc;
-  border-radius: 10px;
-  border: 1px dashed #ccc;
-  font-size: 9px;
-  color: #aaa;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  cursor: pointer;
-  min-width: 58px;
-  gap: 4px;
-}
-
-/* ── EMPFEHLUNG-HEADER ─────────────────────────────────────── */
-.empfehlung-header {
-  display: flex;
-  align-items: center;
   justify-content: space-between;
-  margin-bottom: 14px;
+  gap: 3px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: 12px 10px;
+  box-shadow: var(--glass-shadow);
+  overflow: hidden;
 }
 
-.empfehlung-title {
+.weather-sidebar-title {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: none;
+  letter-spacing: 0;
+  padding: 0 4px 8px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
   display: flex;
   align-items: center;
-  gap: 0;
+  gap: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 11px;
+  font-weight: 600;
 }
 
-/* Blauer vertikaler Akzentbalken links vom Titel */
-.empfehlung-title-bar {
-  width: 4px;
-  height: 20px;
-  background: #2d6cdf;
-  border-radius: 2px;
-  margin-right: 10px;
-}
-
-.empfehlung-title h3 {
-  font-size: 14px;
-  font-weight: 800;
-  margin: 0;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-}
-
-.empfehlung-controls {
+.weather-row {
   display: flex;
   align-items: center;
   gap: 8px;
+  padding: 7px 6px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.12s ease;
 }
 
-.empfohlen-label {
+.weather-row:hover {
+  background: rgba(45, 108, 223, 0.07);
+}
+
+.weather-row.active {
+  background: #2c76ffcb;
+  box-shadow: 0 3px 10px rgba(45, 108, 223, 0.5);
+}
+
+.weather-row-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+  width: 24px;
+  text-align: center;
+}
+
+.weather-row-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.weather-row-day {
   font-size: 11px;
-  color: #aaa;
-  margin-left: 8px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
 }
 
-/* Karten-Container – nimmt verbleibende Höhe ein */
+.weather-row-desc {
+  font-size: 9px;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+
+.weather-row.active .weather-row-day,
+.weather-row.active .weather-row-desc,
+.weather-row.active .weather-row-temp {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.weather-row-temp {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+  font-family: "DM Mono", monospace;
+}
+
+/* ── 9. KARTE ──────────────────────────────────────────────── */
 .map-container {
   flex: 1;
   min-height: 0;
-  border-radius: 16px;
-  overflow: visible;
-  border: 1px solid #e8ecf0;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--border);
   position: relative;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-  z-index: 0;
+  box-shadow: var(--shadow-lg);
 }
 
-/* ── 7. DROPDOWNS ──────────────────────────────────────────── */
+/* ── MAP LEGENDE ───────────────────────────────────────────── */
+.map-legende {
+  position: absolute;
+  bottom: 14px;
+  font:
+    12px "DM Sans",
+    sans-serif;
+  left: 14px;
+  background: #ffffff;
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  z-index: 10;
+  box-shadow: var(--glass-shadow);
+}
+
+.legende-title {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.legende-scale {
+  display: flex;
+  gap: 5px;
+}
+
+.legende-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 9px;
+  color: var(--text-tertiary);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.legende-color {
+  width: 26px;
+  height: 8px;
+  border-radius: 3px;
+  margin-bottom: 3px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/* ── POPUP – Glassmorphism ─────────────────────────────────── */
+/* Override maplibre popup shell */
+.maplibregl-popup-content {
+  background: #ffffff;
+  box-shadow: none !important;
+  padding: 0 !important;
+  overflow: visible !important;
+}
+
+.maplibregl-popup-tip {
+  border-top-color: rgb(255, 255, 255) !important;
+}
+
+.popup-glass {
+  width: 268px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  box-shadow: var(--shadow-lg);
+  font-family: "DM Sans", sans-serif;
+}
+
+.popup-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  gap: 8px;
+}
+
+.popup-name {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+  flex: 1;
+}
+
+.popup-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  padding: 5px 0;
+}
+
+.popup-pisten-bar {
+  height: 8px;
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  margin: 12px 0 5px;
+}
+
+.popup-pisten-bar > div {
+  transition: width 0.3s ease;
+}
+
+.popup-pisten-labels {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 10px;
+  color: var(--text-tertiary);
+  margin-bottom: 12px;
+  font-family: "DM Mono", monospace;
+}
+
+.popup-total {
+  margin-left: auto;
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--text-primary);
+  font-family: "DM Sans", sans-serif;
+}
+
+.popup-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+  font-size: 10px;
+  color: var(--text-tertiary);
+}
+
+.popup-lawine-link {
+  color: var(--accent);
+  font-weight: 700;
+  text-decoration: none;
+  font-size: 11px;
+}
+
+.popup-lawine-link:hover {
+  text-decoration: underline;
+}
+
+/* ── 10. DROPDOWNS ─────────────────────────────────────────── */
 .profile-dropdown-wrapper,
 .score-dropdown-wrapper {
   position: relative;
 }
 
-/* Klickbarer Profil-Block in der Sidebar */
 .profile-block--clickable {
   cursor: pointer;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   transition: background 0.15s;
   padding: 6px 8px;
   margin: -6px -8px 12px;
@@ -511,14 +769,12 @@ body {
 }
 
 .profile-block--clickable:hover {
-  background: #f0f4ff;
+  background: var(--accent-soft);
 }
-
 .profile-block--clickable.open {
-  background: #eef2fb;
+  background: var(--accent-soft);
 }
 
-/* Chevron-Icon dreht sich beim Öffnen des Dropdowns */
 .dropdown-chevron {
   transition: transform 0.2s;
   flex-shrink: 0;
@@ -528,16 +784,17 @@ body {
   transform: rotate(180deg);
 }
 
-/* Profil-Dropdown-Liste */
 .profile-dropdown {
   position: absolute;
   top: calc(100% + 4px);
   left: 0;
   right: 0;
-  background: white;
-  border: 1px solid #e0e6ef;
-  border-radius: 10px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
   z-index: 100;
   overflow: hidden;
 }
@@ -549,21 +806,20 @@ body {
   padding: 9px 12px;
   font-size: 13px;
   cursor: pointer;
-  color: #333;
+  color: var(--text-primary);
   transition: background 0.12s;
+  font-family: inherit;
 }
 
 .profile-option:hover {
-  background: #f0f4ff;
+  background: var(--accent-soft);
 }
-
 .profile-option.selected {
-  background: #eef2fb;
+  background: var(--accent-soft);
   font-weight: 600;
-  color: #2d6cdf;
+  color: var(--accent);
 }
 
-/* Score-Auswahl-Button (Empfehlung nach …) */
 .skiscope-score-btn {
   display: flex;
   align-items: center;
@@ -573,23 +829,25 @@ body {
   padding: 0;
   font-size: 11px;
   font-weight: 700;
-  color: #2d6cdf;
+  color: var(--accent);
   cursor: pointer;
+  font-family: inherit;
 }
 
 .skiscope-score-btn:hover {
   text-decoration: underline;
 }
 
-/* Score-Dropdown-Liste */
 .score-dropdown {
   position: absolute;
   top: calc(100% + 6px);
   right: 0;
-  background: white;
-  border: 1px solid #e0e6ef;
-  border-radius: 10px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
   z-index: 100;
   min-width: 160px;
   overflow: hidden;
@@ -599,207 +857,103 @@ body {
   padding: 9px 14px;
   font-size: 12px;
   cursor: pointer;
-  color: #333;
+  color: var(--text-primary);
   transition: background 0.12s;
+  font-family: inherit;
 }
 
 .score-option:hover {
-  background: #f0f4ff;
+  background: var(--accent-soft);
 }
-
 .score-option.selected {
   font-weight: 700;
-  color: #2d6cdf;
-  background: #eef2fb;
+  color: var(--accent);
+  background: var(--accent-soft);
 }
 
-/* ── 8. FOOTER ─────────────────────────────────────────────── */
+/* ── 11. FOOTER ────────────────────────────────────────────── */
 footer {
   text-align: center;
   font-size: 11px;
-  color: #aaa;
+  color: var(--text-tertiary);
   padding: 8px;
   letter-spacing: 0.3px;
-  background: white;
-  border-top: 1px solid #e8ecf0;
+  background: var(--surface-2);
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
 }
 
 footer a {
-  color: #aaa;
+  color: var(--text-tertiary);
 }
 
-/* ── 9. LEGENDE ────────────────────────────────────────────── */
-.legende {
-  margin-bottom: 12px;
-  margin-top: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  flex-shrink: 0;
+.maplibregl-popup-content {
+  background: #ffffff;
+  box-shadow: none !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
 }
 
-.legende-title {
-  font-size: 11px;
-  font-weight: 700;
-  color: #666;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+.maplibregl-popup-tip {
+  display: none !important;
 }
 
-.week {
-  display: flex;
-  gap: 4px;
-  margin-bottom: 16px;
-  align-items: center;
-}
-
-/* neuer Inline-Titel */
-.week-title {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  margin-right: 10px;
-  flex-shrink: 0;
-}
-
-.week-title h2 {
-  font-size: 18px;
-  font-weight: 900;
-  margin: 0 0 3px;
-  letter-spacing: -0.5px;
-}
-
-.week-title p {
-  font-size: 11px;
-  color: #aaa;
-  margin: 0;
-}
-
-/* ── MAP OVERLAY LEGENDE ───────────────────────────── */
-.map-legende {
-  position: absolute;
-  bottom: 14px;
-  left: 14px;
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(6px);
-  border: 1px solid #e8ecf0;
-  border-radius: 12px;
-  padding: 10px 12px;
-  z-index: 10;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
-}
-
-.legende-scale {
-  display: flex;
-  gap: 6px;
-  margin-top: 6px;
-}
-
-.legende-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  font-size: 9px;
-  color: #666;
-}
-
-.legende-color {
-  width: 28px;
-  height: 10px;
-  border-radius: 3px;
-  border: 1px solid #ddd;
-  margin-bottom: 2px;
-}
-
-/* ── Top Schnee neben Wochenleiste ─────────────── */
-.top-snow-badge {
-  margin-left: auto;
+/* ── Mini Hover Tooltip (nur Name) ── */
+.popup-mini {
   display: flex;
   align-items: center;
-  padding: 8px 12px;
-  background: #eef4ff;
-  border: 1px solid #dbe6ff;
+  gap: 8px;
+  padding: 8px 14px;
+  background: #ffffff;
   border-radius: 10px;
-  font-size: 12px;
-  font-weight: 700;
-  color: #2d6cdf;
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.13),
+    0 1px 4px rgba(0, 0, 0, 0.07),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
   white-space: nowrap;
+  pointer-events: none; /* kein Klick nötig, rein informativ */
 }
 
-/* ── Beste Schneehöhe Kachel (angepasst an day-Stil) ── */
-.day.snow-day {
-  background: #f7f9fc; /* exakt wie normale Kacheln */
-  border: 1px solid #e8ecf0; /* exakt wie normale Kacheln */
+.popup-mini-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #2d6cdf;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 3px rgba(45, 108, 223, 0.18);
 }
 
-/* kein extra „Badge-Look“, nur leichte Akzentfarbe */
-.day.snow-day .day-label {
-  color: #2d6cdf;
+.popup-mini-name {
+  font-family: "DM Sans", sans-serif;
+  font-size: 13px;
   font-weight: 700;
+  color: #111318;
+  letter-spacing: -0.2px;
 }
 
-/* optional leicht stärkerer Icon-Kontrast */
-.day.snow-day .day-icon {
-  opacity: 0.9;
-}
-
-/* Badge in Wochenleiste – identischer Stil wie Header */
-.week-badge {
-  position: relative; /* wichtig: kein absolute mehr */
-  top: auto;
-  right: auto;
-  margin-left: auto; /* schiebt es nach rechts */
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(6px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 8px;
-  padding: 8px 14px;
+/* ── Ladeindikator im vollen Popup ── */
+.popup-loading {
   display: flex;
   align-items: center;
-  gap: 8px;
-  color: #1a1a2e; /* weil jetzt auf hellem Hintergrund */
-  font-size: 11px;
+  gap: 10px;
+  padding: 8px 4px;
+  font-size: 13px;
+  color: #6b7280;
+  font-family: "DM Sans", sans-serif;
 }
 
-/* gleiche Typo wie Header */
-.week-badge .badge-label {
-  font-size: 10px;
-  opacity: 0.8;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  line-height: 1.2;
+.popup-loading-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #e5e7eb;
+  border-top-color: #2d6cdf;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
 }
 
-.week-badge .badge-value {
-  font-size: 12px;
-  font-weight: 700;
-}
-.week-badge {
-  position: relative;
-  margin-left: auto;
-
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(6px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-
-  border-radius: 8px;
-  padding: 8px 14px;
-
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
-  color: #1a1a2e; /* wichtig: lesbar auf hellem Hintergrund */
-}
-
-.week-badge .badge-label {
-  font-size: 10px;
-  opacity: 0.7;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.week-badge .badge-value {
-  font-size: 12px;
-  font-weight: 700;
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

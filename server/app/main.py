@@ -63,7 +63,7 @@ def get_top_schnee():
     cur = conn.cursor()
 
     cur.execute("""
-        SELECT station_name, schneetiefe_piste_cm
+        SELECT station_id, station_name, schneetiefe_piste_cm
         FROM skigebiete
         WHERE schneetiefe_piste_cm IS NOT NULL
         ORDER BY schneetiefe_piste_cm DESC
@@ -75,7 +75,7 @@ def get_top_schnee():
     conn.close()
 
     if row:
-        return {"station_id": row[0], "station_name": row[0], "schnee_haupt": row[1]}
+        return {"station_id": row[0], "station_name": row[1], "schnee_haupt": row[2]}
 
     return {"error": "Keine Daten"}
 

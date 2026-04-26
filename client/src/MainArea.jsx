@@ -1,26 +1,19 @@
 // ============================================================
-// MainArea.jsx – Hauptbereich mit Wochenleiste und Karte
-//
-// Zeigt eine 7-Tage-Auswahl, lädt Schneehöhen- und
-// Skigebiets-Daten vom Backend und stellt diese auf einer
-// interaktiven MapLibre-Karte dar. Klick auf ein Skigebiet
-// öffnet ein Popup mit Detailinformationen.
+// MainArea.jsx
+// Hover → Mini-Tooltip (nur Name, kein Button)
+// Klick auf Punkt → sofort volles Glas-Popup
+// Klick auf leere Fläche → alles schliessen
 // ============================================================
 
-import { useState, useEffect } from "react";
-import Map, { Source, Layer, Marker, Popup } from "react-map-gl/maplibre";
+import { useState, useEffect, useRef } from "react";
+import Map, { Source, Layer, Popup } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { useRef } from "react";
 import { createScratLayer } from "./scratLayer";
 
-// GeoServer-Basis-URL (lokales Netzwerk)
 const GEOSERVER =
   "http://192.168.4.228:8080/geoserver/skiscope/ows?service=WMS&version=1.1.1&request=GetMap";
-
-// API-Basis-URL (Backend)
 const API_BASE = "http://192.168.4.228:8000";
 
-// MapLibre-Kartenstil: heller OpenStreetMap-Hintergrund (CartoCDN)
 const SWISSTOPO_STYLE = {
   version: 8,
   glyphs: "https://fonts.openmaptiles.org/{fontstack}/{range}.pbf",
@@ -34,800 +27,643 @@ const SWISSTOPO_STYLE = {
       attribution: "© swisstopo",
     },
   },
-  layers: [
-    {
-      id: "swisstopo",
-      type: "raster",
-      source: "swisstopo",
-    },
-  ],
+  layers: [{ id: "swisstopo", type: "raster", source: "swisstopo" }],
 };
 
-// Hilfsfunktion: Erstellt eine GeoServer-Tile-URL für einen bestimmten Layer
 function geoserverTileUrl(layer, extraParams = "") {
   return `${GEOSERVER}&layers=skiscope:${layer}&bbox={bbox-epsg-3857}&width=256&height=256&srs=EPSG:3857&format=application/vnd.mapbox-vector-tile${extraParams}`;
 }
 
-export const MainArea = ({ aktivDatum, setAktivDatum }) => {
-  // Index des aktuell markierten Tages in der Wochenleiste
+const WMO_MAP = {
+  0: { icon: "☀️", text: "Klar" },
+  1: { icon: "🌤️", text: "Überwiegend klar" },
+  2: { icon: "⛅", text: "Teilweise bewölkt" },
+  3: { icon: "☁️", text: "Bedeckt" },
+  45: { icon: "🌫️", text: "Nebel" },
+  48: { icon: "🌫️", text: "Raureifnebel" },
+  51: { icon: "🌦️", text: "Leichter Niesel" },
+  53: { icon: "🌦️", text: "Niesel" },
+  55: { icon: "🌧️", text: "Starker Niesel" },
+  61: { icon: "🌧️", text: "Leichter Regen" },
+  63: { icon: "🌧️", text: "Regen" },
+  65: { icon: "🌧️", text: "Starker Regen" },
+  71: { icon: "🌨️", text: "Leichter Schnee" },
+  73: { icon: "🌨️", text: "Schnee" },
+  75: { icon: "❄️", text: "Starker Schneefall" },
+  80: { icon: "🌦️", text: "Regenschauer" },
+  81: { icon: "🌧️", text: "Starke Schauer" },
+  82: { icon: "⛈️", text: "Heftige Schauer" },
+  95: { icon: "⛈️", text: "Gewitter" },
+  96: { icon: "⛈️", text: "Gewitter mit Hagel" },
+  99: { icon: "⛈️", text: "Starkes Gewitter" },
+};
+
+const SWITZERLAND_BOUNDS = [
+  [4.7, 45.0],
+  [12.1, 48.8],
+];
+
+export const MainArea = ({ mapRef, aktivDatum, setAktivDatum }) => {
   const [activeDay, setActiveDay] = useState(0);
 
-  // Steuert ob das Score-Dropdown offen ist
-  const [scoreOpen, setScoreOpen] = useState(false);
+  // Mini-Tooltip beim Hover (nur Name)
+  const [hoverMarker, setHoverMarker] = useState(null); // { lng, lat, name }
 
-  // Index der aktuell gewählten Score-Option
-  const [selectedScore, setSelectedScore] = useState(0);
-
-  // Koordinaten und station_id des zuletzt angeklickten Kartenmarkers
-  const [selectedMarker, setSelectedMarker] = useState(null);
-
-  // Detaildaten des angeklickten Skigebiets (aus Backend)
+  // Volles Popup nach Klick
+  const [selectedMarker, setSelectedMarker] = useState(null); // { lng, lat, station_id }
   const [tooltipData, setTooltipData] = useState(null);
 
-  // Karte
-  const SWITZERLAND_BOUNDS = [
-    [4.7, 45.0], // Südwest (leicht erweitert)
-    [12.1, 48.8], // Nordost (leicht erweitert)
-  ];
-
-  // beste Schneehöhe
+  const [wetter, setWetter] = useState([]);
+  const scratLayerRef = useRef(null);
+  const scratAddedRef = useRef(false);
+  const [wetterStation, setWetterStation] = useState(null);
   const [topSchnee, setTopSchnee] = useState(null);
 
   useEffect(() => {
-    fetch(`${API_BASE}/skigebiete/top-schnee`)
-      .then((res) => res.json())
-      .then((data) => setTopSchnee(data))
-      .catch(console.error);
-  }, []);
-
-  // Wetter
-  const WMO_MAP = {
-    0: { icon: "☀️", text: "Klar" },
-    1: { icon: "🌤️", text: "Überwiegend klar" },
-    2: { icon: "⛅", text: "Teilweise bewölkt" },
-    3: { icon: "☁️", text: "Bedeckt" },
-
-    45: { icon: "🌫️", text: "Nebel" },
-    48: { icon: "🌫️", text: "Raureifnebel" },
-
-    51: { icon: "🌦️", text: "Leichter Niesel" },
-    53: { icon: "🌦️", text: "Niesel" },
-    55: { icon: "🌧️", text: "Starker Niesel" },
-
-    61: { icon: "🌧️", text: "Leichter Regen" },
-    63: { icon: "🌧️", text: "Regen" },
-    65: { icon: "🌧️", text: "Starker Regen" },
-
-    71: { icon: "🌨️", text: "Leichter Schnee" },
-    73: { icon: "🌨️", text: "Schnee" },
-    75: { icon: "❄️", text: "Starker Schneefall" },
-
-    80: { icon: "🌦️", text: "Regenschauer" },
-    81: { icon: "🌧️", text: "Starke Schauer" },
-    82: { icon: "⛈️", text: "Heftige Schauer" },
-
-    95: { icon: "⛈️", text: "Gewitter" },
-    96: { icon: "⛈️", text: "Gewitter mit Hagel" },
-    99: { icon: "⛈️", text: "Starkes Gewitter" },
-  };
-
-  const [wetter, setWetter] = useState([]);
-
-  // Woche
-  const DAYS = wetter.map((w, i) => {
-    const d = new Date(w.tag);
-
-    return {
-      datum: w.tag,
-      dayShort:
-        i === 0 ? "Heute" : d.toLocaleDateString("de-CH", { weekday: "short" }).toUpperCase(),
-      date: d.toLocaleDateString("de-CH", { day: "numeric", month: "short" }),
-    };
-  });
-
-  // Alle Skigebiete (Name + Koordinaten) für die Karte
-  const [skigebiete, setSkigebiete] = useState([]);
-
-  // Scrat anzeigen wenn Karte geneigt ist
-  const [showScrat, setShowScrat] = useState(false);
-  const scratLayerRef = useRef(null);
-  const scratAddedRef = useRef(false);
-  const mapRef = useRef();
-
-  // ── EFFEKTE ──────────────────────────────────────────────
-
-  // Skigebiete einmalig beim Mounten laden
-  useEffect(() => {
-    fetch(`${API_BASE}/skigebiete`)
-      .then((res) => res.json())
-      .then((data) => setSkigebiete(data))
-      .catch(console.error);
-  }, []);
-
-  // Beim ersten Render das heutige Datum als aktives Datum setzen
-  useEffect(() => {
-    if (wetter.length > 0) {
-      setAktivDatum(wetter[0].tag);
-    }
-  }, [wetter]);
-
-  // Sobald sich das aktive Datum ändert: Schneehöhen-Import prüfen
-  useEffect(() => {
-    if (!aktivDatum) return;
-
-    fetch(`${API_BASE}/schnee?datum=${aktivDatum}`)
-      .then((res) => res.json())
-      .then((data) => console.log("Import geprüft:", data))
-      .catch((err) => console.error("Fehler beim Import:", err));
-  }, [aktivDatum]);
-
-  // Wetterdaten laden
-  useEffect(() => {
-    fetch(`${API_BASE}/skigebiet/wetterprognose?station_id=2&type=woche`)
-      .then((res) => res.json())
+    if (!wetterStation?.station_id) return;
+    fetch(`${API_BASE}/skigebiet/wetterprognose?station_id=${wetterStation.station_id}&type=woche`)
+      .then((r) => r.json())
       .then((data) => setWetter(data))
       .catch(console.error);
+  }, [wetterStation?.station_id]);
+
+  useEffect(() => {
+    if (wetter.length > 0) setAktivDatum(wetter[0].tag);
+  }, [wetter]);
+
+  useEffect(() => {
+    fetch(`${API_BASE}/skigebiete/top-schnee`)
+      .then((r) => r.json())
+      .then((data) => {
+        setTopSchnee(data);
+        setWetterStation({ station_id: data.station_id, name: data.station_name });
+      })
+      .catch(console.error);
   }, []);
 
-  // ── HANDLER ──────────────────────────────────────────────
+  useEffect(() => {
+    if (!aktivDatum) return;
+    fetch(`${API_BASE}/schnee?datum=${aktivDatum}`)
+      .then((r) => r.json())
+      .then((d) => console.log("Import geprüft:", d))
+      .catch(console.error);
+  }, [aktivDatum]);
 
-  // Klick auf einen Tag in der Wochenleiste: UI und globales Datum aktualisieren
-  const handleDayClick = (i) => {
-    setActiveDay(i);
-    setAktivDatum(DAYS[i].datum);
-  };
-
-  // Datum für den Schneelayer: liegt das gewählte Datum in der Zukunft,
-  // wird stattdessen das heutige Datum verwendet (API hat noch keine Zukunftsdaten)
   const heuteISO = new Date().toISOString().split("T")[0];
   const safeDatum = aktivDatum > heuteISO ? heuteISO : aktivDatum;
 
-  // Klick auf die Karte: Skigebiet-Feature ermitteln und Detaildaten laden
+  // Hover → nur Name anzeigen
+  const handleMouseMove = (e) => {
+    const features = e.target.queryRenderedFeatures(e.point, {
+      layers: ["skigebiete-points-layer"],
+    });
+
+    if (features.length) {
+      e.target.getCanvas().style.cursor = "pointer";
+      const f = features[0];
+      const name = f.properties.name || "Unbekanntes Skigebiet";
+      // Kein Hover-Tooltip wenn volles Popup bereits offen
+      if (!selectedMarker) {
+        setHoverMarker((prev) =>
+          prev?.name === name ? prev : { lng: e.lngLat.lng, lat: e.lngLat.lat, name },
+        );
+      }
+    } else {
+      e.target.getCanvas().style.cursor = "";
+      if (!selectedMarker) setHoverMarker(null);
+    }
+  };
+
+  // Klick auf Punkt → sofort volles Popup laden
   const handleMapClick = async (e) => {
     const features = e.target.queryRenderedFeatures(e.point, {
       layers: ["skigebiete-points-layer"],
     });
 
-    // Kein Skigebiet getroffen → Popup schliessen
     if (!features.length) {
+      // Klick auf leere Fläche → alles schliessen
       setSelectedMarker(null);
       setTooltipData(null);
+      setHoverMarker(null);
       return;
     }
 
     const f = features[0];
-    console.log("🗺️ Feature Properties:", f.properties);
-
     const station_id = Number(f.properties.neuneuneu_station_id);
+    const name = f.properties.name || "Unbekanntes Skigebiet";
+    if (!station_id) return;
 
-    if (!station_id) {
-      console.warn("⚠️ Keine station_id im Feature!");
-      return;
-    }
+    // Hover-Tooltip sofort ausblenden, volles Popup zeigen
+    setHoverMarker(null);
+    setSelectedMarker({ lng: e.lngLat.lng, lat: e.lngLat.lat, station_id });
+    setTooltipData(null); // kurz null → Ladeindikator
 
-    // Marker-Position und ID merken
-    setSelectedMarker({
-      lng: e.lngLat.lng,
-      lat: e.lngLat.lat,
-      station_id,
-    });
-
-    // Detaildaten vom Backend laden
     try {
-      const url = `${API_BASE}/skigebiet?station_id=${station_id}`;
-      console.log("🔗 Fetch URL:", url);
-
-      const name = f.properties.name || "Unbekanntes Skigebiet";
-      const res = await fetch(url);
+      const res = await fetch(`${API_BASE}/skigebiet?station_id=${station_id}`);
       const data = await res.json();
-      console.log("📦 API Antwort:", data);
-
-      if (data.error) {
-        // Backend hat keinen Eintrag gefunden → Fehler im Popup anzeigen
-        console.warn("⚠️ API Fehler:", data.error);
-        setTooltipData({ _error: data.error, name });
-      } else {
-        setTooltipData(data);
-      }
+      setTooltipData(data.error ? { _error: data.error, name } : { ...data, name });
     } catch (err) {
-      console.error("❌ Fetch Fehler:", err);
+      console.error("Fetch Fehler:", err);
+      setTooltipData({ _error: "Fehler beim Laden", name });
     }
-  };
 
-  // ── RENDER ───────────────────────────────────────────────
+    setWetterStation({ station_id, name });
+  };
 
   return (
     <main className="main">
-      {/* ── WOCHENLEISTE + TITEL IN EINER ZEILE ───────────────── */}
-      <div className="week">
-        {wetter.map((w, i) => {
-          const d = new Date(w.tag);
-
-          return (
-            <div
-              key={i}
-              className={`day ${i === activeDay ? "active" : ""}`}
-              onClick={() => {
-                setActiveDay(i);
-                setAktivDatum(w.tag);
-              }}
+      <div className="week"></div>
+      <div className="map-weather-wrapper">
+        {/* Wetter-Sidebar */}
+        <div className="weather-sidebar">
+          <div className="weather-sidebar-title">
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
             >
-              <div className="day-label">
-                {i === 0
-                  ? "Heute"
-                  : d.toLocaleDateString("de-CH", { weekday: "short" }).toUpperCase()}
-              </div>
-
-              <div className="day-date">
-                {d.toLocaleDateString("de-CH", { day: "numeric", month: "short" })}
-              </div>
-
-              <div className="day-icon">
-                {WMO_MAP[Math.round(w.daily_wetter_code_wmo)]?.icon || "❓"}
-              </div>
-            </div>
-          );
-        })}
-        <div className="hero-badge week-badge">
-          <span className="badge-icon">❄️</span>
-
-          <div>
-            <div className="badge-label">Beste Schneehöhe</div>
-
-            <div className="badge-value">
-              {topSchnee
-                ? `${topSchnee.schnee_haupt} cm in ${topSchnee.station_name}`
-                : "Lade Daten..."}
-            </div>
+              <circle cx="12" cy="12" r="5" />
+              <line x1="12" y1="1" x2="12" y2="3" />
+              <line x1="12" y1="21" x2="12" y2="23" />
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+              <line x1="1" y1="12" x2="3" y2="12" />
+              <line x1="21" y1="12" x2="23" y2="12" />
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+            </svg>
+            {wetterStation?.name || "Prognose"}
           </div>
-        </div>
-      </div>
-
-      {/* ── KARTE ──────────────────────────────────────── */}
-      <div className="map-container">
-        <Map
-          ref={mapRef}
-          initialViewState={{ longitude: 8.3, latitude: 46.8, zoom: 8 }}
-          maxZoom={19}
-          minZoom={3}
-          maxPitch={85}
-          maxBounds={SWITZERLAND_BOUNDS}
-          style={{ width: "100%", height: "100%" }}
-          mapStyle={SWISSTOPO_STYLE}
-          onClick={handleMapClick}
-          onLoad={(e) => {
-            const map = e.target;
-
-            const layer = createScratLayer(map, 8.3, 46.8);
-
-            scratLayerRef.current = layer;
-            scratAddedRef.current = false;
-
-            // Punkte nach ganz oben bringen
-            map.on("idle", () => {
-              if (map.getLayer("skigebiete-points-layer")) {
-                map.moveLayer("skigebiete-points-layer");
-                map.moveLayer("lifte-labels");
-              }
-            });
-          }}
-          onMove={(e) => {
-            const pitch = e.viewState.pitch || 0;
-
-            const map = mapRef.current?.getMap?.();
-            const layer = scratLayerRef.current;
-            if (!map || !layer) return;
-
-            const isVisible = pitch > 10;
-
-            // hinzufügen
-            if (isVisible && !scratAddedRef.current) {
-              map.addLayer(layer);
-              scratAddedRef.current = true;
-            }
-
-            // entfernen
-            if (!isVisible && scratAddedRef.current) {
-              if (map.getLayer(layer.id)) {
-                map.removeLayer(layer.id);
-              }
-              scratAddedRef.current = false;
-            }
-          }}
-          onMouseMove={(e) => {
-            /* Dein bestehender Code für den Cursor-Pointer bleibt hier stehen */
-            const features = e.target.queryRenderedFeatures(e.point, {
-              layers: ["skigebiete-points-layer"],
-            });
-            e.target.getCanvas().style.cursor = features.length ? "pointer" : "";
-          }}
-        >
-          <div className="map-legende">
-            <div className="legende-title">❄️ Schneehöhe (cm)</div>
-
-            <div className="legende-scale">
-              {[
-                { value: "1", color: "#d6e6f5" },
-                { value: "20", color: "#b3d1ea" },
-                { value: "50", color: "#80b8e0" },
-                { value: "80", color: "#4da0d6" },
-                { value: "120", color: "#1f78c1" },
-                { value: "200", color: "#0f5aa6" },
-                { value: "300", color: "#083d7a" },
-                { value: "400+", color: "#041f4a" },
-              ].map((item) => (
-                <div key={item.value} className="legende-item">
-                  <div className="legende-color" style={{ background: item.color }} />
-                  <span>{item.value}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          {/* Schneehöhen-Flächen (datumabhängig via safeDatum) */}
-          <Source
-            key={safeDatum}
-            id="schnee"
-            type="vector"
-            tiles={[geoserverTileUrl("schneehoehen_datum", `&viewparams=datum:${safeDatum}`)]}
-            tileSize={512}
-          >
-            <Layer
-              id="schnee-layer"
-              type="fill"
-              source-layer="schneehoehen_datum"
-              minzoom={0}
-              maxzoom={13}
-              paint={{
-                "fill-color": [
-                  "interpolate",
-                  ["linear"],
-                  ["get", "value"],
-                  1,
-                  "#d6e6f5",
-                  20,
-                  "#b3d1ea",
-                  50,
-                  "#80b8e0",
-                  80,
-                  "#4da0d6",
-                  120,
-                  "#1f78c1",
-                  200,
-                  "#0f5aa6",
-                  300,
-                  "#083d7a",
-                  400,
-                  "#041f4a",
-                ],
-                "fill-opacity": 0.35,
-                "fill-antialias": true,
-              }}
-              layout={{
-                "fill-sort-key": ["get", "value"],
-              }}
-            />
-          </Source>
-
-          {/* Pisten-Polygone (blau/rot/schwarz nach Schwierigkeit) */}
-          <Source
-            id="pisten"
-            type="vector"
-            tiles={[geoserverTileUrl("Pisten_Polygone")]}
-            tileSize={512}
-          >
-            <Layer
-              id="pisten-fill"
-              type="fill"
-              source-layer="Pisten_Polygone"
-              filter={["!=", ["get", "piste_difficulty"], "freeride"]}
-              maxzoom={20}
-              minzoom={13}
-              paint={{
-                "fill-color": [
-                  "match",
-                  ["get", "piste_difficulty"],
-                  "easy",
-                  "#0000FF", // blau
-                  "intermediate",
-                  "#FF0000", // rot
-                  "advanced",
-                  "#000000", // schwarz
-                  "#CCCCCC", // default
-                ],
-                "fill-opacity": 0.4,
-              }}
-            />
-          </Source>
-
-          {/* Pisten-Linien (gleiche Farblogik wie Polygone) */}
-          <Source
-            id="pisten-linien"
-            type="vector"
-            tiles={[geoserverTileUrl("Pisten_Linien")]}
-            tileSize={512}
-          >
-            <Layer
-              id="pisten-linien-layer"
-              type="line"
-              source-layer="Pisten_Linien"
-              filter={["!=", ["get", "piste_difficulty"], "freeride"]}
-              maxzoom={20}
-              minzoom={13}
-              paint={{
-                "line-width": 2,
-                "line-color": [
-                  "match",
-                  ["get", "piste_difficulty"],
-                  "easy",
-                  "#0000FF",
-                  "intermediate",
-                  "#FF0000",
-                  "advanced",
-                  "#000000",
-                  "#888888",
-                ],
-              }}
-            />
-          </Source>
-
-          {/* Lifte/Bahnen-Polygone (grau, halbtransparent) */}
-          <Source
-            id="lifte"
-            type="vector"
-            tiles={[geoserverTileUrl("Lifte_Bahnen_Polygone")]}
-            tileSize={512}
-          >
-            <Layer
-              id="lifte-fill"
-              type="fill"
-              source-layer="Lifte_Bahnen_Polygone"
-              maxzoom={20}
-              minzoom={13}
-              paint={{
-                "fill-color": "grey",
-                "fill-opacity": 0.4,
-              }}
-            />
-          </Source>
-
-          {/* Lifte/Bahnen-Linien mit gestricheltem Stil und Beschriftungen */}
-          <Source
-            id="lifte-linien"
-            type="vector"
-            tiles={[geoserverTileUrl("Lifte_Bahnen_Linien")]}
-            tileSize={512}
-          >
-            {/* Gestrichelte Linien für alle Lifttypen ausser "goods" */}
-            <Layer
-              id="lifte-outline"
-              type="line"
-              source-layer="Lifte_Bahnen_Linien"
-              minzoom={13}
-              paint={{
-                "line-color": "#ffffff",
-                "line-width": 7,
-                "line-opacity": 0.7,
-              }}
-            />
-
-            <Layer
-              id="lifte-main"
-              type="line"
-              source-layer="Lifte_Bahnen_Linien"
-              minzoom={13}
-              paint={{
-                "line-color": "#111",
-                "line-width": 3,
-                "line-dasharray": [1, 1],
-              }}
-            />
-
-            {/* Beschriftungen entlang der Linien (ab Zoom 12) */}
-            <Layer
-              id="lifte-labels"
-              type="symbol"
-              source-layer="Lifte_Bahnen_Linien"
-              minzoom={13}
-              filter={["all", ["!=", ["get", "art"], "goods"], ["!=", ["get", "art"], "transport"]]}
-              layout={{
-                "symbol-placement": "line",
-                "symbol-spacing": 250,
-                "text-font": ["Open Sans Regular"],
-                "text-field": [
-                  "match",
-                  ["get", "art"],
-                  "gondola",
-                  "Gondel",
-                  "funicular",
-                  "Standseilbahn",
-                  "chair_lift",
-                  "Sessellift",
-                  "t-bar",
-                  "Bügellift",
-                  "platter",
-                  "Tellerlift",
-                  "rope_tow",
-                  "Seillift",
-                  "magic_carpet",
-                  "Zauberteppich",
-                  "zip_line",
-                  "Zipline",
-                  "cable_car",
-                  "Seilbahn",
-                  "", // Fallback: kein Text
-                ],
-                "text-size": ["interpolate", ["linear"], ["zoom"], 12, 10, 16, 13],
-              }}
-              paint={{
-                "text-color": "#2b2b2b",
-                "text-halo-color": "#ffffff",
-                "text-halo-width": 1.5,
-              }}
-            />
-          </Source>
-
-          {/* Skigebiet-Mittelpunkte als blaue Kreise */}
-          <Source
-            id="skigebiete-points"
-            type="vector"
-            tiles={[geoserverTileUrl("Skigebiete_Zentroide")]}
-            tileSize={512}
-          >
-            <Layer
-              id="skigebiete-points-layer"
-              type="circle"
-              source="skigebiete-points"
-              source-layer="Skigebiete_Zentroide"
-              paint={{
-                "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 4, 12, 8],
-                "circle-color": "#2d6cdf",
-                "circle-stroke-color": "#ffffff",
-                "circle-stroke-width": 1.5,
-              }}
-            />
-          </Source>
-
-          {/* ── POPUP ────────────────────────────────────── */}
-          {selectedMarker && tooltipData && (
-            <Popup
-              longitude={selectedMarker.lng}
-              latitude={selectedMarker.lat}
-              onClose={() => {
-                setSelectedMarker(null);
-                setTooltipData(null);
-              }}
-              closeOnClick={false}
-              maxWidth="300px"
-            >
+          {wetter.map((w, i) => {
+            const d = new Date(w.tag);
+            const icon = WMO_MAP[Math.round(w.daily_wetter_code_wmo)];
+            return (
               <div
-                style={{
-                  width: 272,
-                  fontFamily: "'Inter', Arial, sans-serif",
-                  padding: "4px 2px 0",
+                key={i}
+                className={`weather-row ${i === activeDay ? "active" : ""}`}
+                onClick={() => {
+                  setActiveDay(i);
+                  setAktivDatum(w.tag);
                 }}
               >
-                {/* Fehlerfall: Backend hat kein Skigebiet gefunden */}
-                {tooltipData._error ? (
-                  <div style={{ color: "#c0392b", fontSize: 12 }}>
-                    ⚠️ Keine Daten für «{selectedMarker.name}»
-                  </div>
-                ) : (
-                  <>
-                    {/* Name und Chevron-Icon */}
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        marginBottom: 14,
-                      }}
-                    >
-                      <div
-                        style={{
-                          fontSize: 16,
-                          fontWeight: 800,
-                          color: "#1a1a2e",
-                          letterSpacing: "-0.3px",
-                          lineHeight: 1.2,
-                          flex: 1,
-                          marginRight: 8,
-                        }}
-                      >
-                        {tooltipData.name || selectedMarker.name}
-                      </div>
-                      <svg
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="#2d6cdf"
-                        strokeWidth="2.5"
-                      >
-                        <path d="m6 9 6 6 6-6" />
-                      </svg>
-                    </div>
-
-                    {/* Status: provisorisch geöffnet */}
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 10,
-                        fontSize: 13,
-                        color: "#333",
-                        marginBottom: 10,
-                      }}
-                    >
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="#555"
-                        strokeWidth="1.8"
-                      >
-                        <circle cx="12" cy="12" r="10" />
-                        <polyline points="12 6 12 12 16 14" />
-                      </svg>
-                      Geöffnet provisorisch
-                    </div>
-
-                    {/* Lifte: offen / total */}
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 10,
-                        fontSize: 13,
-                        color: "#333",
-                        marginBottom: 10,
-                      }}
-                    >
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="#555"
-                        strokeWidth="1.8"
-                      >
-                        <path d="M3 7h18M8 7V4m8 3V4M5 20l3-9m8 9-3-9" />
-                      </svg>
-                      {tooltipData.lifte_offen ?? "—"}/{tooltipData.lifte_total ?? "—"} Lifte
-                    </div>
-
-                    {/* Schneehöhe in cm */}
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 10,
-                        fontSize: 13,
-                        color: "#333",
-                        marginBottom: 16,
-                      }}
-                    >
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="#555"
-                        strokeWidth="1.8"
-                      >
-                        <line x1="12" y1="2" x2="12" y2="22" />
-                        <line x1="2" y1="12" x2="22" y2="12" />
-                        <line x1="5" y1="5" x2="19" y2="19" />
-                        <line x1="19" y1="5" x2="5" y2="19" />
-                      </svg>
-                      {tooltipData.schnee ?? "—"} cm Schnee
-                    </div>
-
-                    {/* Pisten-Balken: blau / rot / schwarz mit km-Angaben */}
-                    {(() => {
-                      const blau = tooltipData.km_blau || 0;
-                      const rot = tooltipData.km_rot || 0;
-                      const schwarz = tooltipData.km_schwarz || 0;
-                      const total = tooltipData.km_total || 0;
-                      const barTotal = blau + rot + schwarz || 1; // Division durch 0 vermeiden
-
-                      return (
-                        <>
-                          {/* Farbbalken proportional zu km-Anteil */}
-                          <div
-                            style={{
-                              height: 10,
-                              borderRadius: 5,
-                              overflow: "hidden",
-                              display: "flex",
-                              marginBottom: 6,
-                            }}
-                          >
-                            <div
-                              style={{
-                                width: `${(blau / barTotal) * 100}%`,
-                                background: "#2d6cdf",
-                              }}
-                            />
-                            <div
-                              style={{
-                                width: `${(rot / barTotal) * 100}%`,
-                                background: "#e84040",
-                              }}
-                            />
-                            <div
-                              style={{
-                                width: `${(schwarz / barTotal) * 100}%`,
-                                background: "#1a1a2e",
-                              }}
-                            />
-                          </div>
-
-                          {/* km-Beschriftungen unter dem Balken */}
-                          <div
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 12,
-                              fontSize: 11,
-                              color: "#888",
-                              marginBottom: 14,
-                            }}
-                          >
-                            <span>{blau} km</span>
-                            <span>{rot} km</span>
-                            <span>{schwarz} km</span>
-                            <span
-                              style={{
-                                marginLeft: "auto",
-                                fontWeight: 800,
-                                fontSize: 13,
-                                color: "#1a1a2e",
-                              }}
-                            >
-                              {total} km
-                            </span>
-                          </div>
-                        </>
-                      );
-                    })()}
-
-                    {/* Popup-Fusszeile: Aktualisierungszeit und Lawinengefahr-Link */}
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        borderTop: "1px solid #f0f0f0",
-                        paddingTop: 10,
-                        fontSize: 11,
-                        color: "#aaa",
-                      }}
-                    >
-                      <span>Aktualisiert: 1 Std.</span>
-                      {tooltipData.lawinengefahr_url ? (
-                        <a
-                          href={tooltipData.lawinengefahr_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{
-                            color: "#2d6cdf",
-                            fontWeight: 700,
-                            textDecoration: "none",
-                          }}
-                        >
-                          Lawinengefahr
-                        </a>
-                      ) : (
-                        <span style={{ color: "#ccc" }}>Lawinengefahr</span>
-                      )}
-                    </div>
-                  </>
+                <span className="weather-row-icon">{icon?.icon || "❓"}</span>
+                <div className="weather-row-info">
+                  <span className="weather-row-day">
+                    {i === 0 ? "Heute" : d.toLocaleDateString("de-CH", { weekday: "short" })}
+                  </span>
+                  <span className="weather-row-desc">{icon?.text || "—"}</span>
+                </div>
+                {w.daily_temperature_2m_max != null && (
+                  <span className="weather-row-temp">
+                    {Math.round(w.daily_temperature_2m_max)}°
+                  </span>
                 )}
               </div>
-            </Popup>
-          )}
-        </Map>
+            );
+          })}
+        </div>
+
+        {/* Karte */}
+        <div className="map-container">
+          <Map
+            ref={mapRef}
+            initialViewState={{ longitude: 8.3, latitude: 46.8, zoom: 7.5 }}
+            maxZoom={19}
+            minZoom={3}
+            maxPitch={85}
+            maxBounds={SWITZERLAND_BOUNDS}
+            style={{ width: "100%", height: "100%" }}
+            mapStyle={SWISSTOPO_STYLE}
+            onClick={handleMapClick}
+            onMouseMove={handleMouseMove}
+            onMouseLeave={() => {
+              if (!selectedMarker) setHoverMarker(null);
+            }}
+            onLoad={(e) => {
+              const map = e.target;
+              const layer = createScratLayer(map, 8.3, 46.8);
+              scratLayerRef.current = layer;
+              scratAddedRef.current = false;
+              map.on("idle", () => {
+                if (map.getLayer("skigebiete-points-layer")) {
+                  map.moveLayer("skigebiete-points-layer");
+                  map.moveLayer("lifte-labels");
+                }
+              });
+            }}
+            onMove={(e) => {
+              const pitch = e.viewState.pitch || 0;
+              const map = mapRef.current?.getMap?.();
+              const layer = scratLayerRef.current;
+              if (!map || !layer) return;
+              const isVisible = pitch > 10;
+              if (isVisible && !scratAddedRef.current) {
+                map.addLayer(layer);
+                scratAddedRef.current = true;
+              }
+              if (!isVisible && scratAddedRef.current) {
+                if (map.getLayer(layer.id)) map.removeLayer(layer.id);
+                scratAddedRef.current = false;
+              }
+            }}
+          >
+            {/* Legende */}
+            <div className="map-legende">
+              <div className="legende-title">❄️ Schneehöhe (cm)</div>
+              <div className="legende-scale">
+                {[
+                  { value: "1", color: "#d6e6f5" },
+                  { value: "20", color: "#b3d1ea" },
+                  { value: "50", color: "#80b8e0" },
+                  { value: "80", color: "#4da0d6" },
+                  { value: "120", color: "#1f78c1" },
+                  { value: "200", color: "#0f5aa6" },
+                  { value: "300", color: "#083d7a" },
+                  { value: "400+", color: "#041f4a" },
+                ].map((item) => (
+                  <div key={item.value} className="legende-item">
+                    <div className="legende-color" style={{ background: item.color }} />
+                    <span>{item.value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Schneehöhen */}
+            <Source
+              key={safeDatum}
+              id="schnee"
+              type="vector"
+              tiles={[geoserverTileUrl("schneehoehen_datum", `&viewparams=datum:${safeDatum}`)]}
+              tileSize={512}
+            >
+              <Layer
+                id="schnee-layer"
+                type="fill"
+                source-layer="schneehoehen_datum"
+                minzoom={0}
+                maxzoom={13}
+                paint={{
+                  "fill-color": [
+                    "interpolate",
+                    ["linear"],
+                    ["get", "value"],
+                    1,
+                    "#d6e6f5",
+                    20,
+                    "#b3d1ea",
+                    50,
+                    "#80b8e0",
+                    80,
+                    "#4da0d6",
+                    120,
+                    "#1f78c1",
+                    200,
+                    "#0f5aa6",
+                    300,
+                    "#083d7a",
+                    400,
+                    "#041f4a",
+                  ],
+                  "fill-opacity": 0.35,
+                  "fill-antialias": true,
+                }}
+                layout={{ "fill-sort-key": ["get", "value"] }}
+              />
+            </Source>
+
+            {/* Pisten Polygone */}
+            <Source
+              id="pisten"
+              type="vector"
+              tiles={[geoserverTileUrl("Pisten_Polygone")]}
+              tileSize={512}
+            >
+              <Layer
+                id="pisten-fill"
+                type="fill"
+                source-layer="Pisten_Polygone"
+                filter={["!=", ["get", "piste_difficulty"], "freeride"]}
+                maxzoom={20}
+                minzoom={13}
+                paint={{
+                  "fill-color": [
+                    "match",
+                    ["get", "piste_difficulty"],
+                    "easy",
+                    "#0000FF",
+                    "intermediate",
+                    "#FF0000",
+                    "advanced",
+                    "#000000",
+                    "#CCCCCC",
+                  ],
+                  "fill-opacity": 0.4,
+                }}
+              />
+            </Source>
+
+            {/* Pisten Linien */}
+            <Source
+              id="pisten-linien"
+              type="vector"
+              tiles={[geoserverTileUrl("Pisten_Linien")]}
+              tileSize={512}
+            >
+              <Layer
+                id="pisten-linien-layer"
+                type="line"
+                source-layer="Pisten_Linien"
+                filter={["!=", ["get", "piste_difficulty"], "freeride"]}
+                maxzoom={20}
+                minzoom={13}
+                paint={{
+                  "line-width": 2,
+                  "line-color": [
+                    "match",
+                    ["get", "piste_difficulty"],
+                    "easy",
+                    "#0000FF",
+                    "intermediate",
+                    "#FF0000",
+                    "advanced",
+                    "#000000",
+                    "#888888",
+                  ],
+                }}
+              />
+            </Source>
+
+            {/* Lifte Polygone */}
+            <Source
+              id="lifte"
+              type="vector"
+              tiles={[geoserverTileUrl("Lifte_Bahnen_Polygone")]}
+              tileSize={512}
+            >
+              <Layer
+                id="lifte-fill"
+                type="fill"
+                source-layer="Lifte_Bahnen_Polygone"
+                maxzoom={20}
+                minzoom={13}
+                paint={{ "fill-color": "grey", "fill-opacity": 0.4 }}
+              />
+            </Source>
+
+            {/* Lifte Linien */}
+            <Source
+              id="lifte-linien"
+              type="vector"
+              tiles={[geoserverTileUrl("Lifte_Bahnen_Linien")]}
+              tileSize={512}
+            >
+              <Layer
+                id="lifte-outline"
+                type="line"
+                source-layer="Lifte_Bahnen_Linien"
+                minzoom={13}
+                paint={{ "line-color": "#ffffff", "line-width": 7, "line-opacity": 0.7 }}
+              />
+              <Layer
+                id="lifte-main"
+                type="line"
+                source-layer="Lifte_Bahnen_Linien"
+                minzoom={13}
+                paint={{ "line-color": "#111", "line-width": 3, "line-dasharray": [1, 1] }}
+              />
+              <Layer
+                id="lifte-labels"
+                type="symbol"
+                source-layer="Lifte_Bahnen_Linien"
+                minzoom={13}
+                filter={[
+                  "all",
+                  ["!=", ["get", "art"], "goods"],
+                  ["!=", ["get", "art"], "transport"],
+                ]}
+                layout={{
+                  "symbol-placement": "line",
+                  "symbol-spacing": 250,
+                  "text-font": ["Open Sans Regular"],
+                  "text-field": [
+                    "match",
+                    ["get", "art"],
+                    "gondola",
+                    "Gondel",
+                    "funicular",
+                    "Standseilbahn",
+                    "chair_lift",
+                    "Sessellift",
+                    "t-bar",
+                    "Bügellift",
+                    "platter",
+                    "Tellerlift",
+                    "rope_tow",
+                    "Seillift",
+                    "magic_carpet",
+                    "Zauberteppich",
+                    "zip_line",
+                    "Zipline",
+                    "cable_car",
+                    "Seilbahn",
+                    "",
+                  ],
+                  "text-size": ["interpolate", ["linear"], ["zoom"], 12, 10, 16, 13],
+                }}
+                paint={{
+                  "text-color": "#2b2b2b",
+                  "text-halo-color": "#ffffff",
+                  "text-halo-width": 1.5,
+                }}
+              />
+            </Source>
+
+            {/* Skigebiet-Punkte */}
+            <Source
+              id="skigebiete-points"
+              type="vector"
+              tiles={[geoserverTileUrl("Skigebiete_Zentroide")]}
+              tileSize={512}
+            >
+              <Layer
+                id="skigebiete-points-layer"
+                type="circle"
+                source="skigebiete-points"
+                source-layer="Skigebiete_Zentroide"
+                paint={{
+                  "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 4, 12, 8],
+                  "circle-color": "#2d6cdf",
+                  "circle-stroke-color": "#ffffff",
+                  "circle-stroke-width": 1.5,
+                }}
+              />
+            </Source>
+
+            {/* ── MINI HOVER TOOLTIP (nur Name) ──────────────── */}
+            {hoverMarker && !selectedMarker && (
+              <Popup
+                longitude={hoverMarker.lng}
+                latitude={hoverMarker.lat}
+                closeButton={false}
+                closeOnClick={false}
+                anchor="bottom"
+                offset={14}
+                maxWidth="280px"
+              >
+                <div className="popup-mini">
+                  <div className="popup-mini-dot" />
+                  <span className="popup-mini-name">{hoverMarker.name}</span>
+                </div>
+              </Popup>
+            )}
+
+            {/* ── VOLLES POPUP nach Klick ─────────────────────── */}
+            {selectedMarker && (
+              <Popup
+                longitude={selectedMarker.lng}
+                latitude={selectedMarker.lat}
+                onClose={() => {
+                  setSelectedMarker(null);
+                  setTooltipData(null);
+                }}
+                closeOnClick={false}
+                anchor="bottom"
+                offset={14}
+                maxWidth="300px"
+              >
+                <div className="popup-glass">
+                  {/* Ladeindikator */}
+                  {!tooltipData && (
+                    <div className="popup-loading">
+                      <div className="popup-loading-spinner" />
+                      <span>Lade Daten…</span>
+                    </div>
+                  )}
+
+                  {tooltipData?._error && (
+                    <div style={{ color: "#c0392b", fontSize: 12 }}>
+                      ⚠️ Keine Daten für dieses Skigebiet
+                    </div>
+                  )}
+
+                  {tooltipData && !tooltipData._error && (
+                    <>
+                      <div className="popup-header">
+                        <div className="popup-name">{tooltipData.name || "—"}</div>
+                      </div>
+
+                      <div className="popup-row">
+                        <svg
+                          width="15"
+                          height="15"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="#888"
+                          strokeWidth="1.8"
+                        >
+                          <circle cx="12" cy="12" r="10" />
+                          <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                        <span>Geöffnet provisorisch</span>
+                      </div>
+
+                      <div className="popup-row">
+                        <svg
+                          width="15"
+                          height="15"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="#888"
+                          strokeWidth="1.8"
+                        >
+                          <path d="M3 7h18M8 7V4m8 3V4M5 20l3-9m8 9-3-9" />
+                        </svg>
+                        <span>
+                          {tooltipData.lifte_offen ?? "—"}/{tooltipData.lifte_total ?? "—"} Lifte
+                        </span>
+                      </div>
+
+                      <div className="popup-row">
+                        <svg
+                          width="15"
+                          height="15"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="#888"
+                          strokeWidth="1.8"
+                        >
+                          <line x1="12" y1="2" x2="12" y2="22" />
+                          <line x1="2" y1="12" x2="22" y2="12" />
+                          <line x1="5" y1="5" x2="19" y2="19" />
+                          <line x1="19" y1="5" x2="5" y2="19" />
+                        </svg>
+                        <span>{tooltipData.schnee ?? "—"} cm Schnee</span>
+                      </div>
+
+                      {(() => {
+                        const blau = tooltipData.km_blau || 0;
+                        const rot = tooltipData.km_rot || 0;
+                        const schwarz = tooltipData.km_schwarz || 0;
+                        const total = tooltipData.km_total || 0;
+                        const barTotal = blau + rot + schwarz || 1;
+                        return (
+                          <>
+                            <div className="popup-pisten-bar">
+                              <div
+                                style={{
+                                  width: `${(blau / barTotal) * 100}%`,
+                                  background: "#2d6cdf",
+                                }}
+                              />
+                              <div
+                                style={{
+                                  width: `${(rot / barTotal) * 100}%`,
+                                  background: "#e84040",
+                                }}
+                              />
+                              <div
+                                style={{
+                                  width: `${(schwarz / barTotal) * 100}%`,
+                                  background: "#1a1a2e",
+                                }}
+                              />
+                            </div>
+                            <div className="popup-pisten-labels">
+                              <span>{blau} km</span>
+                              <span>{rot} km</span>
+                              <span>{schwarz} km</span>
+                              <span className="popup-total">{total} km</span>
+                            </div>
+                          </>
+                        );
+                      })()}
+
+                      <div className="popup-footer">
+                        <span>Aktualisiert: 1 Std.</span>
+                        {tooltipData.lawinengefahr_url ? (
+                          <a
+                            href={tooltipData.lawinengefahr_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="popup-lawine-link"
+                          >
+                            Lawinengefahr
+                          </a>
+                        ) : (
+                          <span style={{ color: "#ccc" }}>Lawinengefahr</span>
+                        )}
+                      </div>
+                    </>
+                  )}
+                </div>
+              </Popup>
+            )}
+          </Map>
+        </div>
       </div>
     </main>
   );
