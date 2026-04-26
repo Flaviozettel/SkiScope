@@ -75,7 +75,7 @@ def get_top_schnee():
     conn.close()
 
     if row:
-        return {"station_name": row[0], "schnee_haupt": row[1]}
+        return {"station_id": row[0], "station_name": row[0], "schnee_haupt": row[1]}
 
     return {"error": "Keine Daten"}
 
