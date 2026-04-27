@@ -17,6 +17,7 @@ Konfiguration via Umgebungsvariablen:
 """
 
 import hashlib
+import json
 import random
 import string
 import datetime
@@ -24,6 +25,7 @@ import logging
 import os
 import sys
 import time
+from pathlib import Path
 
 import requests
 import psycopg2
@@ -31,6 +33,19 @@ import psycopg2.extras
 from dotenv import load_dotenv
 
 load_dotenv("/home/gisadmin/skiscope/.env") # Für Cronjob: absolute Pfadangabe zum .env-File, da Arbeitsverzeichnis nicht definiert ist.
+
+# ══════════════════════════════════════════════════════════════
+#  DUMMY-MODUS (Hochsaison-Demo, wenn STnet API im Sommer reduziert ist)
+# ══════════════════════════════════════════════════════════════
+# True  → liest fiktive Hochsaison-Snapshots aus dummy_data/, statt die
+#         echte STnet API zu fetchen. Es existieren 3 Snapshots, die
+#         deterministisch nach (day_of_year % 3) ausgewählt werden, sodass
+#         über mehrere Tage Variation sichtbar ist.
+# False → normaler Betrieb, fetcht die STnet API.
+USE_DUMMY = False
+
+DUMMY_DIR  = Path(__file__).resolve().parent / "dummy_data"
+DUMMY_FILES = ["stnet_snapshot_1.json", "stnet_snapshot_2.json", "stnet_snapshot_3.json"]
 
 # ══════════════════════════════════════════════════════════════
 #  KONFIGURATION
@@ -108,6 +123,24 @@ def fetch_all_stations() -> list[dict]:
         page += 1
         time.sleep(STN_PAUSE_S)
     return stations
+
+
+def load_dummy_stations() -> list[dict]:
+    """Lädt einen der 3 Dummy-Snapshots, deterministisch ausgewählt nach
+    (day_of_year % 3). Verwendet zum Demo-Betrieb im Sommer, wenn die
+    echte STnet API reduziert läuft."""
+    idx = (datetime.date.today().timetuple().tm_yday - 1) % len(DUMMY_FILES)
+    path = DUMMY_DIR / DUMMY_FILES[idx]
+    log.info("DUMMY-Modus: lade %s  (day_of_year %% %d = %d)",
+             path.name, len(DUMMY_FILES), idx)
+    if not path.exists():
+        log.error("Dummy-Snapshot nicht gefunden: %s", path)
+        sys.exit(1)
+    data = json.loads(path.read_text())
+    batch = (data.get("stations", {}) or {}).get("stationsArray", [])
+    if isinstance(batch, dict):
+        batch = [batch]
+    return batch
 
 
 # ══════════════════════════════════════════════════════════════
@@ -545,19 +578,21 @@ def main():
     log.info("  STNet → PostgreSQL  |  %s", datetime.datetime.now().isoformat())
     log.info("=" * 60)
 
-    if not STN_API_KEY:
-        log.error("STN_API_KEY nicht gesetzt.")
-        sys.exit(1)
-
-    log.info("Lade Stationen von STNet API …")
-    try:
-        stations = fetch_all_stations()
-    except requests.HTTPError as e:
-        log.error("HTTP-Fehler %s: %s", e.response.status_code, e.response.text[:300])
-        sys.exit(1)
-    except requests.RequestException as e:
-        log.error("Verbindungsfehler: %s", e)
-        sys.exit(1)
+    if USE_DUMMY:
+        stations = load_dummy_stations()
+    else:
+        if not STN_API_KEY:
+            log.error("STN_API_KEY nicht gesetzt.")
+            sys.exit(1)
+        log.info("Lade Stationen von STNet API …")
+        try:
+            stations = fetch_all_stations()
+        except requests.HTTPError as e:
+            log.error("HTTP-Fehler %s: %s", e.response.status_code, e.response.text[:300])
+            sys.exit(1)
+        except requests.RequestException as e:
+            log.error("Verbindungsfehler: %s", e)
+            sys.exit(1)
     log.info("%d Stationen geladen.", len(stations))
 
     log.info("Verbinde mit PostgreSQL %s:%s/%s …", DB_HOST, DB_PORT, DB_NAME)

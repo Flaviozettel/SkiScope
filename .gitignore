@@ -6,6 +6,12 @@
 !.env.example
 
 # =========================
+# STnet Dummy-Daten (enthalten reale Stations-Stammdaten – nicht commiten)
+# =========================
+preprocessing/scripts/dummy_data/_scaffold_raw.json
+preprocessing/scripts/dummy_data/stnet_snapshot_*.json
+
+# =========================
 # log-Dateien
 # =========================
 logs/
