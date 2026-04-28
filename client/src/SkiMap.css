@@ -75,3 +75,33 @@
   border-top-color: rgb(255, 255, 255) !important;
   display: none !important;
 }
+
+/* Standort */
+.location-button {
+  position: absolute;
+  top: 105px;
+  right: 10px;
+
+  width: 30px;
+  height: 30px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 18px;
+
+  background: rgb(255, 255, 255);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 100px;
+
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.location-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(45, 108, 223, 0.25);
+}

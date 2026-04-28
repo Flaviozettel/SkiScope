@@ -169,6 +169,25 @@ export const SkiMap = ({
           </div>
         </div>
 
+        {/* Standort */}
+        <button
+          className="location-button"
+          onClick={() => {
+            const map = mapRef.current?.getMap?.();
+            if (!map) return;
+
+            map.easeTo({
+              center: [7.641925, 47.534909],
+              zoom: 17,
+              pitch: 0,
+              bearing: 0,
+              duration: 1200,
+            });
+          }}
+        >
+          📍
+        </button>
+
         {/* Schneehöhen */}
         <Source
           key={safeDatum}
