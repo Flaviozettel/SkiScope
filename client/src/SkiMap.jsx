@@ -5,7 +5,7 @@
 // Vector-Tile-Layer für Schnee, Pisten, Lifte und Skigebiete.
 // ============================================================
 
-import { useRef } from "react";
+import { useRef, useEffect, useState, useMemo } from "react";
 import Map, { Source, Layer } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { NavigationControl } from "maplibre-gl";
@@ -20,7 +20,6 @@ import { API_BASE } from "./config.js";
 import { MiniHoverPopup } from "./MiniHoverPopup.jsx";
 import { SkigebietPopup } from "./SkigebietPopup.jsx";
 import "./SkiMap.css";
-import { useEffect, useState, useMemo } from "react";
 
 export const SkiMap = ({
   mapRef,
@@ -35,6 +34,30 @@ export const SkiMap = ({
 }) => {
   const scratLayerRef = useRef(null);
   const scratAddedRef = useRef(false);
+  const nameMapRef = useRef({});
+  const selectedRef = useRef(selectedMarker);
+
+  const [skigebiete, setSkigebiete] = useState([]);
+
+  // Skigebiete laden für Namen-Mapping
+  useEffect(() => {
+    fetch(`${API_BASE}/skigebiete`)
+      .then((res) => res.json())
+      .then((data) => setSkigebiete(data))
+      .catch((err) => console.error("Skigebiete Fetch fehlgeschlagen:", err));
+  }, []);
+
+  const nameMap = useMemo(() => {
+    return Object.fromEntries(skigebiete.map((s) => [s.station_id, s.name]));
+  }, [skigebiete]);
+
+  useEffect(() => {
+    nameMapRef.current = nameMap;
+  }, [nameMap]);
+
+  useEffect(() => {
+    selectedRef.current = selectedMarker;
+  }, [selectedMarker]);
 
   // Hover → nur Name anzeigen
   const handleMouseMove = (e) => {
@@ -47,7 +70,7 @@ export const SkiMap = ({
       const f = features[0];
       const station_id = Number(f.properties.station_id);
       const name = nameMapRef.current[station_id] || "Unbekanntes Skigebiet";
-      // Kein Hover-Tooltip wenn volles Popup bereits offen
+
       if (!selectedRef.current) {
         setHoverMarker((prev) =>
           prev?.name === name ? prev : { lng: e.lngLat.lng, lat: e.lngLat.lat, name },
@@ -59,14 +82,13 @@ export const SkiMap = ({
     }
   };
 
-  // Klick auf Punkt → sofort volles Popup laden
+  // Klick auf Punkt → zoomen + volles Popup laden
   const handleMapClick = async (e) => {
     const features = e.target.queryRenderedFeatures(e.point, {
       layers: ["skigebiete-points-layer"],
     });
 
     if (!features.length) {
-      // Klick auf leere Fläche → alles schliessen
       setSelectedMarker(null);
       setTooltipData(null);
       setHoverMarker(null);
@@ -78,11 +100,52 @@ export const SkiMap = ({
     const name = nameMapRef.current[station_id] || "Unbekanntes Skigebiet";
     if (!station_id) return;
 
-    // Hover-Tooltip sofort ausblenden, volles Popup zeigen
     setHoverMarker(null);
     setSelectedMarker({ lng: e.lngLat.lng, lat: e.lngLat.lat, station_id });
-    setTooltipData(null); // kurz null → Ladeindikator
+    setTooltipData(null);
 
+    // Auf Skigebiet zoomen via Pistengeometrien
+    const map = mapRef.current?.getMap?.();
+    if (map) {
+      const pistenFeatures = map.querySourceFeatures("pisten", {
+        sourceLayer: "pisten_geom_multipolygon",
+        filter: ["==", ["get", "station_id"], station_id],
+      });
+
+      if (pistenFeatures.length > 0) {
+        let minLng = Infinity,
+          minLat = Infinity;
+        let maxLng = -Infinity,
+          maxLat = -Infinity;
+
+        pistenFeatures.forEach((feat) => {
+          const coords = feat.geometry.coordinates.flat(3);
+          for (let i = 0; i < coords.length; i += 2) {
+            minLng = Math.min(minLng, coords[i]);
+            maxLng = Math.max(maxLng, coords[i]);
+            minLat = Math.min(minLat, coords[i + 1]);
+            maxLat = Math.max(maxLat, coords[i + 1]);
+          }
+        });
+
+        map.fitBounds(
+          [
+            [minLng, minLat],
+            [maxLng, maxLat],
+          ],
+          { padding: 60, duration: 1000, maxZoom: 15 },
+        );
+      } else {
+        // Fallback: auf Punkt zoomen wenn Pisten-Tiles noch nicht geladen
+        map.easeTo({
+          center: [e.lngLat.lng, e.lngLat.lat],
+          zoom: 13,
+          duration: 1000,
+        });
+      }
+    }
+
+    // Detaildaten laden
     try {
       const res = await fetch(`${API_BASE}/skigebiet?station_id=${station_id}`);
       const data = await res.json();
@@ -94,30 +157,6 @@ export const SkiMap = ({
 
     setWetterStation({ station_id, name });
   };
-
-  // Skigebiete laden für Namen-Mapping
-  const [skigebiete, setSkigebiete] = useState([]);
-
-  useEffect(() => {
-    fetch(`${API_BASE}/skigebiete`)
-      .then((res) => res.json())
-      .then((data) => setSkigebiete(data));
-  }, []);
-
-  const nameMap = useMemo(() => {
-    return Object.fromEntries(skigebiete.map((s) => [s.station_id, s.name]));
-  }, [skigebiete]);
-  const nameMapRef = useRef({});
-  useEffect(() => {
-    nameMapRef.current = nameMap;
-  }, [nameMap]);
-
-  // Verhindert, dass sich die Popup-Komponente neu rendert, wenn sich nur das ausgewählte Skigebiet ändert, nicht aber die Daten darin
-  const selectedRef = useRef(selectedMarker);
-
-  useEffect(() => {
-    selectedRef.current = selectedMarker;
-  }, [selectedMarker]);
 
   return (
     <div className="map-container">
@@ -142,16 +181,10 @@ export const SkiMap = ({
 
           setTimeout(() => {
             const compass = document.querySelector(".maplibregl-ctrl-compass");
-
             if (compass) {
               compass.addEventListener("click", (ev) => {
                 ev.stopPropagation();
-
-                map.easeTo({
-                  bearing: 0,
-                  pitch: 0,
-                  duration: 800,
-                });
+                map.easeTo({ bearing: 0, pitch: 0, duration: 800 });
               });
             }
           }, 0);
@@ -159,6 +192,7 @@ export const SkiMap = ({
           const layer = createScratLayer(map, 8.3, 46.8);
           scratLayerRef.current = layer;
           scratAddedRef.current = false;
+
           map.on("idle", () => {
             if (map.getLayer("skigebiete-points-layer")) {
               map.moveLayer("skigebiete-points-layer");
@@ -201,7 +235,6 @@ export const SkiMap = ({
           onClick={() => {
             const map = mapRef.current?.getMap?.();
             if (!map) return;
-
             map.easeTo({
               center: [7.641925, 47.534909],
               zoom: 17,
