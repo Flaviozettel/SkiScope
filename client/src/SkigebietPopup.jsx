@@ -9,6 +9,37 @@ import { Popup } from "react-map-gl/maplibre";
 import "./SkigebietPopup.css";
 
 export const SkigebietPopup = ({ selectedMarker, tooltipData, onClose }) => {
+  // Hilfsfunktion: Zeit seit letztem Update in lesbarer Form
+
+  const parseDbTimestamp = (ts) => {
+    if (!ts) return null;
+
+    // Mikrosekunden auf Millisekunden kürzen + TZ fixen
+    const cleaned = ts
+      .replace(/\.(\d{3})\d+/, ".$1") // 760692 → 760
+      .replace(/([+-]\d{2})$/, "$1:00"); // +02 → +02:00
+
+    return new Date(cleaned);
+  };
+
+  const formatTimeAgo = (timestamp) => {
+    const updated = parseDbTimestamp(timestamp);
+    if (!updated || isNaN(updated)) return "—";
+
+    const now = new Date();
+    const diffMs = now - updated;
+
+    const diffMin = Math.floor(diffMs / 60000);
+    const diffHour = Math.floor(diffMin / 60);
+    const diffDay = Math.floor(diffHour / 24);
+
+    if (diffMin < 1) return "gerade eben";
+    if (diffMin < 60) return `vor ${diffMin} Min`;
+    if (diffHour < 24) return `vor ${diffHour} Std`;
+    if (diffDay === 1) return "gestern";
+    return updated.toLocaleDateString("de-CH");
+  };
+
   return (
     <Popup
       longitude={selectedMarker.lng}
@@ -29,9 +60,7 @@ export const SkigebietPopup = ({ selectedMarker, tooltipData, onClose }) => {
         )}
 
         {tooltipData?._error && (
-          <div style={{ color: "#c0392b", fontSize: 12 }}>
-            ⚠️ Keine Daten für dieses Skigebiet
-          </div>
+          <div style={{ color: "#c0392b", fontSize: 12 }}>⚠️ Keine Daten für dieses Skigebiet</div>
         )}
 
         {tooltipData && !tooltipData._error && (
@@ -127,7 +156,7 @@ export const SkigebietPopup = ({ selectedMarker, tooltipData, onClose }) => {
             })()}
 
             <div className="popup-footer">
-              <span>Aktualisiert: 1 Std.</span>
+              <span>Aktualisiert: {formatTimeAgo(tooltipData.updated_at)}</span>
               {tooltipData.lawinengefahr_url ? (
                 <a
                   href={tooltipData.lawinengefahr_url}

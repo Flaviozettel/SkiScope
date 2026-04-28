@@ -191,7 +191,7 @@ def get_skigebiet(station_id: int):
             station_name, anzahl_lifte_offen, anzahl_lifte,
             schneetiefe_piste_cm, km_pisten_gesamt,
             anzahl_blau, anzahl_rot, anzahl_schwarz,
-            lawinengefahr_url
+            lawinengefahr_url, updated_at
         FROM skigebiete_kennzahlen
         WHERE station_id = %s
         LIMIT 1
@@ -214,6 +214,7 @@ def get_skigebiet(station_id: int):
         "km_rot": row[6] or 0,
         "km_schwarz": row[7] or 0,
         "lawinengefahr_url": row[8] or None,
+        "updated_at": row[9] or None,
     }
 
 
