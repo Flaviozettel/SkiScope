@@ -45,17 +45,7 @@ export const Header = ({ mapRef, topSchnee }) => {
       {/* Gradient overlay für Tiefe */}
       <div className="hero-gradient" />
       <div className="hero-inner">
-        {/* Logo – links */}
-        <div className="logo-mark">
-          <span className="logo-snowflake">❄</span>
-          <span className="logo-text">SkiScope</span>
-        </div>
-
-        {/* Slogan – mittig */}
-        <div className="hero-tagline">
-          <span>Finde dein perfektes Skigebiet.</span>
-        </div>
-
+        {/* Snow-Badge – links */}
         <button className="hero-snow-badge" onClick={handleSnowBadgeClick} title="Auf Karte zoomen">
           <span className="snow-badge-week-icon">❄️</span>
           <div>
@@ -76,6 +66,17 @@ export const Header = ({ mapRef, topSchnee }) => {
             <path d="M5 12h14M13 6l6 6-6 6" />
           </svg>
         </button>
+
+        {/* Logo – mitte */}
+        <div className="logo-mark">
+          <span className="logo-snowflake">❄</span>
+          <span className="logo-text">SkiScope</span>
+        </div>
+
+        {/* Slogan – rechts */}
+        <div className="hero-tagline">
+          <span>Finde dein perfektes Skigebiet.</span>
+        </div>
       </div>
     </header>
   );
