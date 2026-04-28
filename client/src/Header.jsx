@@ -37,7 +37,7 @@ export const Header = ({ mapRef }) => {
           center: [coords[0], coords[1]], // ← falls lon/lat korrekt
           // Falls vertauscht, stattdessen:
           // center: [coords[1], coords[0]],
-          zoom: 16,
+          zoom: 15,
           duration: 1800,
           essential: true,
         });
@@ -68,7 +68,7 @@ export const Header = ({ mapRef }) => {
         <button className="hero-snow-badge" onClick={handleSnowBadgeClick} title="Auf Karte zoomen">
           <span className="snow-badge-week-icon">❄️</span>
           <div>
-            <div className="snow-badge-week-label">Beste Schneehöhe</div>
+            <div className="snow-badge-week-label">Maximale Schneehöhe</div>
             <div className="snow-badge-week-value">
               {topSchnee ? `${topSchnee.schnee_haupt} cm · ${topSchnee.station_name}` : "Lade…"}
             </div>

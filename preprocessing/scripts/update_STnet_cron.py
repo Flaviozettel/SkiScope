@@ -42,7 +42,7 @@ load_dotenv("/home/gisadmin/skiscope/.env") # Für Cronjob: absolute Pfadangabe 
 #         deterministisch nach (day_of_year % 3) ausgewählt werden, sodass
 #         über mehrere Tage Variation sichtbar ist.
 # False → normaler Betrieb, fetcht die STnet API.
-USE_DUMMY = False
+USE_DUMMY = True
 
 DUMMY_DIR  = Path(__file__).resolve().parent / "dummy_data"
 DUMMY_FILES = ["stnet_snapshot_1.json", "stnet_snapshot_2.json", "stnet_snapshot_3.json"]

@@ -282,7 +282,7 @@ CREATE TABLE skigebiet_geom (
 );
 
 CREATE TABLE pisten_geom (
-    piste_geom_id        INTEGER     PRIMARY KEY,
+    piste_geom_id        INTEGER     SERIAL PRIMARY KEY,
     station_id           INTEGER     REFERENCES skigebiete(station_id),
     geom_mline                       GEOMETRY(MultiLineString, 4326),
     geom_mpolygon                    GEOMETRY(MultiPolygon, 4326),
