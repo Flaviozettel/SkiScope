@@ -1,0 +1,77 @@
+/* ============================================================
+   SkiMap.css – MapLibre-Karten-Container, Legende und
+   Maplibre-Popup-Overrides
+   ============================================================ */
+
+.map-container {
+  flex: 1;
+  min-height: 0;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  position: relative;
+  box-shadow: var(--shadow-lg);
+}
+
+/* ── MAP LEGENDE ───────────────────────────────────────── */
+.map-legende {
+  position: absolute;
+  bottom: 14px;
+  font:
+    12px "DM Sans",
+    sans-serif;
+  left: 14px;
+  background: #ffffff;
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  z-index: 10;
+  box-shadow: var(--glass-shadow);
+}
+
+.legende-title {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.legende-scale {
+  display: flex;
+  gap: 5px;
+}
+
+.legende-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 9px;
+  color: var(--text-tertiary);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.legende-color {
+  width: 26px;
+  height: 8px;
+  border-radius: 3px;
+  margin-bottom: 3px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/* ── MapLibre Popup-Shell überschreiben (gilt für alle Popups) ── */
+.maplibregl-popup-content {
+  background: #ffffff;
+  box-shadow: none !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  border-radius: 0 !important;
+}
+
+.maplibregl-popup-tip {
+  border-top-color: rgb(255, 255, 255) !important;
+  display: none !important;
+}

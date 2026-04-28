@@ -1,25 +1,16 @@
 // ============================================================
 // Header.jsx – Hero-Banner mit Apple-like Glassmorphism Design
-// flyTo via WFS-Request direkt an GeoServer (keine Backend-Änderung nötig)
+//
+// Zeigt Logo, Slogan und einen Snow-Badge mit dem aktuell
+// schneereichsten Skigebiet. Klick auf den Badge fliegt die
+// Karte via WFS-Request direkt zu diesem Skigebiet.
 // ============================================================
+
 import skiImage from "./data/Header_Berge.jpg";
-import { useEffect, useState } from "react";
+import { GEOSERVER_WFS } from "./config.js";
+import "./Header.css";
 
-const GEOSERVER_WFS =
-  "http://192.168.4.228:8080/geoserver/skiscope/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=skiscope:Skigebiete_Zentroide&outputFormat=application/json";
-
-const API_BASE = "http://192.168.4.228:8000";
-
-export const Header = ({ mapRef }) => {
-  const [topSchnee, setTopSchnee] = useState(null);
-
-  useEffect(() => {
-    fetch(`${API_BASE}/skigebiete/top-schnee`)
-      .then((res) => res.json())
-      .then((data) => setTopSchnee(data))
-      .catch((err) => console.error(err));
-  }, []);
-
+export const Header = ({ mapRef, topSchnee }) => {
   const handleSnowBadgeClick = async () => {
     if (!topSchnee?.station_id) return;
 

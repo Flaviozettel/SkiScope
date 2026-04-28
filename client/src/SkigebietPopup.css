@@ -1,0 +1,120 @@
+/* ============================================================
+   SkigebietPopup.css – Volles Glas-Popup nach Klick auf Skigebiet
+   ============================================================ */
+
+.popup-glass {
+  width: 268px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  box-shadow: var(--shadow-lg);
+  font-family: "DM Sans", sans-serif;
+}
+
+.popup-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  gap: 8px;
+}
+
+.popup-name {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+  flex: 1;
+}
+
+.popup-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  padding: 5px 0;
+}
+
+.popup-pisten-bar {
+  height: 8px;
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  margin: 12px 0 5px;
+}
+
+.popup-pisten-bar > div {
+  transition: width 0.3s ease;
+}
+
+.popup-pisten-labels {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 10px;
+  color: var(--text-tertiary);
+  margin-bottom: 12px;
+  font-family: "DM Mono", monospace;
+}
+
+.popup-total {
+  margin-left: auto;
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--text-primary);
+  font-family: "DM Sans", sans-serif;
+}
+
+.popup-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+  font-size: 10px;
+  color: var(--text-tertiary);
+}
+
+.popup-lawine-link {
+  color: var(--accent);
+  font-weight: 700;
+  text-decoration: none;
+  font-size: 11px;
+}
+
+.popup-lawine-link:hover {
+  text-decoration: underline;
+}
+
+/* ── Ladeindikator im vollen Popup ── */
+.popup-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 4px;
+  font-size: 13px;
+  color: #6b7280;
+  font-family: "DM Sans", sans-serif;
+}
+
+.popup-loading-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #e5e7eb;
+  border-top-color: #2d6cdf;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

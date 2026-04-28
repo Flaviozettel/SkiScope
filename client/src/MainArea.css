@@ -1,0 +1,120 @@
+/* ============================================================
+   MainArea.css – Hauptbereich, Wochenleiste und Layout-Wrapper
+   ============================================================ */
+
+.main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  background: var(--surface-2);
+  padding: 14px 18px 10px;
+  overflow: hidden;
+  height: 100%;
+  gap: 12px;
+}
+
+/* ── WOCHENLEISTE ───────────────────────────────────────── */
+.week {
+  display: flex;
+  gap: 6px;
+  align-items: stretch;
+  flex-shrink: 0;
+}
+
+/* Tag-Kachel */
+.day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 68px;
+  height: 68px;
+  padding: 6px;
+  gap: 3px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.06),
+    0 1px 0 rgba(255, 255, 255, 0.8) inset;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease,
+    box-shadow 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.day-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.day-date {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.day-icon {
+  font-size: 18px;
+}
+
+/* Aktiver Tag */
+.day.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow:
+    0 4px 16px rgba(45, 108, 223, 0.4),
+    0 1px 0 rgba(255, 255, 255, 0.25) inset;
+  transform: translateY(-2px);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.day.active .day-label,
+.day.active .day-date {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+/* ── SNOW BADGE in der Wochenleiste (klickbar, mit Rahmen) ── */
+.snow-badge-week {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  background: var(--surface);
+  border: 1.5px solid var(--accent-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  font-family: inherit;
+  white-space: nowrap;
+  text-decoration: none;
+  box-shadow: var(--shadow-sm);
+}
+
+.snow-badge-week:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(45, 108, 223, 0.18);
+}
+
+.snow-badge-week:active {
+  transform: scale(0.98);
+}
+
+/* ── MAP + WETTER WRAPPER ───────────────────────────────── */
+.map-weather-wrapper {
+  display: flex;
+  flex: 1;
+  gap: 10px;
+  min-height: 0;
+}
