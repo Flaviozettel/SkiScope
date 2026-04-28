@@ -20,6 +20,7 @@ import { API_BASE } from "./config.js";
 import { MiniHoverPopup } from "./MiniHoverPopup.jsx";
 import { SkigebietPopup } from "./SkigebietPopup.jsx";
 import "./SkiMap.css";
+import { useEffect, useState, useMemo } from "react";
 
 export const SkiMap = ({
   mapRef,
@@ -44,16 +45,17 @@ export const SkiMap = ({
     if (features.length) {
       e.target.getCanvas().style.cursor = "pointer";
       const f = features[0];
-      const name = f.properties.name || "Unbekanntes Skigebiet";
+      const station_id = Number(f.properties.station_id);
+      const name = nameMapRef.current[station_id] || "Unbekanntes Skigebiet";
       // Kein Hover-Tooltip wenn volles Popup bereits offen
-      if (!selectedMarker) {
+      if (!selectedRef.current) {
         setHoverMarker((prev) =>
           prev?.name === name ? prev : { lng: e.lngLat.lng, lat: e.lngLat.lat, name },
         );
       }
     } else {
       e.target.getCanvas().style.cursor = "";
-      if (!selectedMarker) setHoverMarker(null);
+      if (!selectedRef.current) setHoverMarker(null);
     }
   };
 
@@ -72,8 +74,8 @@ export const SkiMap = ({
     }
 
     const f = features[0];
-    const station_id = Number(f.properties.neuneuneu_station_id);
-    const name = f.properties.name || "Unbekanntes Skigebiet";
+    const station_id = Number(f.properties.station_id);
+    const name = nameMapRef.current[station_id] || "Unbekanntes Skigebiet";
     if (!station_id) return;
 
     // Hover-Tooltip sofort ausblenden, volles Popup zeigen
@@ -84,7 +86,7 @@ export const SkiMap = ({
     try {
       const res = await fetch(`${API_BASE}/skigebiet?station_id=${station_id}`);
       const data = await res.json();
-      setTooltipData(data.error ? { _error: data.error, name } : { ...data, name });
+      setTooltipData(data.error ? { _error: data.error, name } : { ...data });
     } catch (err) {
       console.error("Fetch Fehler:", err);
       setTooltipData({ _error: "Fehler beim Laden", name });
@@ -92,6 +94,30 @@ export const SkiMap = ({
 
     setWetterStation({ station_id, name });
   };
+
+  // Skigebiete laden für Namen-Mapping
+  const [skigebiete, setSkigebiete] = useState([]);
+
+  useEffect(() => {
+    fetch(`${API_BASE}/skigebiete`)
+      .then((res) => res.json())
+      .then((data) => setSkigebiete(data));
+  }, []);
+
+  const nameMap = useMemo(() => {
+    return Object.fromEntries(skigebiete.map((s) => [s.station_id, s.name]));
+  }, [skigebiete]);
+  const nameMapRef = useRef({});
+  useEffect(() => {
+    nameMapRef.current = nameMap;
+  }, [nameMap]);
+
+  // Verhindert, dass sich die Popup-Komponente neu rendert, wenn sich nur das ausgewählte Skigebiet ändert, nicht aber die Daten darin
+  const selectedRef = useRef(selectedMarker);
+
+  useEffect(() => {
+    selectedRef.current = selectedMarker;
+  }, [selectedMarker]);
 
   return (
     <div className="map-container">
@@ -107,7 +133,7 @@ export const SkiMap = ({
         onClick={handleMapClick}
         onMouseMove={handleMouseMove}
         onMouseLeave={() => {
-          if (!selectedMarker) setHoverMarker(null);
+          if (!selectedRef.current) setHoverMarker(null);
         }}
         onLoad={(e) => {
           const map = e.target;
@@ -235,25 +261,25 @@ export const SkiMap = ({
         <Source
           id="pisten"
           type="vector"
-          tiles={[geoserverTileUrl("Pisten_Polygone")]}
+          tiles={[geoserverTileUrl("pisten_geom_multipolygon")]}
           tileSize={512}
         >
           <Layer
             id="pisten-fill"
             type="fill"
-            source-layer="Pisten_Polygone"
+            source-layer="pisten_geom_multipolygon"
             filter={["!=", ["get", "piste_difficulty"], "freeride"]}
             maxzoom={20}
             minzoom={13}
             paint={{
               "fill-color": [
                 "match",
-                ["get", "piste_difficulty"],
-                "easy",
+                ["get", "farbe"],
+                "blau",
                 "#0000FF",
-                "intermediate",
+                "rot",
                 "#FF0000",
-                "advanced",
+                "schwarz",
                 "#000000",
                 "#CCCCCC",
               ],
@@ -266,26 +292,26 @@ export const SkiMap = ({
         <Source
           id="pisten-linien"
           type="vector"
-          tiles={[geoserverTileUrl("Pisten_Linien")]}
+          tiles={[geoserverTileUrl("pisten_geom_multiline")]}
           tileSize={512}
         >
           <Layer
             id="pisten-linien-layer"
             type="line"
-            source-layer="Pisten_Linien"
+            source-layer="pisten_geom_multiline"
             filter={["!=", ["get", "piste_difficulty"], "freeride"]}
             maxzoom={20}
             minzoom={13}
             paint={{
-              "line-width": 2,
+              "line-width": 4,
               "line-color": [
                 "match",
-                ["get", "piste_difficulty"],
-                "easy",
+                ["get", "farbe"],
+                "blau",
                 "#0000FF",
-                "intermediate",
+                "rot",
                 "#FF0000",
-                "advanced",
+                "schwarz",
                 "#000000",
                 "#888888",
               ],
@@ -378,14 +404,14 @@ export const SkiMap = ({
         <Source
           id="skigebiete-points"
           type="vector"
-          tiles={[geoserverTileUrl("Skigebiete_Zentroide")]}
+          tiles={[geoserverTileUrl("skigebiet_geom")]}
           tileSize={512}
         >
           <Layer
             id="skigebiete-points-layer"
             type="circle"
             source="skigebiete-points"
-            source-layer="Skigebiete_Zentroide"
+            source-layer="skigebiet_geom"
             paint={{
               "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 4, 12, 8],
               "circle-color": "#2d6cdf",

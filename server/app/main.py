@@ -83,21 +83,19 @@ def get_top_schnee():
 # ── ENDPUNKT: Alle Skigebiete ─────────────────────────────────
 @app.get("/skigebiete")
 def get_all_skigebiete():
-    """Gibt alle Skigebiete mit Name und Koordinaten zurück (für die Karte)."""
     conn = get_db_conn()
     cur = conn.cursor()
 
     cur.execute("""
-        SELECT station_name, lon, lat
+        SELECT station_id,station_name
         FROM skigebiete
-        WHERE lon IS NOT NULL AND lat IS NOT NULL
     """)
 
     rows = cur.fetchall()
     cur.close()
     conn.close()
 
-    return [{"name": row[0], "lon": row[1], "lat": row[2]} for row in rows]
+    return [{ "station_id": row[0], "name": row[1] } for row in rows]
 
 
 # ── HILFSFUNKTION: Letzte 7 Tage automatisch importieren ──────
