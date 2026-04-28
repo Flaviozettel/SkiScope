@@ -8,6 +8,7 @@
 import { useRef } from "react";
 import Map, { Source, Layer } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
+import { NavigationControl } from "maplibre-gl";
 import { createScratLayer } from "./scratLayer";
 import {
   SWISSTOPO_STYLE,
@@ -110,6 +111,25 @@ export const SkiMap = ({
         }}
         onLoad={(e) => {
           const map = e.target;
+
+          map.addControl(new NavigationControl(), "top-right");
+
+          setTimeout(() => {
+            const compass = document.querySelector(".maplibregl-ctrl-compass");
+
+            if (compass) {
+              compass.addEventListener("click", (ev) => {
+                ev.stopPropagation();
+
+                map.easeTo({
+                  bearing: 0,
+                  pitch: 0,
+                  duration: 800,
+                });
+              });
+            }
+          }, 0);
+
           const layer = createScratLayer(map, 8.3, 46.8);
           scratLayerRef.current = layer;
           scratAddedRef.current = false;
@@ -297,11 +317,7 @@ export const SkiMap = ({
             type="symbol"
             source-layer="Lifte_Bahnen_Linien"
             minzoom={13}
-            filter={[
-              "all",
-              ["!=", ["get", "art"], "goods"],
-              ["!=", ["get", "art"], "transport"],
-            ]}
+            filter={["all", ["!=", ["get", "art"], "goods"], ["!=", ["get", "art"], "transport"]]}
             layout={{
               "symbol-placement": "line",
               "symbol-spacing": 250,
