@@ -281,12 +281,18 @@ CREATE TABLE skigebiet_geom (
     centerpoint     GEOMETRY(Point, 4326)
 );
 
-CREATE TABLE pisten_geom (
-    piste_geom_id        INTEGER     SERIAL PRIMARY KEY,
-    station_id           INTEGER     REFERENCES skigebiete(station_id),
-    geom_mline                       GEOMETRY(MultiLineString, 4326),
-    geom_mpolygon                    GEOMETRY(MultiPolygon, 4326),
-    farbe                            VARCHAR(20)
+CREATE TABLE pisten_geom_multiline (
+    piste_geom_ml_id     	SERIAL      PRIMARY KEY,
+    station_id           	INTEGER     REFERENCES skigebiete(station_id),
+    geom                    			GEOMETRY(MultiLineString, 4326),
+    farbe                            	VARCHAR(20)
+);
+
+CREATE TABLE pisten_geom_multipolygon (
+    piste_geom_mp_id    	SERIAL      PRIMARY KEY,
+    station_id        		INTEGER     REFERENCES skigebiete(station_id),
+    geom		                        GEOMETRY(MultiPolygon, 4326),
+    farbe                            	VARCHAR(20)
 );
 
 
