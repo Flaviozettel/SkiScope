@@ -34,7 +34,7 @@ export const WeatherSidebar = ({ wetter, wetterStation, setAktivDatum }) => {
           <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
           <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
         </svg>
-        {wetterStation?.name || "Prognose"}
+        <span className="weather-sidebar-name">{wetterStation?.name || "Prognose"}</span>
       </div>
       {wetter.map((w, i) => {
         const d = new Date(w.tag);
