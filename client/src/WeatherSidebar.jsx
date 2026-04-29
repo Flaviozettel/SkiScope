@@ -73,7 +73,19 @@ export const WeatherSidebar = ({ wetter, wetterStation, setAktivDatum }) => {
               <span className="weather-row-desc">{icon?.text || "—"}</span>
             </div>
             {w.daily_temperature_2m_max != null && (
-              <span className="weather-row-temp">{Math.round(w.daily_temperature_2m_max)}°</span>
+              <div className="weather-row-temp">
+                <span className="weather-row-temp-max">
+                  {Math.round(w.daily_temperature_2m_max)}°
+                </span>
+                {w.daily_temperature_2m_min != null && (
+                  <>
+                    <span className="weather-row-temp-sep">/</span>
+                    <span className="weather-row-temp-min">
+                      {Math.round(w.daily_temperature_2m_min)}°
+                    </span>
+                  </>
+                )}
+              </div>
             )}
             {hoveredDay === i && (
               <WeatherDayDetail tag={w.tag} station={wetterStation} />
