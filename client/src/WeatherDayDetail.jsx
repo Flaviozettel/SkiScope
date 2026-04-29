@@ -27,7 +27,7 @@ const toFinite = (v) => (Number.isFinite(v) ? v : null);
 
 const WeatherChart = ({ data }) => {
   return (
-    <ResponsiveContainer width="100%" height={260}>
+    <ResponsiveContainer width="100%" height="100%">
       <ComposedChart
         data={data}
         margin={{
@@ -70,19 +70,35 @@ const WeatherChart = ({ data }) => {
   );
 };
 
-export const WeatherDayDetail = ({ tag, station }) => {
+const formatHeaderDate = (tag) => {
+  if (!tag) return "";
+  const d = new Date(tag);
+  return d.toLocaleDateString("de-CH", {
+    weekday: "long",
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
+};
+
+export const WeatherDayDetail = ({ tag, station, onClose }) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!tag || !station?.station_id) return;
+    if (!tag || !station?.station_id) {
+      setData([]);
+      return;
+    }
 
+    const controller = new AbortController();
     setLoading(true);
     setError(null);
 
     fetch(
       `${API_BASE}/skigebiet/wetterprognose?station_id=${station.station_id}&type=tag&date_str=${tag}`,
+      { signal: controller.signal },
     )
       .then((r) => {
         if (!r.ok) {
@@ -101,25 +117,47 @@ export const WeatherDayDetail = ({ tag, station }) => {
         setData(chartData);
       })
       .catch((err) => {
+        if (err.name === "AbortError") return;
         console.error(err);
         setError("Wetterdetails konnten nicht geladen werden.");
       })
       .finally(() => {
         setLoading(false);
       });
+
+    return () => controller.abort();
   }, [tag, station?.station_id]);
 
   return (
     <div className="weather-day-detail">
-      {loading && <div className="weather-day-detail-status">Lade Wetterdetails...</div>}
+      <div className="weather-day-detail-header">
+        <div>
+          <div className="weather-day-detail-title">Detailliertes Wetter</div>
+          <div className="weather-day-detail-subtitle">
+            {[station?.name, formatHeaderDate(tag)].filter(Boolean).join(" · ")}
+          </div>
+        </div>
+        <button
+          type="button"
+          className="weather-day-detail-close"
+          onClick={onClose}
+          aria-label="Schliessen"
+        >
+          ×
+        </button>
+      </div>
 
-      {error && <div className="weather-day-detail-status">{error}</div>}
+      <div className="weather-day-detail-body">
+        {loading && <div className="weather-day-detail-status">Lade Wetterdetails…</div>}
 
-      {!loading && !error && data.length > 0 && <WeatherChart data={data} />}
+        {error && <div className="weather-day-detail-status">{error}</div>}
 
-      {!loading && !error && data.length === 0 && (
-        <div className="weather-day-detail-status">Keine Detaildaten verfügbar.</div>
-      )}
+        {!loading && !error && data.length > 0 && <WeatherChart data={data} />}
+
+        {!loading && !error && data.length === 0 && (
+          <div className="weather-day-detail-status">Keine Detaildaten verfügbar.</div>
+        )}
+      </div>
     </div>
   );
 };

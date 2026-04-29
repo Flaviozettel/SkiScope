@@ -388,12 +388,17 @@ def fetch_stundendaten_from_api(station_id: int, lat: float, lon: float, target_
     df_good = parse_hourly(resp_good, hourly_vars, "meteoswiss_icon_seamless")   # FIX 4: used_vars übergeben
     df_ecmwf = parse_hourly(resp_ecmwf, ecmwf_vars, "ecmwf_ifs")                # FIX 4: used_vars übergeben
 
-    # MeteoSwiss priorisieren, ECMWF als Fallback
-    weather_cols = [c for c in df_good.columns if c not in ("zeitpunkt", "wetter_modell")]
-    df_good_valid = df_good.dropna(subset=weather_cols, how="all")
-    dates_to_fill = set(df_ecmwf["zeitpunkt"]) - set(df_good_valid["zeitpunkt"])
-    df_ecmwf_fill = df_ecmwf[df_ecmwf["zeitpunkt"].isin(dates_to_fill)]
-    combined = pd.concat([df_good_valid, df_ecmwf_fill]).sort_values("zeitpunkt").reset_index(drop=True)
+    # Per-Zelle mergen: MeteoSwiss bevorzugen, ECMWF füllt einzelne NaN-Lücken.
+    # Vorher row-level (dropna how="all"): sobald MeteoSwiss EINE nicht-NaN-Spalte
+    # hatte, blieb die ganze Zeile MeteoSwiss → andere Felder blieben NaN, obwohl
+    # ECMWF Werte gehabt hätte. Resultat: Tage mit nur 1 brauchbarer Stunde.
+    combined = (
+        df_good.set_index("zeitpunkt")
+        .combine_first(df_ecmwf.set_index("zeitpunkt"))
+        .reset_index()
+        .sort_values("zeitpunkt")
+        .reset_index(drop=True)
+    )
 
     # Nur die Stunden des gewünschten Tages
     combined["tag"] = combined["zeitpunkt"].dt.date

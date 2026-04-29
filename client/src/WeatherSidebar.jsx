@@ -2,30 +2,33 @@
 // WeatherSidebar.jsx – Wetter-Sidebar links neben der Karte
 //
 // Zeigt die 7-Tages-Prognose für die aktuelle Wetterstation.
-// Klick auf eine Zeile setzt das aktive Datum.
+// Hover → Zeile wird höher und zeigt "Detailliertes Wetter"-Button
+// (nur für die ersten 7 Tage). Klick auf den Button öffnet das
+// WeatherDayDetail-Overlay (in MainArea über der Karte) und markiert
+// die Zeile blau.
 // ============================================================
 
 import { useState } from "react";
 import { WMO_MAP } from "./mapConfig.js";
-import { WeatherDayDetail } from "./WeatherDayDetail.jsx";
 import "./WeatherSidebar.css";
 
-// Detail-Hover ist nur für die ersten 7 Tage verfügbar (Stundendaten-Limit)
+// "Detailliertes Wetter"-Button erscheint nur für die ersten 7 Tage
+// (begrenzt durch das Stundendaten-Forecast-Fenster im Backend)
 const DETAIL_DAYS = 7;
 
-export const WeatherSidebar = ({ wetter, wetterStation, setAktivDatum }) => {
-  // UI-Zustand: welche Zeile ist aktuell hervorgehoben
-  const [activeDay, setActiveDay] = useState(0);
-
-  // UI-Zustand: über welcher Zeile schwebt die Maus (für das Detail-Panel)
+export const WeatherSidebar = ({
+  wetter,
+  wetterStation,
+  setAktivDatum,
+  detailTag,
+  setDetailTag,
+}) => {
+  // UI-Zustand: über welcher Zeile schwebt die Maus
   const [hoveredDay, setHoveredDay] = useState(null);
 
-  const handleRowEnter = (i) => {
-    if (i < DETAIL_DAYS) setHoveredDay(i);
-  };
-
-  const handleRowLeave = () => {
-    setHoveredDay(null);
+  const openDetail = (w) => {
+    setAktivDatum(w.tag);
+    setDetailTag(w.tag);
   };
 
   return (
@@ -54,41 +57,49 @@ export const WeatherSidebar = ({ wetter, wetterStation, setAktivDatum }) => {
       {wetter.map((w, i) => {
         const d = new Date(w.tag);
         const icon = WMO_MAP[Math.round(w.daily_wetter_code_wmo)];
+        const isActive = detailTag === w.tag;
+        const isHovered = hoveredDay === i;
+        const detailAvailable = i < DETAIL_DAYS;
+        const showDetailButton = isHovered && detailAvailable;
         return (
           <div
             key={i}
-            className={`weather-row ${i === activeDay ? "active" : ""}`}
-            onClick={() => {
-              setActiveDay(i);
-              setAktivDatum(w.tag);
-            }}
-            onMouseEnter={() => handleRowEnter(i)}
-            onMouseLeave={handleRowLeave}
+            className={`weather-row ${isActive ? "active" : ""} ${showDetailButton ? "expanded" : ""}`}
+            onMouseEnter={() => setHoveredDay(i)}
+            onMouseLeave={() => setHoveredDay(null)}
           >
-            <span className="weather-row-icon">{icon?.icon || "❓"}</span>
-            <div className="weather-row-info">
-              <span className="weather-row-day">
-                {i === 0 ? "Heute" : d.toLocaleDateString("de-CH", { weekday: "short" })}
-              </span>
-              <span className="weather-row-desc">{icon?.text || "—"}</span>
-            </div>
-            {w.daily_temperature_2m_max != null && (
-              <div className="weather-row-temp">
-                <span className="weather-row-temp-max">
-                  {Math.round(w.daily_temperature_2m_max)}°
+            <div className="weather-row-main">
+              <span className="weather-row-icon">{icon?.icon || "❓"}</span>
+              <div className="weather-row-info">
+                <span className="weather-row-day">
+                  {i === 0 ? "Heute" : d.toLocaleDateString("de-CH", { weekday: "short" })}
                 </span>
-                {w.daily_temperature_2m_min != null && (
-                  <>
-                    <span className="weather-row-temp-sep">/</span>
-                    <span className="weather-row-temp-min">
-                      {Math.round(w.daily_temperature_2m_min)}°
-                    </span>
-                  </>
-                )}
+                <span className="weather-row-desc">{icon?.text || "—"}</span>
               </div>
-            )}
-            {hoveredDay === i && (
-              <WeatherDayDetail tag={w.tag} station={wetterStation} />
+              {w.daily_temperature_2m_max != null && (
+                <div className="weather-row-temp">
+                  <span className="weather-row-temp-max">
+                    {Math.round(w.daily_temperature_2m_max)}°
+                  </span>
+                  {w.daily_temperature_2m_min != null && (
+                    <>
+                      <span className="weather-row-temp-sep">/</span>
+                      <span className="weather-row-temp-min">
+                        {Math.round(w.daily_temperature_2m_min)}°
+                      </span>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+            {showDetailButton && (
+              <button
+                type="button"
+                className="weather-row-detail-btn"
+                onClick={() => openDetail(w)}
+              >
+                Detailliertes Wetter
+              </button>
             )}
           </div>
         );

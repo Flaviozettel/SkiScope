@@ -41,14 +41,18 @@
 }
 
 .weather-row {
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 7px 6px;
+  border-radius: var(--radius-sm);
+  transition: background 0.12s ease;
+}
+
+.weather-row-main {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 7px 6px;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: background 0.12s ease;
 }
 
 .weather-row:hover {
@@ -58,6 +62,36 @@
 .weather-row.active {
   background: #2c76ffcb;
   box-shadow: 0 3px 10px rgba(45, 108, 223, 0.5);
+}
+
+.weather-row-detail-btn {
+  align-self: stretch;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  color: var(--accent, #2d6cdf);
+  background: rgba(45, 108, 223, 0.12);
+  border: 1px solid rgba(45, 108, 223, 0.28);
+  border-radius: var(--radius-sm);
+  padding: 5px 8px;
+  cursor: pointer;
+  transition: background 0.12s ease, transform 0.12s ease;
+}
+
+.weather-row-detail-btn:hover {
+  background: rgba(45, 108, 223, 0.22);
+}
+
+.weather-row-detail-btn:active {
+  transform: scale(0.98);
+}
+
+.weather-row.active .weather-row-detail-btn {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.4);
 }
 
 .weather-row-icon {

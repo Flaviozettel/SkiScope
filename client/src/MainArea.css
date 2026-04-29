@@ -118,3 +118,18 @@
   gap: 10px;
   min-height: 0;
 }
+
+/* Container für die Karte + ggf. das WeatherDayDetail-Overlay.
+   position: relative + flex:1 → das absolut positionierte Overlay
+   übernimmt exakt die Map-Maße. */
+.map-overlay-host {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+}
+
+.map-overlay-host > :first-child {
+  flex: 1;
+  min-width: 0;
+}

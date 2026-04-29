@@ -7,6 +7,7 @@
 
 import { WeatherSidebar } from "./WeatherSidebar.jsx";
 import { SkiMap } from "./SkiMap.jsx";
+import { WeatherDayDetail } from "./WeatherDayDetail.jsx";
 import "./MainArea.css";
 
 export const MainArea = ({
@@ -22,6 +23,8 @@ export const MainArea = ({
   setSelectedMarker,
   tooltipData,
   setTooltipData,
+  detailTag,
+  setDetailTag,
 }) => {
   const heuteISO = new Date().toISOString().split("T")[0];
   const safeDatum = aktivDatum > heuteISO ? heuteISO : aktivDatum;
@@ -34,18 +37,29 @@ export const MainArea = ({
           wetter={wetter}
           wetterStation={wetterStation}
           setAktivDatum={setAktivDatum}
+          detailTag={detailTag}
+          setDetailTag={setDetailTag}
         />
-        <SkiMap
-          mapRef={mapRef}
-          safeDatum={safeDatum}
-          hoverMarker={hoverMarker}
-          setHoverMarker={setHoverMarker}
-          selectedMarker={selectedMarker}
-          setSelectedMarker={setSelectedMarker}
-          tooltipData={tooltipData}
-          setTooltipData={setTooltipData}
-          setWetterStation={setWetterStation}
-        />
+        <div className="map-overlay-host">
+          <SkiMap
+            mapRef={mapRef}
+            safeDatum={safeDatum}
+            hoverMarker={hoverMarker}
+            setHoverMarker={setHoverMarker}
+            selectedMarker={selectedMarker}
+            setSelectedMarker={setSelectedMarker}
+            tooltipData={tooltipData}
+            setTooltipData={setTooltipData}
+            setWetterStation={setWetterStation}
+          />
+          {detailTag && (
+            <WeatherDayDetail
+              tag={detailTag}
+              station={wetterStation}
+              onClose={() => setDetailTag(null)}
+            />
+          )}
+        </div>
       </div>
     </main>
   );

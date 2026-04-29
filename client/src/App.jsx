@@ -35,6 +35,9 @@ export function App() {
   const [selectedMarker, setSelectedMarker] = useState(null);
   const [tooltipData, setTooltipData] = useState(null);
 
+  // Tag-ISO-String, dessen Wetterdetail-Overlay über der Karte offen ist (null = geschlossen)
+  const [detailTag, setDetailTag] = useState(null);
+
   // Top-Schnee einmalig laden (für Header-Badge)
   useEffect(() => {
     fetch(`${API_BASE}/skigebiete/top-schnee`)
@@ -81,6 +84,11 @@ export function App() {
     if (wetter.length > 0) setAktivDatum(wetter[0].tag);
   }, [wetter]);
 
+  // Wenn die Wetterstation wechselt, eventuell offenes Detail schliessen
+  useEffect(() => {
+    setDetailTag(null);
+  }, [wetterStation?.station_id]);
+
   return (
     <div className="app">
       <Header mapRef={mapRef} topSchnee={topSchnee} />
@@ -99,6 +107,8 @@ export function App() {
           setSelectedMarker={setSelectedMarker}
           tooltipData={tooltipData}
           setTooltipData={setTooltipData}
+          detailTag={detailTag}
+          setDetailTag={setDetailTag}
         />
       </div>
 

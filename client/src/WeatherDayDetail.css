@@ -1,20 +1,86 @@
 /* ============================================================
-   WeatherDayDetail.css – Hover-Detail-Panel der WeatherSidebar
+   WeatherDayDetail.css – Detail-Overlay über der Karte
    ============================================================ */
 
 .weather-day-detail {
   position: absolute;
-  top: 0;
-  left: calc(100% + 8px);
-  width: 260px;
-  min-height: 100px;
-  background: var(--glass-bg);
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface, rgba(255, 255, 255, 0.96));
   backdrop-filter: blur(16px) saturate(180%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
-  padding: 12px;
+  padding: 14px 18px 16px;
   box-shadow: var(--glass-shadow);
-  z-index: 1000;
-  pointer-events: none;
+  overflow: hidden;
+}
+
+.weather-day-detail-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.weather-day-detail-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: 0.2px;
+}
+
+.weather-day-detail-subtitle {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+.weather-day-detail-close {
+  font-family: inherit;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease, transform 0.12s ease;
+}
+
+.weather-day-detail-close:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--text-primary);
+}
+
+.weather-day-detail-close:active {
+  transform: scale(0.95);
+}
+
+.weather-day-detail-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding-top: 12px;
+}
+
+.weather-day-detail-status {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: var(--text-tertiary);
 }
