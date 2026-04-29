@@ -243,20 +243,26 @@ class WetterprognoseType(str, Enum):
 
 # Hilfsfunktionen
 def get_station_coords(station_id: int) -> tuple[float, float]:
-    """Holt Latitude und Longitude aus der skigebiete-Tabelle."""
+    """Holt Latitude und Longitude aus der skigebiet_geom-Tabelle via PostGIS."""
     try:
         conn = get_db_conn()
         cur = conn.cursor()
-        cur.execute("SELECT latitude, longitude FROM skigebiete WHERE station_id = %s", (station_id,))
+        cur.execute("""
+            SELECT ST_Y(centerpoint::geometry), ST_X(centerpoint::geometry)
+            FROM skigebiet_geom
+            WHERE station_id = %s
+            """, (station_id,))
         row = cur.fetchone()
         cur.close()
         conn.close()
         if not row:
-            #raise HTTPException(status_code=404, detail=f"Station {station_id} nicht gefunden")
-            return 46.9481, 7.4474  # Koordinaten Bern als Fallback danach wider löschen!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            raise HTTPException(status_code=404, detail=f"Station {station_id} nicht gefunden")
+        return row[0], row[1]
+    except HTTPException:
+        raise
     except Exception as e:
         print(f"Fehler beim Abrufen der Koordinaten für Station {station_id}: {e}")
-        return 46.9481, 7.4474  # Koordinaten Bern als Fallback danach wider löschen!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        raise HTTPException(status_code=500, detail="Datenbankfehler")
 
 
 def is_cache_fresh(aktualisiert: datetime) -> bool:
