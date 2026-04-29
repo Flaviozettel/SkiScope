@@ -7,11 +7,26 @@
 
 import { useState } from "react";
 import { WMO_MAP } from "./mapConfig.js";
+import { WeatherDayDetail } from "./WeatherDayDetail.jsx";
 import "./WeatherSidebar.css";
+
+// Detail-Hover ist nur für die ersten 7 Tage verfügbar (Stundendaten-Limit)
+const DETAIL_DAYS = 7;
 
 export const WeatherSidebar = ({ wetter, wetterStation, setAktivDatum }) => {
   // UI-Zustand: welche Zeile ist aktuell hervorgehoben
   const [activeDay, setActiveDay] = useState(0);
+
+  // UI-Zustand: über welcher Zeile schwebt die Maus (für das Detail-Panel)
+  const [hoveredDay, setHoveredDay] = useState(null);
+
+  const handleRowEnter = (i) => {
+    if (i < DETAIL_DAYS) setHoveredDay(i);
+  };
+
+  const handleRowLeave = () => {
+    setHoveredDay(null);
+  };
 
   return (
     <div className="weather-sidebar">
@@ -47,6 +62,8 @@ export const WeatherSidebar = ({ wetter, wetterStation, setAktivDatum }) => {
               setActiveDay(i);
               setAktivDatum(w.tag);
             }}
+            onMouseEnter={() => handleRowEnter(i)}
+            onMouseLeave={handleRowLeave}
           >
             <span className="weather-row-icon">{icon?.icon || "❓"}</span>
             <div className="weather-row-info">
@@ -57,6 +74,9 @@ export const WeatherSidebar = ({ wetter, wetterStation, setAktivDatum }) => {
             </div>
             {w.daily_temperature_2m_max != null && (
               <span className="weather-row-temp">{Math.round(w.daily_temperature_2m_max)}°</span>
+            )}
+            {hoveredDay === i && (
+              <WeatherDayDetail tag={w.tag} station={wetterStation} />
             )}
           </div>
         );

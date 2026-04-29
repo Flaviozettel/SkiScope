@@ -1,0 +1,20 @@
+/* ============================================================
+   WeatherDayDetail.css – Hover-Detail-Panel der WeatherSidebar
+   ============================================================ */
+
+.weather-day-detail {
+  position: absolute;
+  top: 0;
+  left: calc(100% + 8px);
+  width: 260px;
+  min-height: 100px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: 12px;
+  box-shadow: var(--glass-shadow);
+  z-index: 1000;
+  pointer-events: none;
+}
