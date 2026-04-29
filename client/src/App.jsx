@@ -35,13 +35,34 @@ export function App() {
   const [selectedMarker, setSelectedMarker] = useState(null);
   const [tooltipData, setTooltipData] = useState(null);
 
-  // Top-Schnee einmalig laden, daraus auch initiale Wetterstation ableiten
+  // Top-Schnee einmalig laden (für Header-Badge)
   useEffect(() => {
     fetch(`${API_BASE}/skigebiete/top-schnee`)
       .then((r) => r.json())
+      .then(setTopSchnee)
+      .catch(console.error);
+  }, []);
+
+  // Initial: Wetter für aktuellen Standort (Muttenz-Koordinaten als Fallback,
+  // da die Browser-Geolocation hier nicht abgefragt wird)
+  useEffect(() => {
+    const lat = 47.534909;
+    const lon = 7.641925;
+    const url =
+      `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
+      `&daily=weather_code,temperature_2m_max,temperature_2m_min` +
+      `&timezone=Europe%2FBerlin&forecast_days=7`;
+    fetch(url)
+      .then((r) => r.json())
       .then((data) => {
-        setTopSchnee(data);
-        setWetterStation({ station_id: data.station_id, name: data.station_name });
+        const days = data.daily.time.map((tag, i) => ({
+          tag,
+          daily_wetter_code_wmo: data.daily.weather_code[i],
+          daily_temperature_2m_max: data.daily.temperature_2m_max[i],
+          daily_temperature_2m_min: data.daily.temperature_2m_min[i],
+        }));
+        setWetter(days);
+        setWetterStation((prev) => prev ?? { name: "Aktueller Standort" });
       })
       .catch(console.error);
   }, []);
