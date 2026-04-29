@@ -268,16 +268,11 @@ def get_station_coords(station_id: int) -> tuple[float, float]:
 
 def _finite_or_none(value):
     """NaN/Inf → None. Sonst würde Pythons json.dumps ungültiges JSON
-    (NaN-Literal) erzeugen, an dem JSON.parse im Browser scheitert."""
-    if value is None:
+    (NaN-Literal) erzeugen, an dem JSON.parse im Browser scheitert.
+    Lässt Nicht-Floats (int, str, datetime, …) unverändert durch."""
+    if isinstance(value, float) and not math.isfinite(value):
         return None
-    try:
-        f = float(value)
-    except (TypeError, ValueError):
-        return value
-    if math.isnan(f) or math.isinf(f):
-        return None
-    return f
+    return value
 
 
 def is_cache_fresh(aktualisiert: datetime) -> bool:
@@ -439,6 +434,7 @@ def save_tagesdaten_to_db(data: list[dict]):
     conn = get_db_conn()
     cur = conn.cursor()
     for row in data:
+        row = {k: _finite_or_none(v) for k, v in row.items()}
         cur.execute("""
             INSERT INTO wetter_skigebiet_d (
                 station_id, tag, aktualisiert,
@@ -476,6 +472,7 @@ def save_stundendaten_to_db(data: list[dict]):
     conn = get_db_conn()
     cur = conn.cursor()
     for row in data:
+        row = {k: _finite_or_none(v) for k, v in row.items()}
         cur.execute("""
             INSERT INTO wetter_skigebiet_h (
                 station_id, zeitpunkt,
@@ -553,16 +550,16 @@ def get_wetterprognose(
             return [
                 {
                     "tag": r[0].isoformat(),
-                    "daily_wetter_code_wmo": r[2],
-                    "daily_temperature_2m_max": r[3],
-                    "daily_temperature_2m_min": r[4],
+                    "daily_wetter_code_wmo": _finite_or_none(r[2]),
+                    "daily_temperature_2m_max": _finite_or_none(r[3]),
+                    "daily_temperature_2m_min": _finite_or_none(r[4]),
                     "daily_sunrise": r[5].isoformat() if r[5] else None,
                     "daily_sunset": r[6].isoformat() if r[6] else None,
-                    "daily_uv_index_max": r[7],
-                    "daily_snowfall_sum": r[8],
-                    "daily_rain_sum": r[9],
-                    "daily_sunshine_duration": r[10],
-                    "daily_wind_speed_10m_mean": r[11],
+                    "daily_uv_index_max": _finite_or_none(r[7]),
+                    "daily_snowfall_sum": _finite_or_none(r[8]),
+                    "daily_rain_sum": _finite_or_none(r[9]),
+                    "daily_sunshine_duration": _finite_or_none(r[10]),
+                    "daily_wind_speed_10m_mean": _finite_or_none(r[11]),
                 }
                 for r in rows
             ]
@@ -620,21 +617,21 @@ def get_wetterprognose(
                 return [
                     {
                         "zeitpunkt": r[0].isoformat(),
-                        "temperatur_2m": r[2],
-                        "relative_luftfeuchtigkeit_2m": r[3],
-                        "gefuehlte_temperatur": r[4],
-                        "niederschlag": r[5],
-                        "regen": r[6],
-                        "wind_geschwindigkeit_10m": r[7],
-                        "wind_boehen_10m": r[8],
-                        "schneefall": r[9],
-                        "schnee_tiefe": r[10],
-                        "bewoelkung_cover": r[11],
-                        "bewoelkung_tief": r[12],
-                        "bewoelkung_mittel": r[13],
-                        "bewoelkung_hoch": r[14],
-                        "schneefall_hoehe": r[15],
-                        "sonnenscheindauer": r[16],
+                        "temperatur_2m": _finite_or_none(r[2]),
+                        "relative_luftfeuchtigkeit_2m": _finite_or_none(r[3]),
+                        "gefuehlte_temperatur": _finite_or_none(r[4]),
+                        "niederschlag": _finite_or_none(r[5]),
+                        "regen": _finite_or_none(r[6]),
+                        "wind_geschwindigkeit_10m": _finite_or_none(r[7]),
+                        "wind_boehen_10m": _finite_or_none(r[8]),
+                        "schneefall": _finite_or_none(r[9]),
+                        "schnee_tiefe": _finite_or_none(r[10]),
+                        "bewoelkung_cover": _finite_or_none(r[11]),
+                        "bewoelkung_tief": _finite_or_none(r[12]),
+                        "bewoelkung_mittel": _finite_or_none(r[13]),
+                        "bewoelkung_hoch": _finite_or_none(r[14]),
+                        "schneefall_hoehe": _finite_or_none(r[15]),
+                        "sonnenscheindauer": _finite_or_none(r[16]),
                         "wetter_modell": r[17],
                     }
                     for r in rows
