@@ -36,6 +36,7 @@ export function App() {
   const [tooltipData, setTooltipData] = useState(null);
 
   // Top-Schnee einmalig laden (für Header-Badge)
+  // Top-Schnee einmalig laden (für Header-Badge)
   useEffect(() => {
     fetch(`${API_BASE}/skigebiete/top-schnee`)
       .then((r) => r.json())
@@ -51,10 +52,18 @@ export function App() {
     const url =
       `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
       `&daily=weather_code,temperature_2m_max,temperature_2m_min` +
-      `&timezone=Europe%2FBerlin&forecast_days=7`;
+      `&timezone=Europe%2FBerlin&forecast_days=14`;
     fetch(url)
       .then((r) => r.json())
       .then((data) => {
+        const days = data.daily.time.map((tag, i) => ({
+          tag,
+          daily_wetter_code_wmo: data.daily.weather_code[i],
+          daily_temperature_2m_max: data.daily.temperature_2m_max[i],
+          daily_temperature_2m_min: data.daily.temperature_2m_min[i],
+        }));
+        setWetter(days);
+        setWetterStation((prev) => prev ?? { name: "Aktueller Standort" });
         const days = data.daily.time.map((tag, i) => ({
           tag,
           daily_wetter_code_wmo: data.daily.weather_code[i],
