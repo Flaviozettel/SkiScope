@@ -9,6 +9,7 @@
 # ============================================================
 
 import json
+import math
 from fastapi import FastAPI, BackgroundTasks, HTTPException
 import requests
 from datetime import date, timedelta
@@ -263,6 +264,20 @@ def get_station_coords(station_id: int) -> tuple[float, float]:
     except Exception as e:
         print(f"Fehler beim Abrufen der Koordinaten für Station {station_id}: {e}")
         raise HTTPException(status_code=500, detail="Datenbankfehler")
+
+
+def _finite_or_none(value):
+    """NaN/Inf → None. Sonst würde Pythons json.dumps ungültiges JSON
+    (NaN-Literal) erzeugen, an dem JSON.parse im Browser scheitert."""
+    if value is None:
+        return None
+    try:
+        f = float(value)
+    except (TypeError, ValueError):
+        return value
+    if math.isnan(f) or math.isinf(f):
+        return None
+    return f
 
 
 def is_cache_fresh(aktualisiert: datetime) -> bool:
@@ -561,16 +576,16 @@ def get_wetterprognose(
         return [
             {
                 "tag": d["tag"].isoformat(),
-                "daily_wetter_code_wmo": d["daily_wetter_code_wmo"],
-                "daily_temperature_2m_max": d["daily_temperature_2m_max"],
-                "daily_temperature_2m_min": d["daily_temperature_2m_min"],
+                "daily_wetter_code_wmo": _finite_or_none(d["daily_wetter_code_wmo"]),
+                "daily_temperature_2m_max": _finite_or_none(d["daily_temperature_2m_max"]),
+                "daily_temperature_2m_min": _finite_or_none(d["daily_temperature_2m_min"]),
                 "daily_sunrise": d["daily_sunrise"].isoformat() if d["daily_sunrise"] else None,
                 "daily_sunset": d["daily_sunset"].isoformat() if d["daily_sunset"] else None,
-                "daily_uv_index_max": d["daily_uv_index_max"],
-                "daily_snowfall_sum": d["daily_snowfall_sum"],
-                "daily_rain_sum": d["daily_rain_sum"],
-                "daily_sunshine_duration": d["daily_sunshine_duration"],
-                "daily_wind_speed_10m_mean": d["daily_wind_speed_10m_mean"],
+                "daily_uv_index_max": _finite_or_none(d["daily_uv_index_max"]),
+                "daily_snowfall_sum": _finite_or_none(d["daily_snowfall_sum"]),
+                "daily_rain_sum": _finite_or_none(d["daily_rain_sum"]),
+                "daily_sunshine_duration": _finite_or_none(d["daily_sunshine_duration"]),
+                "daily_wind_speed_10m_mean": _finite_or_none(d["daily_wind_speed_10m_mean"]),
             }
             for d in data if d["tag"] >= target_date
         ]
@@ -633,21 +648,21 @@ def get_wetterprognose(
         return [
             {
                 "zeitpunkt": d["zeitpunkt"].isoformat(),
-                "temperatur_2m": d["temperatur_2m"],
-                "relative_luftfeuchtigkeit_2m": d["relative_luftfeuchtigkeit_2m"],
-                "gefuehlte_temperatur": d["gefuehlte_temperatur"],
-                "niederschlag": d["niederschlag"],
-                "regen": d["regen"],
-                "wind_geschwindigkeit_10m": d["wind_geschwindigkeit_10m"],
-                "wind_boehen_10m": d["wind_boehen_10m"],
-                "schneefall": d["schneefall"],
-                "schnee_tiefe": d["schnee_tiefe"],
-                "bewoelkung_cover": d["bewoelkung_cover"],
-                "bewoelkung_tief": d["bewoelkung_tief"],
-                "bewoelkung_mittel": d["bewoelkung_mittel"],
-                "bewoelkung_hoch": d["bewoelkung_hoch"],
-                "schneefall_hoehe": d["schneefall_hoehe"],
-                "sonnenscheindauer": d["sonnenscheindauer"],
+                "temperatur_2m": _finite_or_none(d["temperatur_2m"]),
+                "relative_luftfeuchtigkeit_2m": _finite_or_none(d["relative_luftfeuchtigkeit_2m"]),
+                "gefuehlte_temperatur": _finite_or_none(d["gefuehlte_temperatur"]),
+                "niederschlag": _finite_or_none(d["niederschlag"]),
+                "regen": _finite_or_none(d["regen"]),
+                "wind_geschwindigkeit_10m": _finite_or_none(d["wind_geschwindigkeit_10m"]),
+                "wind_boehen_10m": _finite_or_none(d["wind_boehen_10m"]),
+                "schneefall": _finite_or_none(d["schneefall"]),
+                "schnee_tiefe": _finite_or_none(d["schnee_tiefe"]),
+                "bewoelkung_cover": _finite_or_none(d["bewoelkung_cover"]),
+                "bewoelkung_tief": _finite_or_none(d["bewoelkung_tief"]),
+                "bewoelkung_mittel": _finite_or_none(d["bewoelkung_mittel"]),
+                "bewoelkung_hoch": _finite_or_none(d["bewoelkung_hoch"]),
+                "schneefall_hoehe": _finite_or_none(d["schneefall_hoehe"]),
+                "sonnenscheindauer": _finite_or_none(d["sonnenscheindauer"]),
                 "wetter_modell": d["wetter_modell"],
             }
             for d in data

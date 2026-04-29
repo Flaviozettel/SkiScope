@@ -22,6 +22,9 @@ const formatHour = (value) => {
   });
 };
 
+// `??` fängt nur null/undefined, nicht NaN — daher explizit auf endlich prüfen
+const toFinite = (v) => (Number.isFinite(v) ? v : null);
+
 const WeatherChart = ({ data }) => {
   return (
     <ResponsiveContainer width="100%" height={260}>
@@ -91,8 +94,8 @@ export const WeatherDayDetail = ({ tag, station }) => {
         const chartData = rows.map((row) => ({
           time: row.zeitpunkt,
           timeLabel: formatHour(row.zeitpunkt),
-          temp_2m: row.temperatur_2m ?? row.temperature_2m ?? null,
-          niederschlag: row.niederschlag ?? row.precipitation ?? 0,
+          temp_2m: toFinite(row.temperatur_2m ?? row.temperature_2m),
+          niederschlag: toFinite(row.niederschlag ?? row.precipitation) ?? 0,
         }));
 
         setData(chartData);

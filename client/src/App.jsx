@@ -81,15 +81,6 @@ export function App() {
     if (wetter.length > 0) setAktivDatum(wetter[0].tag);
   }, [wetter]);
 
-  // Debug: Schnee-Datensatz für aktives Datum prüfen
-  useEffect(() => {
-    if (!aktivDatum) return;
-    fetch(`${API_BASE}/schnee?datum=${aktivDatum}`)
-      .then((r) => r.json())
-      .then((d) => console.log("Import geprüft:", d))
-      .catch(console.error);
-  }, [aktivDatum]);
-
   return (
     <div className="app">
       <Header mapRef={mapRef} topSchnee={topSchnee} />
