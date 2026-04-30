@@ -12,6 +12,7 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  Area,
 } from "recharts";
 
 const formatHour = (value) => {
@@ -45,6 +46,8 @@ const WeatherChart = ({ data }) => {
 
         <YAxis yAxisId="rain" orientation="right" width={35} unit=" mm" />
 
+        <YAxis yAxisId="sun" orientation="right" width={0} unit="min" hide={true} />
+
         <Tooltip />
 
         <Legend />
@@ -64,6 +67,13 @@ const WeatherChart = ({ data }) => {
           name="Temperatur"
           stroke="#ff7300"
           dot={false}
+        />
+        <Area
+          type="monotone"
+          dataKey="sonnenscheindauer"
+          fill="#e6c314"
+          stroke="#e6c314"
+          yAxisID="sun"
         />
       </ComposedChart>
     </ResponsiveContainer>
@@ -112,6 +122,7 @@ export const WeatherDayDetail = ({ tag, station, onClose }) => {
           timeLabel: formatHour(row.zeitpunkt),
           temp_2m: toFinite(row.temperatur_2m ?? row.temperature_2m),
           niederschlag: toFinite(row.niederschlag ?? row.precipitation) ?? 0,
+          sonnenscheindauer: toFinite((row.sonnenscheindauer ?? row.sunshine) / 60) ?? 0,
         }));
 
         setData(chartData);
