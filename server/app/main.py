@@ -307,9 +307,11 @@ def fetch_tagesdaten_from_api(station_id: int, lat: float, lon: float) -> list[d
     response = responses[0]
 
     daily = response.Daily()
+    # Time() ist echter UTC-Timestamp; KEIN Offset addieren. tag wird über
+    # tz_convert nach Berlin in das richtige Lokaldatum überführt.
     dates = pd.date_range(
-        start=pd.to_datetime(daily.Time() + response.UtcOffsetSeconds(), unit="s", utc=True),
-        end=pd.to_datetime(daily.TimeEnd() + response.UtcOffsetSeconds(), unit="s", utc=True),
+        start=pd.to_datetime(daily.Time(), unit="s", utc=True),
+        end=pd.to_datetime(daily.TimeEnd(), unit="s", utc=True),
         freq=pd.Timedelta(seconds=daily.Interval()),
         inclusive="left"
     )
@@ -318,7 +320,7 @@ def fetch_tagesdaten_from_api(station_id: int, lat: float, lon: float) -> list[d
     for i, d in enumerate(dates):
         results.append({
             "station_id": station_id,
-            "tag": d.date(),
+            "tag": d.tz_convert("Europe/Berlin").date(),
             "daily_wetter_code_wmo": float(daily.Variables(0).ValuesAsNumpy()[i]),
             "daily_temperature_2m_max": float(daily.Variables(1).ValuesAsNumpy()[i]),
             "daily_temperature_2m_min": float(daily.Variables(2).ValuesAsNumpy()[i]),
@@ -349,11 +351,16 @@ def fetch_stundendaten_from_api(station_id: int, lat: float, lon: float, target_
     ]
 
     # FIX 4: used_vars Parameter hinzugefügt, damit ECMWF-Indizes korrekt sind
+    # FIX 5: KEIN UtcOffsetSeconds mehr addieren — Time() ist bereits ein echter
+    # UTC-Unix-Timestamp. Vorher wurde das Resultat als UTC getaggt, repräsentierte
+    # aber Berlin-Wandzeit → TIMESTAMPTZ-Speicherung verschob alles um den Offset
+    # in die Zukunft, sodass `zeitpunkt::date` in der Cache-Query falsche Tage
+    # traf und z. B. nur 2 statt 24 Zeilen lieferte.
     def parse_hourly(response, used_vars: list[str], model_name: str) -> pd.DataFrame:
         hourly = response.Hourly()
         dates = pd.date_range(
-            start=pd.to_datetime(hourly.Time() + response.UtcOffsetSeconds(), unit="s", utc=True),
-            end=pd.to_datetime(hourly.TimeEnd() + response.UtcOffsetSeconds(), unit="s", utc=True),
+            start=pd.to_datetime(hourly.Time(), unit="s", utc=True),
+            end=pd.to_datetime(hourly.TimeEnd(), unit="s", utc=True),
             freq=pd.Timedelta(seconds=hourly.Interval()),
             inclusive="left"
         )
@@ -400,8 +407,9 @@ def fetch_stundendaten_from_api(station_id: int, lat: float, lon: float, target_
         .reset_index(drop=True)
     )
 
-    # Nur die Stunden des gewünschten Tages
-    combined["tag"] = combined["zeitpunkt"].dt.date
+    # Nur die Stunden des gewünschten Tages – target_date ist Berlin-lokal,
+    # combined["zeitpunkt"] ist echte UTC, also explizit nach Berlin konvertieren
+    combined["tag"] = combined["zeitpunkt"].dt.tz_convert("Europe/Berlin").dt.date
     day_df = combined[combined["tag"] == target_date]
 
     results = []
@@ -605,7 +613,8 @@ def get_wetterprognose(
                 bewoelkung_mittel, bewoelkung_hoch, schneefall_hoehe,
                 sonnenscheindauer, wetter_modell
             FROM wetter_skigebiet_h
-            WHERE station_id = %s AND zeitpunkt::date = %s
+            WHERE station_id = %s
+              AND (zeitpunkt AT TIME ZONE 'Europe/Berlin')::date = %s
             ORDER BY zeitpunkt ASC
         """, (station_id, target_date))
         rows = cur.fetchall()

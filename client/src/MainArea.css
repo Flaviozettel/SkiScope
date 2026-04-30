@@ -121,15 +121,14 @@
 
 /* Container für die Karte + ggf. das WeatherDayDetail-Overlay.
    position: relative + flex:1 → das absolut positionierte Overlay
-   übernimmt exakt die Map-Maße. */
+   übernimmt exakt die Map-Maße.
+   min-height: 0 ist nötig, damit die innere .map-container (flex:1)
+   ihre Höhe aus der verschachtelten Flex-Kette ableiten kann –
+   sonst kollabiert die Karte auf 0px. */
 .map-overlay-host {
   position: relative;
   flex: 1;
   min-width: 0;
+  min-height: 0;
   display: flex;
-}
-
-.map-overlay-host > :first-child {
-  flex: 1;
-  min-width: 0;
 }
