@@ -38,6 +38,14 @@ export function App() {
   // Tag-ISO-String, dessen Wetterdetail-Overlay über der Karte offen ist (null = geschlossen)
   const [detailTag, setDetailTag] = useState(null);
 
+  // Schneehöhen-Import beim App-Start anstossen.
+  // Der /schnee-Endpoint ruft auto_importiere_letzte_woche() auf, das die
+  // Tabelle füllt, aus der GeoServer die Vector-Tiles rendert. Ohne diesen
+  // Trigger bleibt der Schnee-Layer leer.
+  useEffect(() => {
+    fetch(`${API_BASE}/schnee`).catch(console.error);
+  }, []);
+
   // Top-Schnee einmalig laden (für Header-Badge)
   useEffect(() => {
     fetch(`${API_BASE}/skigebiete/top-schnee`)
