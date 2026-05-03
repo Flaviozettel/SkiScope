@@ -1,8 +1,5 @@
 // ============================================================
 // SkiMap.jsx – MapLibre-Karte mit allen Sources/Layers
-//
-// Enthält Legende, Hover- und Klick-Popups sowie alle
-// Vector-Tile-Layer für Schnee, Pisten, Lifte und Skigebiete.
 // ============================================================
 
 import { useRef, useEffect, useState, useMemo } from "react";
@@ -20,6 +17,9 @@ import { API_BASE } from "./config.js";
 import { MiniHoverPopup } from "./MiniHoverPopup.jsx";
 import { SkigebietPopup } from "./SkigebietPopup.jsx";
 import "./SkiMap.css";
+
+const SCHNEE_MAX_ZOOM = 13;
+const PISTEN_MIN_ZOOM = 13;
 
 export const SkiMap = ({
   mapRef,
@@ -39,7 +39,6 @@ export const SkiMap = ({
 
   const [skigebiete, setSkigebiete] = useState([]);
 
-  // Skigebiete laden für Namen-Mapping
   useEffect(() => {
     fetch(`${API_BASE}/skigebiete`)
       .then((res) => res.json())
@@ -54,23 +53,68 @@ export const SkiMap = ({
   useEffect(() => {
     nameMapRef.current = nameMap;
   }, [nameMap]);
-
   useEffect(() => {
     selectedRef.current = selectedMarker;
   }, [selectedMarker]);
 
-  // Hover → nur Name anzeigen
+  // ── Layer Visibility ───────────────────────────────────────
+  // null = auto (zoom-abhängiger Default, nie manuell angefasst)
+  // true/false = User-Entscheidung, überschreibt Zoom-Default
+  const [userToggle, setUserToggle] = useState({
+    schnee: null,
+    pisten: null,
+    lifte: null,
+  });
+
+  const zoomRef = useRef(7.5);
+  const userToggleRef = useRef(userToggle);
+  useEffect(() => {
+    userToggleRef.current = userToggle;
+  }, [userToggle]);
+
+  // null → zoom-abhängiger Default; true/false → User-Entscheidung
+  const calcEffective = (toggle, zoom) => ({
+    schnee: toggle.schnee !== null ? toggle.schnee : zoom <= SCHNEE_MAX_ZOOM,
+    pisten: toggle.pisten !== null ? toggle.pisten : zoom >= PISTEN_MIN_ZOOM,
+    lifte: toggle.lifte !== null ? toggle.lifte : zoom >= PISTEN_MIN_ZOOM,
+  });
+
+  const applyLayerVisibility = (map, toggle, zoom) => {
+    const v = (on) => (on ? "visible" : "none");
+    const eff = calcEffective(toggle, zoom);
+    const set = (id, on) => {
+      if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", v(on));
+    };
+    set("schnee-layer", eff.schnee);
+    set("pisten-fill", eff.pisten);
+    set("pisten-linien-layer", eff.pisten);
+    set("lifte-fill", eff.lifte);
+    set("lifte-outline", eff.lifte);
+    set("lifte-main", eff.lifte);
+    set("lifte-labels", eff.lifte);
+  };
+
+  const toggleLayer = (key) => {
+    setUserToggle((prev) => {
+      const zoom = zoomRef.current;
+      const currentEff = calcEffective(prev, zoom);
+      const next = { ...prev, [key]: !currentEff[key] };
+      const map = mapRef.current?.getMap?.();
+      if (map) applyLayerVisibility(map, next, zoom);
+      return next;
+    });
+  };
+
+  // ── Hover ──────────────────────────────────────────────────
   const handleMouseMove = (e) => {
     const features = e.target.queryRenderedFeatures(e.point, {
       layers: ["skigebiete-points-layer"],
     });
-
     if (features.length) {
       e.target.getCanvas().style.cursor = "pointer";
       const f = features[0];
       const station_id = Number(f.properties.station_id);
       const name = nameMapRef.current[station_id] || "Unbekanntes Skigebiet";
-
       if (!selectedRef.current) {
         setHoverMarker((prev) =>
           prev?.name === name ? prev : { lng: e.lngLat.lng, lat: e.lngLat.lat, name },
@@ -82,19 +126,17 @@ export const SkiMap = ({
     }
   };
 
-  // Klick auf Punkt → zoomen + volles Popup laden
+  // ── Klick ──────────────────────────────────────────────────
   const handleMapClick = async (e) => {
     const features = e.target.queryRenderedFeatures(e.point, {
       layers: ["skigebiete-points-layer"],
     });
-
     if (!features.length) {
       setSelectedMarker(null);
       setTooltipData(null);
       setHoverMarker(null);
       return;
     }
-
     const f = features[0];
     const station_id = Number(f.properties.station_id);
     const name = nameMapRef.current[station_id] || "Unbekanntes Skigebiet";
@@ -104,20 +146,17 @@ export const SkiMap = ({
     setSelectedMarker({ lng: e.lngLat.lng, lat: e.lngLat.lat, station_id });
     setTooltipData(null);
 
-    // Auf Skigebiet zoomen via Pistengeometrien
     const map = mapRef.current?.getMap?.();
     if (map) {
       const pistenFeatures = map.querySourceFeatures("pisten", {
         sourceLayer: "pisten_geom_multipolygon",
         filter: ["==", ["get", "station_id"], station_id],
       });
-
       if (pistenFeatures.length > 0) {
         let minLng = Infinity,
           minLat = Infinity;
         let maxLng = -Infinity,
           maxLat = -Infinity;
-
         pistenFeatures.forEach((feat) => {
           const coords = feat.geometry.coordinates.flat(3);
           for (let i = 0; i < coords.length; i += 2) {
@@ -127,25 +166,22 @@ export const SkiMap = ({
             maxLat = Math.max(maxLat, coords[i + 1]);
           }
         });
-
         map.fitBounds(
           [
             [minLng, minLat],
             [maxLng, maxLat],
           ],
-          { padding: 60, duration: 1000, maxZoom: 15 },
+          {
+            padding: 60,
+            duration: 1000,
+            maxZoom: 15,
+          },
         );
       } else {
-        // Fallback: auf Punkt zoomen wenn Pisten-Tiles noch nicht geladen
-        map.easeTo({
-          center: [e.lngLat.lng, e.lngLat.lat],
-          zoom: 13,
-          duration: 1000,
-        });
+        map.easeTo({ center: [e.lngLat.lng, e.lngLat.lat], zoom: 13, duration: 1000 });
       }
     }
 
-    // Detaildaten laden
     try {
       const res = await fetch(`${API_BASE}/skigebiet?station_id=${station_id}`);
       const data = await res.json();
@@ -154,7 +190,6 @@ export const SkiMap = ({
       console.error("Fetch Fehler:", err);
       setTooltipData({ _error: "Fehler beim Laden", name });
     }
-
     setWetterStation({ station_id, name });
   };
 
@@ -176,7 +211,6 @@ export const SkiMap = ({
         }}
         onLoad={(e) => {
           const map = e.target;
-
           map.addControl(new NavigationControl(), "top-right");
 
           setTimeout(() => {
@@ -193,18 +227,26 @@ export const SkiMap = ({
           scratLayerRef.current = layer;
           scratAddedRef.current = false;
 
+          // Initiale Visibility setzen sobald Karte geladen
+          applyLayerVisibility(map, userToggleRef.current, zoomRef.current);
+
           map.on("idle", () => {
             if (map.getLayer("skigebiete-points-layer")) {
               map.moveLayer("skigebiete-points-layer");
-              map.moveLayer("lifte-labels");
+              if (map.getLayer("lifte-labels")) map.moveLayer("lifte-labels");
             }
           });
         }}
         onMove={(e) => {
-          const pitch = e.viewState.pitch || 0;
+          const currentZoom = e.viewState.zoom;
+          zoomRef.current = currentZoom;
           const map = mapRef.current?.getMap?.();
           const layer = scratLayerRef.current;
+
+          if (map) applyLayerVisibility(map, userToggleRef.current, currentZoom);
+
           if (!map || !layer) return;
+          const pitch = e.viewState.pitch || 0;
           const isVisible = pitch > 10;
           if (isVisible && !scratAddedRef.current) {
             map.addLayer(layer);
@@ -227,6 +269,32 @@ export const SkiMap = ({
               </div>
             ))}
           </div>
+        </div>
+
+        {/* Layer-Toggle */}
+        <div className="layer-toggle-panel">
+          <div className="legende-title">Kartenlayer</div>
+          {[
+            { key: "schnee", label: "Schneekarte", color: "#1f78c1" },
+            { key: "pisten", label: "Pisten", color: "#e74c3c" },
+            { key: "lifte", label: "Lifte & Bahnen", color: "#2b2b2b" },
+          ].map(({ key, label, color }) => {
+            const isOn = calcEffective(userToggle, zoomRef.current)[key];
+            return (
+              <div key={key} className="layer-toggle-row" onClick={() => toggleLayer(key)}>
+                <div className="layer-toggle-left">
+                  <div
+                    className="layer-dot"
+                    style={{ background: color, opacity: isOn ? 1 : 0.3 }}
+                  />
+                  <span style={{ opacity: isOn ? 1 : 0.45 }}>{label}</span>
+                </div>
+                <div className={`toggle-switch ${isOn ? "on" : ""}`}>
+                  <div className="toggle-knob" />
+                </div>
+              </div>
+            );
+          })}
         </div>
 
         {/* Standort */}
@@ -260,7 +328,6 @@ export const SkiMap = ({
             type="fill"
             source-layer="schneehoehen_datum"
             minzoom={0}
-            maxzoom={13}
             paint={{
               "fill-color": [
                 "interpolate",
@@ -302,8 +369,6 @@ export const SkiMap = ({
             type="fill"
             source-layer="pisten_geom_multipolygon"
             filter={["!=", ["get", "piste_difficulty"], "freeride"]}
-            maxzoom={20}
-            minzoom={13}
             paint={{
               "fill-color": [
                 "match",
@@ -318,6 +383,7 @@ export const SkiMap = ({
               ],
               "fill-opacity": 0.4,
             }}
+            layout={{}}
           />
         </Source>
 
@@ -333,8 +399,6 @@ export const SkiMap = ({
             type="line"
             source-layer="pisten_geom_multiline"
             filter={["!=", ["get", "piste_difficulty"], "freeride"]}
-            maxzoom={20}
-            minzoom={13}
             paint={{
               "line-width": 4,
               "line-color": [
@@ -349,6 +413,7 @@ export const SkiMap = ({
                 "#888888",
               ],
             }}
+            layout={{}}
           />
         </Source>
 
@@ -363,9 +428,8 @@ export const SkiMap = ({
             id="lifte-fill"
             type="fill"
             source-layer="Lifte_Bahnen_Polygone"
-            maxzoom={20}
-            minzoom={13}
             paint={{ "fill-color": "grey", "fill-opacity": 0.4 }}
+            layout={{}}
           />
         </Source>
 
@@ -380,21 +444,20 @@ export const SkiMap = ({
             id="lifte-outline"
             type="line"
             source-layer="Lifte_Bahnen_Linien"
-            minzoom={13}
             paint={{ "line-color": "#ffffff", "line-width": 7, "line-opacity": 0.7 }}
+            layout={{}}
           />
           <Layer
             id="lifte-main"
             type="line"
             source-layer="Lifte_Bahnen_Linien"
-            minzoom={13}
             paint={{ "line-color": "#111", "line-width": 3, "line-dasharray": [1, 1] }}
+            layout={{}}
           />
           <Layer
             id="lifte-labels"
             type="symbol"
             source-layer="Lifte_Bahnen_Linien"
-            minzoom={13}
             filter={["all", ["!=", ["get", "art"], "goods"], ["!=", ["get", "art"], "transport"]]}
             layout={{
               "symbol-placement": "line",
@@ -454,10 +517,7 @@ export const SkiMap = ({
           />
         </Source>
 
-        {/* Mini Hover Tooltip */}
         {hoverMarker && !selectedMarker && <MiniHoverPopup hoverMarker={hoverMarker} />}
-
-        {/* Volles Popup nach Klick */}
         {selectedMarker && (
           <SkigebietPopup
             selectedMarker={selectedMarker}
