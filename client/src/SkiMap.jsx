@@ -38,12 +38,25 @@ export const SkiMap = ({
   const selectedRef = useRef(selectedMarker);
 
   const [skigebiete, setSkigebiete] = useState([]);
+  const [offeneIds, setOffeneIds] = useState([]);
 
+  // Skigebiete laden für Namen-Mapping
   useEffect(() => {
     fetch(`${API_BASE}/skigebiete`)
       .then((res) => res.json())
       .then((data) => setSkigebiete(data))
       .catch((err) => console.error("Skigebiete Fetch fehlgeschlagen:", err));
+  }, []);
+
+  // Status laden: welche Skigebiete haben Lifte offen?
+  useEffect(() => {
+    fetch(`${API_BASE}/skigebiete/status`)
+      .then((res) => res.json())
+      .then((data) => {
+        const offen = data.filter((s) => s.lifte_offen > 0).map((s) => s.station_id);
+        setOffeneIds(offen);
+      })
+      .catch((err) => console.error("Status Fetch fehlgeschlagen:", err));
   }, []);
 
   const nameMap = useMemo(() => {
@@ -58,8 +71,6 @@ export const SkiMap = ({
   }, [selectedMarker]);
 
   // ── Layer Visibility ───────────────────────────────────────
-  // null = auto (zoom-abhängiger Default, nie manuell angefasst)
-  // true/false = User-Entscheidung, überschreibt Zoom-Default
   const [userToggle, setUserToggle] = useState({
     schnee: null,
     pisten: null,
@@ -72,7 +83,6 @@ export const SkiMap = ({
     userToggleRef.current = userToggle;
   }, [userToggle]);
 
-  // null → zoom-abhängiger Default; true/false → User-Entscheidung
   const calcEffective = (toggle, zoom) => ({
     schnee: toggle.schnee !== null ? toggle.schnee : zoom <= SCHNEE_MAX_ZOOM,
     pisten: toggle.pisten !== null ? toggle.pisten : zoom >= PISTEN_MIN_ZOOM,
@@ -193,6 +203,27 @@ export const SkiMap = ({
     setWetterStation({ station_id, name });
   };
 
+  // Paint-Expression für Punkte abhängig von offeneIds
+  const punktePaint = useMemo(
+    () => ({
+      "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 4, 12, 8],
+      "circle-color":
+        offeneIds.length > 0
+          ? ["case", ["in", ["get", "station_id"], ["literal", offeneIds]], "#2d6cdf", "#9aa5b4"]
+          : "#9aa5b4",
+      "circle-stroke-color":
+        offeneIds.length > 0
+          ? ["case", ["in", ["get", "station_id"], ["literal", offeneIds]], "#4f4f4f", "#d1d5db"]
+          : "#7c7c7c",
+      "circle-stroke-width": 1.5,
+      "circle-opacity":
+        offeneIds.length > 0
+          ? ["case", ["in", ["get", "station_id"], ["literal", offeneIds]], 1, 0.45]
+          : 0.45,
+    }),
+    [offeneIds],
+  );
+
   return (
     <div className="map-container">
       <Map
@@ -227,7 +258,6 @@ export const SkiMap = ({
           scratLayerRef.current = layer;
           scratAddedRef.current = false;
 
-          // Initiale Visibility setzen sobald Karte geladen
           applyLayerVisibility(map, userToggleRef.current, zoomRef.current);
 
           map.on("idle", () => {
@@ -496,7 +526,7 @@ export const SkiMap = ({
           />
         </Source>
 
-        {/* Skigebiet-Punkte */}
+        {/* Skigebiet-Punkte – Farbe abhängig von offenen Liften */}
         <Source
           id="skigebiete-points"
           type="vector"
@@ -508,12 +538,7 @@ export const SkiMap = ({
             type="circle"
             source="skigebiete-points"
             source-layer="skigebiet_geom"
-            paint={{
-              "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 4, 12, 8],
-              "circle-color": "#2d6cdf",
-              "circle-stroke-color": "#ffffff",
-              "circle-stroke-width": 1.5,
-            }}
+            paint={punktePaint}
           />
         </Source>
 
