@@ -1,8 +1,5 @@
-// ============================================================
-// SkiMap.jsx – MapLibre-Karte mit allen Sources/Layers
-// ============================================================
-
-import { useRef, useEffect, useState, useMemo } from "react";
+// SkiMap.jsx
+import { useRef, useEffect, useState, useMemo, useCallback } from "react";
 import Map, { Source, Layer } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { NavigationControl } from "maplibre-gl";
@@ -20,6 +17,75 @@ import "./SkiMap.css";
 
 const SCHNEE_MAX_ZOOM = 13;
 const PISTEN_MIN_ZOOM = 13;
+const HIT = 8;
+
+const BLAU_OFFEN = "#2d6cdf";
+const BLAU_HOVER = "#5b8ee8";
+const GRAU_ZU = "#9ca3af";
+const GRAU_ZU_STROKE = "#4b5563";
+
+const buildPaint = (offeneIds, hoveredId, selectedId) => {
+  const hasOffen = offeneIds.length > 0;
+  const isOffen = hasOffen ? ["in", ["get", "station_id"], ["literal", offeneIds]] : false;
+
+  const hov = hoveredId ?? -1;
+  const sel = selectedId ?? -1;
+
+  const baseColor = hasOffen ? ["case", isOffen, BLAU_OFFEN, GRAU_ZU] : GRAU_ZU;
+
+  const circleColor = [
+    "case",
+    ["==", ["get", "station_id"], hov],
+    hasOffen ? ["case", isOffen, BLAU_HOVER, "#d1d5db"] : "#d1d5db",
+    baseColor,
+  ];
+
+  const baseStroke = hasOffen ? ["case", isOffen, "#1a4fa0", GRAU_ZU_STROKE] : GRAU_ZU_STROKE;
+
+  const strokeColor = [
+    "case",
+    ["==", ["get", "station_id"], sel],
+    "#ffffff",
+    ["==", ["get", "station_id"], hov],
+    "#ffffff",
+    baseStroke,
+  ];
+
+  const strokeWidth = [
+    "case",
+    ["==", ["get", "station_id"], sel],
+    3,
+    ["==", ["get", "station_id"], hov],
+    2.5,
+    hasOffen ? ["case", isOffen, 2, 1.5] : 1.5,
+  ];
+
+  // Immer gleiche Ausdrucks-Struktur — kein Ausdruck-Wechsel beim Hover-Ende
+  const radius = [
+    "interpolate",
+    ["linear"],
+    ["zoom"],
+    7,
+    ["case", ["any", ["==", ["get", "station_id"], hov], ["==", ["get", "station_id"], sel]], 8, 4],
+    12,
+    [
+      "case",
+      ["any", ["==", ["get", "station_id"], hov], ["==", ["get", "station_id"], sel]],
+      12,
+      8,
+    ],
+  ];
+
+  const opacity = hasOffen ? ["case", isOffen, 1, 0.8] : 0.8;
+
+  return {
+    "circle-radius": radius,
+    "circle-color": circleColor,
+    "circle-stroke-color": strokeColor,
+    "circle-stroke-width": strokeWidth,
+    "circle-opacity": opacity,
+  };
+};
 
 export const SkiMap = ({
   mapRef,
@@ -36,33 +102,40 @@ export const SkiMap = ({
   const scratAddedRef = useRef(false);
   const nameMapRef = useRef({});
   const selectedRef = useRef(selectedMarker);
+  const layerOrderDone = useRef(false);
+  const paintReadyRef = useRef(false);
+
+  const hoveredIdRef = useRef(null);
+  const selectedIdRef = useRef(null);
+  const offeneIdsRef = useRef([]);
 
   const [skigebiete, setSkigebiete] = useState([]);
-  const [offeneIds, setOffeneIds] = useState([]);
 
-  // Skigebiete laden für Namen-Mapping
   useEffect(() => {
     fetch(`${API_BASE}/skigebiete`)
-      .then((res) => res.json())
-      .then((data) => setSkigebiete(data))
-      .catch((err) => console.error("Skigebiete Fetch fehlgeschlagen:", err));
+      .then((r) => r.json())
+      .then(setSkigebiete)
+      .catch(console.error);
   }, []);
 
-  // Status laden: welche Skigebiete haben Lifte offen?
   useEffect(() => {
     fetch(`${API_BASE}/skigebiete/status`)
-      .then((res) => res.json())
-      .then((data) => {
-        const offen = data.filter((s) => s.lifte_offen > 0).map((s) => s.station_id);
-        setOffeneIds(offen);
+      .then((r) => r.json())
+      .then((d) => {
+        const ids = d.filter((s) => s.lifte_offen > 0).map((s) => s.station_id);
+        offeneIdsRef.current = ids;
+        if (paintReadyRef.current) {
+          applyPaint(hoveredIdRef.current, selectedIdRef.current);
+        }
       })
-      .catch((err) => console.error("Status Fetch fehlgeschlagen:", err));
+      .catch(console.error);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const nameMap = useMemo(() => {
-    return Object.fromEntries(skigebiete.map((s) => [s.station_id, s.name]));
-  }, [skigebiete]);
-
+  const nameMap = useMemo(
+    () => Object.fromEntries(skigebiete.map((s) => [s.station_id, s.name])),
+    [skigebiete],
+  );
   useEffect(() => {
     nameMapRef.current = nameMap;
   }, [nameMap]);
@@ -70,159 +143,154 @@ export const SkiMap = ({
     selectedRef.current = selectedMarker;
   }, [selectedMarker]);
 
-  // ── Layer Visibility ───────────────────────────────────────
-  const [userToggle, setUserToggle] = useState({
-    schnee: null,
-    pisten: null,
-    lifte: null,
-  });
+  const applyPaint = useCallback(
+    (hovId, selId) => {
+      const map = mapRef.current?.getMap?.();
+      if (!map || !map.getLayer("skigebiete-points-layer")) return;
+      const paint = buildPaint(offeneIdsRef.current, hovId, selId);
+      Object.entries(paint).forEach(([prop, val]) => {
+        map.setPaintProperty("skigebiete-points-layer", prop, val);
+      });
+    },
+    [mapRef],
+  );
 
+  const [userToggle, setUserToggle] = useState({ schnee: null, pisten: null, lifte: null });
   const zoomRef = useRef(7.5);
   const userToggleRef = useRef(userToggle);
   useEffect(() => {
     userToggleRef.current = userToggle;
   }, [userToggle]);
 
-  const calcEffective = (toggle, zoom) => ({
-    schnee: toggle.schnee !== null ? toggle.schnee : zoom <= SCHNEE_MAX_ZOOM,
-    pisten: toggle.pisten !== null ? toggle.pisten : zoom >= PISTEN_MIN_ZOOM,
-    lifte: toggle.lifte !== null ? toggle.lifte : zoom >= PISTEN_MIN_ZOOM,
+  const calcEffective = (t, z) => ({
+    schnee: t.schnee !== null ? t.schnee : z <= SCHNEE_MAX_ZOOM,
+    pisten: t.pisten !== null ? t.pisten : z >= PISTEN_MIN_ZOOM,
+    lifte: t.lifte !== null ? t.lifte : z >= PISTEN_MIN_ZOOM,
   });
 
-  const applyLayerVisibility = (map, toggle, zoom) => {
-    const v = (on) => (on ? "visible" : "none");
-    const eff = calcEffective(toggle, zoom);
-    const set = (id, on) => {
-      if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", v(on));
-    };
-    set("schnee-layer", eff.schnee);
-    set("pisten-fill", eff.pisten);
-    set("pisten-linien-layer", eff.pisten);
-    set("lifte-fill", eff.lifte);
-    set("lifte-outline", eff.lifte);
-    set("lifte-main", eff.lifte);
-    set("lifte-labels", eff.lifte);
+  const applyLayerVisibility = (map, t, z) => {
+    const e = calcEffective(t, z);
+    const s = (id, on) =>
+      map.getLayer(id) && map.setLayoutProperty(id, "visibility", on ? "visible" : "none");
+    s("schnee-layer", e.schnee);
+    s("pisten-fill", e.pisten);
+    s("pisten-linien-layer", e.pisten);
+    s("lifte-fill", e.lifte);
+    s("lifte-outline", e.lifte);
+    s("lifte-main", e.lifte);
+    s("lifte-labels", e.lifte);
   };
 
   const toggleLayer = (key) => {
     setUserToggle((prev) => {
-      const zoom = zoomRef.current;
-      const currentEff = calcEffective(prev, zoom);
-      const next = { ...prev, [key]: !currentEff[key] };
+      const next = { ...prev, [key]: !calcEffective(prev, zoomRef.current)[key] };
       const map = mapRef.current?.getMap?.();
-      if (map) applyLayerVisibility(map, next, zoom);
+      if (map) applyLayerVisibility(map, next, zoomRef.current);
       return next;
     });
   };
 
-  // ── Hover ──────────────────────────────────────────────────
+  const hitTest = (map, point) =>
+    map.queryRenderedFeatures(
+      [
+        [point.x - HIT, point.y - HIT],
+        [point.x + HIT, point.y + HIT],
+      ],
+      { layers: ["skigebiete-points-layer"] },
+    );
+
   const handleMouseMove = (e) => {
-    const features = e.target.queryRenderedFeatures(e.point, {
-      layers: ["skigebiete-points-layer"],
-    });
-    if (features.length) {
-      e.target.getCanvas().style.cursor = "pointer";
-      const f = features[0];
-      const station_id = Number(f.properties.station_id);
-      const name = nameMapRef.current[station_id] || "Unbekanntes Skigebiet";
-      if (!selectedRef.current) {
-        setHoverMarker((prev) =>
-          prev?.name === name ? prev : { lng: e.lngLat.lng, lat: e.lngLat.lat, name },
-        );
+    const map = e.target;
+    const features = hitTest(map, e.point);
+    if (!features.length) {
+      map.getCanvas().style.cursor = "";
+      if (hoveredIdRef.current !== null) {
+        hoveredIdRef.current = null;
+        applyPaint(null, selectedIdRef.current);
       }
-    } else {
-      e.target.getCanvas().style.cursor = "";
       if (!selectedRef.current) setHoverMarker(null);
+      return;
+    }
+    map.getCanvas().style.cursor = "pointer";
+    const id = Number(features[0].properties.station_id);
+    const name = nameMapRef.current[id] || "Unbekanntes Skigebiet";
+    if (hoveredIdRef.current !== id) {
+      hoveredIdRef.current = id;
+      applyPaint(id, selectedIdRef.current);
+    }
+    if (!selectedRef.current) {
+      setHoverMarker((prev) =>
+        prev?.name === name ? prev : { lng: e.lngLat.lng, lat: e.lngLat.lat, name },
+      );
     }
   };
 
-  // ── Klick ──────────────────────────────────────────────────
   const handleMapClick = async (e) => {
-    const features = e.target.queryRenderedFeatures(e.point, {
-      layers: ["skigebiete-points-layer"],
-    });
+    const map = e.target;
+    const features = hitTest(map, e.point);
     if (!features.length) {
+      hoveredIdRef.current = null;
+      selectedIdRef.current = null;
+      applyPaint(null, null);
       setSelectedMarker(null);
       setTooltipData(null);
       setHoverMarker(null);
       return;
     }
-    const f = features[0];
-    const station_id = Number(f.properties.station_id);
-    const name = nameMapRef.current[station_id] || "Unbekanntes Skigebiet";
-    if (!station_id) return;
+    const id = Number(features[0].properties.station_id);
+    const name = nameMapRef.current[id] || "Unbekanntes Skigebiet";
+    if (!id) return;
 
+    hoveredIdRef.current = null;
+    selectedIdRef.current = id;
+    applyPaint(null, id);
     setHoverMarker(null);
-    setSelectedMarker({ lng: e.lngLat.lng, lat: e.lngLat.lat, station_id });
+    setSelectedMarker({ lng: e.lngLat.lng, lat: e.lngLat.lat, station_id: id });
     setTooltipData(null);
 
-    const map = mapRef.current?.getMap?.();
-    if (map) {
-      const pistenFeatures = map.querySourceFeatures("pisten", {
+    const gl = mapRef.current?.getMap?.();
+    if (gl) {
+      const pf = gl.querySourceFeatures("pisten", {
         sourceLayer: "pisten_geom_multipolygon",
-        filter: ["==", ["get", "station_id"], station_id],
+        filter: ["==", ["get", "station_id"], id],
       });
-      if (pistenFeatures.length > 0) {
+      if (pf.length > 0) {
         let minLng = Infinity,
-          minLat = Infinity;
-        let maxLng = -Infinity,
+          minLat = Infinity,
+          maxLng = -Infinity,
           maxLat = -Infinity;
-        pistenFeatures.forEach((feat) => {
-          const coords = feat.geometry.coordinates.flat(3);
-          for (let i = 0; i < coords.length; i += 2) {
-            minLng = Math.min(minLng, coords[i]);
-            maxLng = Math.max(maxLng, coords[i]);
-            minLat = Math.min(minLat, coords[i + 1]);
-            maxLat = Math.max(maxLat, coords[i + 1]);
+        pf.forEach((f) => {
+          const c = f.geometry.coordinates.flat(3);
+          for (let i = 0; i < c.length; i += 2) {
+            minLng = Math.min(minLng, c[i]);
+            maxLng = Math.max(maxLng, c[i]);
+            minLat = Math.min(minLat, c[i + 1]);
+            maxLat = Math.max(maxLat, c[i + 1]);
           }
         });
-        map.fitBounds(
+        gl.fitBounds(
           [
             [minLng, minLat],
             [maxLng, maxLat],
           ],
-          {
-            padding: 60,
-            duration: 1000,
-            maxZoom: 15,
-          },
+          { padding: 60, duration: 1000, maxZoom: 15 },
         );
       } else {
-        map.easeTo({ center: [e.lngLat.lng, e.lngLat.lat], zoom: 13, duration: 1000 });
+        gl.easeTo({ center: [e.lngLat.lng, e.lngLat.lat], zoom: 13, duration: 1000 });
       }
     }
 
     try {
-      const res = await fetch(`${API_BASE}/skigebiet?station_id=${station_id}`);
+      const res = await fetch(`${API_BASE}/skigebiet?station_id=${id}`);
       const data = await res.json();
       setTooltipData(data.error ? { _error: data.error, name } : { ...data });
-    } catch (err) {
-      console.error("Fetch Fehler:", err);
+    } catch {
       setTooltipData({ _error: "Fehler beim Laden", name });
     }
-    setWetterStation({ station_id, name });
+    setWetterStation({ station_id: id, name });
   };
 
-  // Paint-Expression für Punkte abhängig von offeneIds
-  const punktePaint = useMemo(
-    () => ({
-      "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 4, 12, 8],
-      "circle-color":
-        offeneIds.length > 0
-          ? ["case", ["in", ["get", "station_id"], ["literal", offeneIds]], "#2d6cdf", "#9aa5b4"]
-          : "#9aa5b4",
-      "circle-stroke-color":
-        offeneIds.length > 0
-          ? ["case", ["in", ["get", "station_id"], ["literal", offeneIds]], "#4f4f4f", "#d1d5db"]
-          : "#7c7c7c",
-      "circle-stroke-width": 1.5,
-      "circle-opacity":
-        offeneIds.length > 0
-          ? ["case", ["in", ["get", "station_id"], ["literal", offeneIds]], 1, 0.45]
-          : 0.45,
-    }),
-    [offeneIds],
-  );
+  const initialPaint = useMemo(() => buildPaint([], null, null), []);
 
   return (
     <div className="map-container">
@@ -238,6 +306,10 @@ export const SkiMap = ({
         onClick={handleMapClick}
         onMouseMove={handleMouseMove}
         onMouseLeave={() => {
+          if (hoveredIdRef.current !== null) {
+            hoveredIdRef.current = null;
+            applyPaint(null, selectedIdRef.current);
+          }
           if (!selectedRef.current) setHoverMarker(null);
         }}
         onLoad={(e) => {
@@ -257,38 +329,53 @@ export const SkiMap = ({
           const layer = createScratLayer(map, 8.3, 46.8);
           scratLayerRef.current = layer;
           scratAddedRef.current = false;
+          layerOrderDone.current = false;
+          paintReadyRef.current = false;
 
           applyLayerVisibility(map, userToggleRef.current, zoomRef.current);
 
-          map.on("idle", () => {
+          const onSourceData = (ev) => {
+            if (
+              ev.sourceId === "skigebiete-points" &&
+              ev.isSourceLoaded &&
+              map.getLayer("skigebiete-points-layer")
+            ) {
+              paintReadyRef.current = true;
+              applyPaint(hoveredIdRef.current, selectedIdRef.current);
+              map.off("sourcedata", onSourceData);
+            }
+          };
+          map.on("sourcedata", onSourceData);
+
+          const onIdle = () => {
+            if (layerOrderDone.current) return;
             if (map.getLayer("skigebiete-points-layer")) {
               map.moveLayer("skigebiete-points-layer");
               if (map.getLayer("lifte-labels")) map.moveLayer("lifte-labels");
+              layerOrderDone.current = true;
+              map.off("idle", onIdle);
             }
-          });
+          };
+          map.on("idle", onIdle);
         }}
         onMove={(e) => {
-          const currentZoom = e.viewState.zoom;
-          zoomRef.current = currentZoom;
+          const z = e.viewState.zoom;
+          zoomRef.current = z;
           const map = mapRef.current?.getMap?.();
+          if (map) applyLayerVisibility(map, userToggleRef.current, z);
           const layer = scratLayerRef.current;
-
-          if (map) applyLayerVisibility(map, userToggleRef.current, currentZoom);
-
           if (!map || !layer) return;
-          const pitch = e.viewState.pitch || 0;
-          const isVisible = pitch > 10;
-          if (isVisible && !scratAddedRef.current) {
+          const visible = (e.viewState.pitch || 0) > 10;
+          if (visible && !scratAddedRef.current) {
             map.addLayer(layer);
             scratAddedRef.current = true;
           }
-          if (!isVisible && scratAddedRef.current) {
+          if (!visible && scratAddedRef.current) {
             if (map.getLayer(layer.id)) map.removeLayer(layer.id);
             scratAddedRef.current = false;
           }
         }}
       >
-        {/* Legende */}
         <div className="map-legende">
           <div className="legende-title">❄️ Schneehöhe (cm)</div>
           <div className="legende-scale">
@@ -301,7 +388,6 @@ export const SkiMap = ({
           </div>
         </div>
 
-        {/* Layer-Toggle */}
         <div className="layer-toggle-panel">
           <div className="legende-title">Kartenlayer</div>
           {[
@@ -327,7 +413,6 @@ export const SkiMap = ({
           })}
         </div>
 
-        {/* Standort */}
         <button
           className="location-button"
           onClick={() => {
@@ -345,7 +430,6 @@ export const SkiMap = ({
           📍
         </button>
 
-        {/* Schneehöhen */}
         <Source
           key={safeDatum}
           id="schnee"
@@ -387,7 +471,6 @@ export const SkiMap = ({
           />
         </Source>
 
-        {/* Pisten Polygone */}
         <Source
           id="pisten"
           type="vector"
@@ -413,11 +496,9 @@ export const SkiMap = ({
               ],
               "fill-opacity": 0.4,
             }}
-            layout={{}}
           />
         </Source>
 
-        {/* Pisten Linien */}
         <Source
           id="pisten-linien"
           type="vector"
@@ -443,11 +524,9 @@ export const SkiMap = ({
                 "#888888",
               ],
             }}
-            layout={{}}
           />
         </Source>
 
-        {/* Lifte Polygone */}
         <Source
           id="lifte"
           type="vector"
@@ -459,11 +538,9 @@ export const SkiMap = ({
             type="fill"
             source-layer="Lifte_Bahnen_Polygone"
             paint={{ "fill-color": "grey", "fill-opacity": 0.4 }}
-            layout={{}}
           />
         </Source>
 
-        {/* Lifte Linien */}
         <Source
           id="lifte-linien"
           type="vector"
@@ -475,14 +552,12 @@ export const SkiMap = ({
             type="line"
             source-layer="Lifte_Bahnen_Linien"
             paint={{ "line-color": "#ffffff", "line-width": 7, "line-opacity": 0.7 }}
-            layout={{}}
           />
           <Layer
             id="lifte-main"
             type="line"
             source-layer="Lifte_Bahnen_Linien"
             paint={{ "line-color": "#111", "line-width": 3, "line-dasharray": [1, 1] }}
-            layout={{}}
           />
           <Layer
             id="lifte-labels"
@@ -526,7 +601,6 @@ export const SkiMap = ({
           />
         </Source>
 
-        {/* Skigebiet-Punkte – Farbe abhängig von offenen Liften */}
         <Source
           id="skigebiete-points"
           type="vector"
@@ -538,7 +612,7 @@ export const SkiMap = ({
             type="circle"
             source="skigebiete-points"
             source-layer="skigebiet_geom"
-            paint={punktePaint}
+            paint={initialPaint}
           />
         </Source>
 
@@ -548,6 +622,8 @@ export const SkiMap = ({
             selectedMarker={selectedMarker}
             tooltipData={tooltipData}
             onClose={() => {
+              selectedIdRef.current = null;
+              applyPaint(null, null);
               setSelectedMarker(null);
               setTooltipData(null);
             }}
