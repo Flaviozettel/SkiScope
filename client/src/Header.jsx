@@ -14,6 +14,7 @@ export const Header = ({ mapRef, topSchnee }) => {
   const [skigebiete, setSkigebiete] = useState([]);
   const inputRef = useRef(null);
   const debounceRef = useRef(null);
+  const [nurOffen, setNurOffen] = useState(false);
 
   // Alle Skigebiete einmalig laden (für die Suche)
   useEffect(() => {
@@ -33,12 +34,25 @@ export const Header = ({ mapRef, topSchnee }) => {
     }
     debounceRef.current = setTimeout(() => {
       const lower = value.toLowerCase();
-      const filtered = skigebiete.filter((s) => s.name.toLowerCase().includes(lower)).slice(0, 6);
+      const filtered = skigebiete
+        .filter((s) => s.name.toLowerCase().includes(lower))
+        .filter((s) => !nurOffen || s.lifte_offen > 0)
+        .slice(0, 6);
       setResults(filtered);
       setOpen(filtered.length > 0);
     }, 150);
   };
 
+  useEffect(() => {
+    if (!query.trim()) return;
+    const lower = query.toLowerCase();
+    const filtered = skigebiete
+      .filter((s) => s.name.toLowerCase().includes(lower))
+      .filter((s) => !nurOffen || s.lifte_offen > 0)
+      .slice(0, 6);
+    setResults(filtered);
+    setOpen(filtered.length > 0);
+  }, [nurOffen]);
   const handleSelect = async (skigebiet) => {
     setQuery(skigebiet.name);
     setOpen(false);
@@ -138,6 +152,32 @@ export const Header = ({ mapRef, topSchnee }) => {
             <path d="m21 21-4.35-4.35" />
           </svg>
 
+          {/* Filter-Toggle */}
+          <div className="hero-search-right">
+            <button
+              className={`hero-search-filter ${nurOffen ? "active" : ""}`}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                setNurOffen((v) => !v);
+              }}
+              title="Nur geöffnete Skigebiete"
+            >
+              Nur geöffnete
+            </button>
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              style={{ opacity: 0.6, flexShrink: 0 }}
+            >
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.35-4.35" />
+            </svg>
+          </div>
+
           {open && (
             <ul className="hero-search-results">
               {results.map((s) => (
@@ -146,7 +186,11 @@ export const Header = ({ mapRef, topSchnee }) => {
                   className="hero-search-result-item"
                   onMouseDown={() => handleSelect(s)}
                 >
+                  <span className={`hero-result-status ${s.lifte_offen > 0 ? "offen" : "zu"}`} />
                   {s.name}
+                  {s.lifte_offen > 0 && (
+                    <span className="hero-result-lifte">{s.lifte_offen} Lifte</span>
+                  )}
                 </li>
               ))}
             </ul>
