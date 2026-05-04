@@ -1,39 +1,79 @@
 // ============================================================
-// Header.jsx – Hero-Banner mit Apple-like Glassmorphism Design
-//
-// Zeigt Logo, Slogan und einen Snow-Badge mit dem aktuell
-// schneereichsten Skigebiet. Klick auf den Badge fliegt die
-// Karte via WFS-Request direkt zu diesem Skigebiet.
+// Header.jsx – Hero-Banner mit Skigebiet-Suche
 // ============================================================
-
+import { useState, useRef, useEffect } from "react";
 import skiImage from "./data/Header_Berge.jpg";
 import { GEOSERVER_WFS } from "./config.js";
+import { API_BASE } from "./config.js";
 import "./Header.css";
 
 export const Header = ({ mapRef, topSchnee }) => {
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [skigebiete, setSkigebiete] = useState([]);
+  const inputRef = useRef(null);
+  const debounceRef = useRef(null);
+
+  // Alle Skigebiete einmalig laden (für die Suche)
+  useEffect(() => {
+    fetch(`${API_BASE}/skigebiete`)
+      .then((r) => r.json())
+      .then(setSkigebiete)
+      .catch(console.error);
+  }, []);
+
+  const handleSearch = (value) => {
+    setQuery(value);
+    clearTimeout(debounceRef.current);
+    if (!value.trim()) {
+      setResults([]);
+      setOpen(false);
+      return;
+    }
+    debounceRef.current = setTimeout(() => {
+      const lower = value.toLowerCase();
+      const filtered = skigebiete.filter((s) => s.name.toLowerCase().includes(lower)).slice(0, 6);
+      setResults(filtered);
+      setOpen(filtered.length > 0);
+    }, 150);
+  };
+
+  const handleSelect = async (skigebiet) => {
+    setQuery(skigebiet.name);
+    setOpen(false);
+    inputRef.current?.blur();
+
+    const map = mapRef.current?.getMap?.();
+    if (!map) return;
+
+    try {
+      const url = `${GEOSERVER_WFS}&CQL_FILTER=neuneuneu_station_id=${skigebiet.station_id}&SRSNAME=EPSG:4326`;
+      const res = await fetch(url);
+      const data = await res.json();
+      const coords = data.features?.[0]?.geometry?.coordinates;
+      if (coords) {
+        map.flyTo({ center: [coords[0], coords[1]], zoom: 13, duration: 1400, essential: true });
+      }
+    } catch (err) {
+      console.error("WFS-Fehler:", err);
+    }
+  };
+
   const handleSnowBadgeClick = async () => {
     if (!topSchnee?.station_id) return;
-
     try {
       const url = `${GEOSERVER_WFS}&CQL_FILTER=neuneuneu_station_id=${topSchnee.station_id}&SRSNAME=EPSG:4326`;
       const res = await fetch(url);
       const data = await res.json();
       const coords = data.features?.[0]?.geometry?.coordinates;
-
       if (coords) {
-        // Debug: kurz loggen was wirklich kommt
-        console.log("GeoServer coords:", coords);
-
         mapRef.current?.getMap?.()?.flyTo({
-          center: [coords[0], coords[1]], // ← falls lon/lat korrekt
-          // Falls vertauscht, stattdessen:
-          // center: [coords[1], coords[0]],
+          center: [coords[0], coords[1]],
           zoom: 15,
           duration: 1800,
           essential: true,
         });
-      } else {
-        console.warn("Keine Koordinaten für Station gefunden:", topSchnee.station_id);
       }
     } catch (err) {
       console.error("WFS-Fehler:", err);
@@ -42,7 +82,6 @@ export const Header = ({ mapRef, topSchnee }) => {
 
   return (
     <header className="hero" style={{ backgroundImage: `url(${skiImage})` }}>
-      {/* Gradient overlay für Tiefe */}
       <div className="hero-gradient" />
       <div className="hero-inner">
         {/* Snow-Badge – links */}
@@ -73,9 +112,45 @@ export const Header = ({ mapRef, topSchnee }) => {
           <span className="logo-text">SkiScope</span>
         </div>
 
-        {/* Slogan – rechts */}
-        <div className="hero-tagline">
-          <span>Finde dein perfektes Skigebiet.</span>
+        {/* Suchfeld – rechts */}
+        <div className="hero-search-wrapper">
+          <input
+            ref={inputRef}
+            className="hero-search-input"
+            type="text"
+            placeholder="Skigebiet suchen…"
+            value={query}
+            onChange={(e) => handleSearch(e.target.value)}
+            onFocus={() => results.length > 0 && setOpen(true)}
+            onBlur={() => setTimeout(() => setOpen(false), 150)}
+            autoComplete="off"
+          />
+          <svg
+            className="hero-search-icon"
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <path d="m21 21-4.35-4.35" />
+          </svg>
+
+          {open && (
+            <ul className="hero-search-results">
+              {results.map((s) => (
+                <li
+                  key={s.station_id}
+                  className="hero-search-result-item"
+                  onMouseDown={() => handleSelect(s)}
+                >
+                  {s.name}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
     </header>

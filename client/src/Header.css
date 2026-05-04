@@ -2,6 +2,14 @@
    Header.css – Hero-Banner mit Logo, Slogan und Snow-Badge
    ============================================================ */
 
+body {
+  font-family:
+    "Inter",
+    system-ui,
+    -apple-system,
+    sans-serif;
+}
+
 .hero {
   height: 64px;
   position: relative;
@@ -155,4 +163,99 @@
   color: var(--accent);
   opacity: 0.7;
   flex-shrink: 0;
+}
+
+/* Suchfeld */
+.hero-search-wrapper {
+  position: relative;
+  width: 260px;
+  flex-shrink: 0;
+  grid-column: 3;
+  justify-self: end;
+}
+
+.hero-search-input {
+  width: 100%;
+  height: 38px;
+
+  background: rgba(255, 255, 255, 0.388);
+  backdrop-filter: blur(14px) saturate(180%);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 10px;
+
+  padding: 0 36px 0 14px;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 14px;
+  letter-spacing: 0.1px;
+  font-weight: bold;
+  outline: none;
+  box-sizing: border-box;
+  text-transform: uppercase;
+
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+
+  transition:
+    background 0.15s,
+    border 0.15s,
+    box-shadow 0.15s;
+}
+
+.hero-search-input::placeholder {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.hero-search-input:focus {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.hero-search-icon {
+  position: absolute;
+  right: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  stroke: rgba(255, 255, 255, 0.6);
+  pointer-events: none;
+}
+
+.hero-search-results {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: #fff;
+  border-radius: 10px;
+  border: 0.5px solid #ddd;
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+  overflow: hidden;
+  z-index: 100;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.hero-search-result-item {
+  padding: 9px 14px;
+  font-size: 13px;
+  color: #1a1a1a;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 0.5px solid #f0f0f0;
+}
+
+.hero-search-result-item:last-child {
+  border-bottom: none;
+}
+
+.hero-search-result-item:hover {
+  background: #f0f4ff;
+}
+
+.hero-result-pin {
+  font-size: 13px;
 }
