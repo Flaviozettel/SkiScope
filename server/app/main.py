@@ -86,17 +86,16 @@ def get_top_schnee():
 def get_all_skigebiete():
     conn = get_db_conn()
     cur = conn.cursor()
-
     cur.execute("""
-        SELECT station_id,station_name
-        FROM skigebiete
+        SELECT s.station_id, s.station_name,
+               COALESCE(k.anzahl_lifte_offen, 0) AS lifte_offen
+        FROM skigebiete s
+        LEFT JOIN skigebiete_kennzahlen k USING (station_id)
     """)
-
     rows = cur.fetchall()
     cur.close()
     conn.close()
-
-    return [{ "station_id": row[0], "name": row[1] } for row in rows]
+    return [{"station_id": r[0], "name": r[1], "lifte_offen": r[2]} for r in rows]
 
 
 # ── HILFSFUNKTION: Letzte 7 Tage automatisch importieren ──────

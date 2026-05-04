@@ -1,44 +1,45 @@
-// ============================================================
-// SkigebietPopup.jsx – Volles Glas-Popup nach Klick auf Skigebiet
-//
-// Zeigt Detaildaten zum gewählten Skigebiet (Lifte, Schnee,
-// Pisten-Anteile, Lawinengefahr-Link).
-// ============================================================
-
 import { Popup } from "react-map-gl/maplibre";
 import "./SkigebietPopup.css";
 
 export const SkigebietPopup = ({ selectedMarker, tooltipData, onClose }) => {
-  // Hilfsfunktion: Zeit seit letztem Update in lesbarer Form
-
   const parseDbTimestamp = (ts) => {
     if (!ts) return null;
-
-    // Mikrosekunden auf Millisekunden kürzen + TZ fixen
-    const cleaned = ts
-      .replace(/\.(\d{3})\d+/, ".$1") // 760692 → 760
-      .replace(/([+-]\d{2})$/, "$1:00"); // +02 → +02:00
-
+    const cleaned = ts.replace(/\.(\d{3})\d+/, ".$1").replace(/([+-]\d{2})$/, "$1:00");
     return new Date(cleaned);
   };
 
   const formatTimeAgo = (timestamp) => {
     const updated = parseDbTimestamp(timestamp);
     if (!updated || isNaN(updated)) return "—";
-
-    const now = new Date();
-    const diffMs = now - updated;
-
-    const diffMin = Math.floor(diffMs / 60000);
+    const diffMin = Math.floor((new Date() - updated) / 60000);
     const diffHour = Math.floor(diffMin / 60);
     const diffDay = Math.floor(diffHour / 24);
-
     if (diffMin < 1) return "gerade eben";
     if (diffMin < 60) return `vor ${diffMin} Min`;
     if (diffHour < 24) return `vor ${diffHour} Std`;
     if (diffDay === 1) return "gestern";
     return updated.toLocaleDateString("de-CH");
   };
+
+  const lifteOffen = tooltipData?.lifte_offen ?? 0;
+  const lifteTotal = tooltipData?.lifte_total ?? 0;
+  const liftePct = lifteTotal > 0 ? Math.round((lifteOffen / lifteTotal) * 100) : 0;
+  const liftStatus =
+    lifteOffen === 0
+      ? "geschlossen"
+      : liftePct >= 80
+        ? " geöffnet"
+        : liftePct >= 40
+          ? "teilweise geöffnet"
+          : "wenig geöffnet";
+  const statusColor =
+    lifteOffen === 0
+      ? "#9ca3af"
+      : liftePct >= 80
+        ? "#16a34a"
+        : liftePct >= 40
+          ? "#d97706"
+          : "#dc2626";
 
   return (
     <Popup
@@ -51,7 +52,6 @@ export const SkigebietPopup = ({ selectedMarker, tooltipData, onClose }) => {
       maxWidth="300px"
     >
       <div className="popup-glass">
-        {/* Ladeindikator */}
         {!tooltipData && (
           <div className="popup-loading">
             <div className="popup-loading-spinner" />
@@ -60,103 +60,90 @@ export const SkigebietPopup = ({ selectedMarker, tooltipData, onClose }) => {
         )}
 
         {tooltipData?._error && (
-          <div style={{ color: "#c0392b", fontSize: 12 }}>⚠️ Keine Daten für dieses Skigebiet</div>
+          <div className="popup-error">⚠️ Keine Daten für dieses Skigebiet</div>
         )}
 
         {tooltipData && !tooltipData._error && (
           <>
+            {/* Header */}
             <div className="popup-header">
               <div className="popup-name">{tooltipData.name || "—"}</div>
+              <div
+                className="popup-status-badge"
+                style={{
+                  color: statusColor,
+                  borderColor: statusColor + "33",
+                  background: statusColor + "12",
+                }}
+              >
+                {liftStatus}
+              </div>
             </div>
 
-            <div className="popup-row">
-              <svg
-                width="15"
-                height="15"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#888"
-                strokeWidth="1.8"
-              >
-                <circle cx="12" cy="12" r="10" />
-                <polyline points="12 6 12 12 16 14" />
-              </svg>
-              <span>Geöffnet provisorisch</span>
-            </div>
-
-            <div className="popup-row">
-              <svg
-                width="15"
-                height="15"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#888"
-                strokeWidth="1.8"
-              >
-                <path d="M3 7h18M8 7V4m8 3V4M5 20l3-9m8 9-3-9" />
-              </svg>
-              <span>
-                {tooltipData.lifte_offen ?? "—"}/{tooltipData.lifte_total ?? "—"} Lifte
+            {/* Lift-Auslastungsbalken */}
+            <div className="popup-lift-bar-wrap">
+              <div className="popup-lift-bar">
+                <div
+                  className="popup-lift-bar-fill"
+                  style={{ width: `${liftePct}%`, background: statusColor }}
+                />
+              </div>
+              <span className="popup-lift-label">
+                {lifteOffen}/{lifteTotal} Lifte · {liftePct}%
               </span>
             </div>
 
-            <div className="popup-row">
-              <svg
-                width="15"
-                height="15"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#888"
-                strokeWidth="1.8"
-              >
-                <line x1="12" y1="2" x2="12" y2="22" />
-                <line x1="2" y1="12" x2="22" y2="12" />
-                <line x1="5" y1="5" x2="19" y2="19" />
-                <line x1="19" y1="5" x2="5" y2="19" />
-              </svg>
-              <span>{tooltipData.schnee ?? "—"} cm Schnee</span>
+            {/* Schnee */}
+            <div className="popup-stat-row">
+              <div className="popup-stat">
+                <span className="popup-stat-icon">❄</span>
+                <div>
+                  <div className="popup-stat-value">{tooltipData.schnee ?? "—"} cm</div>
+                  <div className="popup-stat-label">Schneehöhe</div>
+                </div>
+              </div>
+              <div className="popup-stat">
+                <span className="popup-stat-icon">⛷</span>
+                <div>
+                  <div className="popup-stat-value">{tooltipData.km_total ?? "—"} km</div>
+                  <div className="popup-stat-label">Pisten gesamt</div>
+                </div>
+              </div>
             </div>
 
+            {/* Pistenverteilung */}
             {(() => {
               const blau = tooltipData.km_blau || 0;
               const rot = tooltipData.km_rot || 0;
               const schwarz = tooltipData.km_schwarz || 0;
-              const total = tooltipData.km_total || 0;
               const barTotal = blau + rot + schwarz || 1;
               return (
-                <>
+                <div className="popup-pisten-section">
                   <div className="popup-pisten-bar">
+                    <div style={{ width: `${(blau / barTotal) * 100}%`, background: "#2d6cdf" }} />
+                    <div style={{ width: `${(rot / barTotal) * 100}%`, background: "#e84040" }} />
                     <div
-                      style={{
-                        width: `${(blau / barTotal) * 100}%`,
-                        background: "#2d6cdf",
-                      }}
-                    />
-                    <div
-                      style={{
-                        width: `${(rot / barTotal) * 100}%`,
-                        background: "#e84040",
-                      }}
-                    />
-                    <div
-                      style={{
-                        width: `${(schwarz / barTotal) * 100}%`,
-                        background: "#1a1a2e",
-                      }}
+                      style={{ width: `${(schwarz / barTotal) * 100}%`, background: "#1a1a2e" }}
                     />
                   </div>
                   <div className="popup-pisten-labels">
-                    <span>{blau} km</span>
-                    <span>{rot} km</span>
-                    <span>{schwarz} km</span>
-                    <span className="popup-total">{total} km</span>
+                    <span className="popup-pisten-dot" style={{ "--dot": "#2d6cdf" }}>
+                      {blau} km
+                    </span>
+                    <span className="popup-pisten-dot" style={{ "--dot": "#e84040" }}>
+                      {rot} km
+                    </span>
+                    <span className="popup-pisten-dot" style={{ "--dot": "#1a1a2e" }}>
+                      {schwarz} km
+                    </span>
                   </div>
-                </>
+                </div>
               );
             })()}
 
+            {/* Footer */}
             <div className="popup-footer">
-              <span>Aktualisiert: {formatTimeAgo(tooltipData.updated_at)}</span>
+              <span>↻ {formatTimeAgo(tooltipData.updated_at)}</span>
               {tooltipData.lawinengefahr_url ? (
                 <a
                   href={tooltipData.lawinengefahr_url}
@@ -164,10 +151,10 @@ export const SkigebietPopup = ({ selectedMarker, tooltipData, onClose }) => {
                   rel="noopener noreferrer"
                   className="popup-lawine-link"
                 >
-                  Lawinengefahr
+                  ⚠ Lawinengefahr
                 </a>
               ) : (
-                <span style={{ color: "#ccc" }}>Lawinengefahr</span>
+                <span className="popup-lawine-disabled">⚠ Lawinengefahr</span>
               )}
             </div>
           </>

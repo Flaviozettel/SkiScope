@@ -114,22 +114,15 @@ export const SkiMap = ({
   useEffect(() => {
     fetch(`${API_BASE}/skigebiete`)
       .then((r) => r.json())
-      .then(setSkigebiete)
-      .catch(console.error);
-  }, []);
-
-  useEffect(() => {
-    fetch(`${API_BASE}/skigebiete/status`)
-      .then((r) => r.json())
-      .then((d) => {
-        const ids = d.filter((s) => s.lifte_offen > 0).map((s) => s.station_id);
+      .then((data) => {
+        setSkigebiete(data);
+        const ids = data.filter((s) => s.lifte_offen > 0).map((s) => s.station_id);
         offeneIdsRef.current = ids;
         if (paintReadyRef.current) {
           applyPaint(hoveredIdRef.current, selectedIdRef.current);
         }
       })
       .catch(console.error);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const nameMap = useMemo(
