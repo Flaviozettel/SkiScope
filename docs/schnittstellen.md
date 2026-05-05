@@ -27,10 +27,14 @@ Der Betriebsstatus der Pisten und Liftanlangen, sowie die Angaben zu Pistenläng
 ### Meteodaten
 
 Die Wetterdaten (14-Tages Ansicht) werden über Open-Meteo anhand der Koordinaten der entsprechenden Skigebiete bezogen. Als Initialwert wird hier das Wetter von Muttenz geladen.
-Sobald eine neue Station, bzw. ein Skigebiet gewählt wird, werden die Meteodaten über ein den Backend-Endpunkt `/skigebiet/wetterprognose` geladen.
+Sobald eine neue Station, bzw. ein Skigebiet gewählt wird, werden die Meteodaten über den Backend-Endpunkt `/skigebiet/wetterprognose` geladen.
+
+Hierbei wird im Backend geprüft, ob aktuelle Daten (jünger als 3h) in der Datenbank vorhanden sind. Ist das nicht der Fall, so wird mittels einer Centerpoint Koordinate, welche aus der DB abgefragt wird, über die Open-Meteo-API ein neuer Datensatz bezogen. Dieser wird direkt an das Frontend gesendet und anschliessend als Task später in die DB gespeichert, so dass bei einer kurz darauf folgenden Anfrage, nicht erneut ein Datensatz über die API angefragt werden muss.
 
 ---
 
 ### Schneehöhen
 
-Die Schneehöhen werden im Vektorformat über eine API des SLF (Institut für Schnee- und Lawinenforschung) bezogen.
+Die Schneehöhen werden als GeoJSON-Features über eine API des SLF (Institut für Schnee- und Lawinenforschung) bezogen und mittels PostGIS als Polygon Geometrien in die Datenbank gespeichert.
+
+Hierbei wird automatisch dafür gesorgt, dass die Schneehöhen der letzten sieben Tage in der Datenbank vorhanden sind. Fehlende Daten werden ebenfalls nachgeladen.
