@@ -63,7 +63,13 @@ const StackedBar = ({ segments }) => {
   );
 };
 
-export const SkigebietDetail = ({ stationId, safeDatum, setWetterStation, onBack }) => {
+export const SkigebietDetail = ({
+  stationId,
+  safeDatum,
+  setWetterStation,
+  onBack,
+  onOpenDetail,
+}) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -267,6 +273,7 @@ export const SkigebietDetail = ({ stationId, safeDatum, setWetterStation, onBack
           setWetterStation={setWetterStation}
           initialBbox={data.bbox}
           initialLayers={{ schnee: true, pisten: true, lifte: true }}
+          onOpenDetail={onOpenDetail}
         />
       </div>
     </div>

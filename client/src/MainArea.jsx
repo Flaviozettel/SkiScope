@@ -46,10 +46,12 @@ export const MainArea = ({
         <div className="map-overlay-host">
           {detailStationId ? (
             <SkigebietDetail
+              key={detailStationId}
               stationId={detailStationId}
               safeDatum={safeDatum}
               setWetterStation={setWetterStation}
               onBack={() => setDetailStationId(null)}
+              onOpenDetail={(id) => setDetailStationId(id)}
             />
           ) : (
             <>
