@@ -1,3 +1,15 @@
-theme: jekyll-theme-minimal
-title: GDI Projekt
-description: Speichere diese Seite als Bookmark und verfolge unseren Projektstand!
+theme: minima
+title: MapYourTrip
+
+# your navbar links
+navbar:
+  - title: "Home"
+    url: "/"
+  - title: "Funktionalitäten"
+    url: "/01_Polarsteps.html"
+  - title: "Server"
+    url: "/backend.html"
+  - title: "Client"
+    url: "/frontend.html"
+  - title: "Schnittstellen"
+    url: "/Schnittstellen.html"
