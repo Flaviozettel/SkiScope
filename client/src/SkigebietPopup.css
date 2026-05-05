@@ -147,6 +147,32 @@
   font-size: 11px;
 }
 
+/* Detail-Link */
+.popup-detail-link {
+  margin-top: 10px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 10px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffffff;
+  background: #2d6cdf;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+.popup-detail-link:hover {
+  background: #1a4fa0;
+}
+.popup-detail-link:active {
+  transform: scale(0.98);
+}
+
 /* Error */
 .popup-error {
   color: #c0392b;

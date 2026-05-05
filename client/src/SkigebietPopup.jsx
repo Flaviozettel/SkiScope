@@ -1,7 +1,7 @@
 import { Popup } from "react-map-gl/maplibre";
 import "./SkigebietPopup.css";
 
-export const SkigebietPopup = ({ selectedMarker, tooltipData, onClose }) => {
+export const SkigebietPopup = ({ selectedMarker, tooltipData, onClose, onOpenDetail }) => {
   const parseDbTimestamp = (ts) => {
     if (!ts) return null;
     const cleaned = ts.replace(/\.(\d{3})\d+/, ".$1").replace(/([+-]\d{2})$/, "$1:00");
@@ -157,6 +157,16 @@ export const SkigebietPopup = ({ selectedMarker, tooltipData, onClose }) => {
                 <span className="popup-lawine-disabled">⚠ Lawinengefahr</span>
               )}
             </div>
+
+            {onOpenDetail && (
+              <button
+                type="button"
+                className="popup-detail-link"
+                onClick={() => onOpenDetail(selectedMarker.station_id)}
+              >
+                Details →
+              </button>
+            )}
           </>
         )}
       </div>

@@ -38,6 +38,9 @@ export function App() {
   // Tag-ISO-String, dessen Wetterdetail-Overlay über der Karte offen ist (null = geschlossen)
   const [detailTag, setDetailTag] = useState(null);
 
+  // station_id des Skigebiets, dessen Detailansicht offen ist (null = Übersicht)
+  const [detailStationId, setDetailStationId] = useState(null);
+
   // Schneehöhen-Import beim App-Start anstossen.
   // Der /schnee-Endpoint ruft auto_importiere_letzte_woche() auf, das die
   // Tabelle füllt, aus der GeoServer die Vector-Tiles rendert. Ohne diesen
@@ -117,6 +120,8 @@ export function App() {
           setTooltipData={setTooltipData}
           detailTag={detailTag}
           setDetailTag={setDetailTag}
+          detailStationId={detailStationId}
+          setDetailStationId={setDetailStationId}
         />
       </div>
 

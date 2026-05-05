@@ -216,6 +216,143 @@ def get_skigebiet(station_id: int):
     }
 
 
+# ── ENDPUNKT: Detailansicht eines Skigebiets ─────────────────
+@app.get("/skigebiet/detail")
+def get_skigebiet_detail(station_id: int):
+    """
+    Liefert sämtliche Kennzahlen aus der View skigebiete_kennzahlen,
+    angereichert um Stammdaten (Adresse/Telefon/URL/Öffnungszeiten) aus
+    skigebiete und eine Bounding-Box, die per ST_Extent über alle
+    Geometrien des Skigebiets berechnet wird.
+
+    Bbox-Reihenfolge: [minLng, minLat, maxLng, maxLat] (entspricht
+    MapLibre fitBounds-Konvention).
+    """
+    conn = get_db_conn()
+    cur = conn.cursor()
+
+    cur.execute("""
+        SELECT
+            k.station_id, k.station_name, k.updated_at,
+            k.anzahl_pisten, k.anzahl_pisten_offen,
+            k.km_pisten_gesamt, k.km_pisten_offen,
+            k.anzahl_blau, k.anzahl_rot, k.anzahl_schwarz,
+            k.anzahl_lifte, k.anzahl_lifte_offen,
+            k.anzahl_seilbahnen, k.anzahl_sesselbahnen,
+            k.anzahl_skilifte, k.anzahl_babylifte,
+            k.anzahl_loipen, k.km_langlauf_klassisch, k.km_langlauf_skating,
+            k.anzahl_schlittelwege, k.anzahl_schlittelwege_offen,
+            k.anzahl_wanderwege, k.km_winterwandern,
+            k.schneetiefe_tal_cm, k.schneetiefe_piste_cm, k.neuschnee_cm,
+            k.lawinengefahr_url, k.last_api_update,
+            s.ort, s.zip, s.telefon, s.url,
+            s.oeffnungszeit, s.schliessungszeit,
+            s.api_agg_anzahl_foerderband
+        FROM skigebiete_kennzahlen k
+        JOIN skigebiete s USING (station_id)
+        WHERE k.station_id = %s
+        LIMIT 1
+    """, (station_id,))
+    row = cur.fetchone()
+    if not row:
+        cur.close()
+        conn.close()
+        raise HTTPException(status_code=404, detail=f"Skigebiet {station_id} nicht gefunden")
+
+    # BBox aus allen Geometrien des Gebiets. ST_Extent ignoriert NULLs;
+    # wir UNIONen alle verfügbaren Quellen, damit auch Gebiete ohne
+    # Polygon-Pisten (nur Punkte/Linien) eine Box bekommen. Centerpoint
+    # als Fallback, damit die BBox nie leer ist.
+    cur.execute("""
+        WITH all_geoms AS (
+            SELECT geom FROM pisten_geom_multipolygon WHERE station_id = %s
+            UNION ALL
+            SELECT geom FROM pisten_geom_multiline    WHERE station_id = %s
+            UNION ALL
+            SELECT geom FROM langlauf                 WHERE station_id = %s AND geom IS NOT NULL
+            UNION ALL
+            SELECT geom FROM schlittelwege            WHERE station_id = %s AND geom IS NOT NULL
+            UNION ALL
+            SELECT centerpoint AS geom FROM skigebiet_geom WHERE station_id = %s
+        )
+        SELECT
+            ST_XMin(ST_Extent(geom)),
+            ST_YMin(ST_Extent(geom)),
+            ST_XMax(ST_Extent(geom)),
+            ST_YMax(ST_Extent(geom))
+        FROM all_geoms
+    """, (station_id, station_id, station_id, station_id, station_id))
+    bbox_row = cur.fetchone()
+    cur.close()
+    conn.close()
+
+    bbox = None
+    if bbox_row and all(v is not None for v in bbox_row):
+        min_lng, min_lat, max_lng, max_lat = bbox_row
+        # Punkt-only-Gebiete: künstliche kleine Box, sonst zoomt MapLibre auf maxZoom
+        if min_lng == max_lng and min_lat == max_lat:
+            d = 0.01
+            bbox = [min_lng - d, min_lat - d, max_lng + d, max_lat + d]
+        else:
+            bbox = [min_lng, min_lat, max_lng, max_lat]
+
+    def _t(v):
+        return v.isoformat() if v else None
+
+    return {
+        "station_id": row[0],
+        "name": row[1],
+        "updated_at": _t(row[2]),
+        "pisten": {
+            "anzahl": _finite_or_none(row[3]),
+            "anzahl_offen": _finite_or_none(row[4]),
+            "km_gesamt": _finite_or_none(row[5]),
+            "km_offen": _finite_or_none(row[6]),
+            "anzahl_blau": _finite_or_none(row[7]),
+            "anzahl_rot": _finite_or_none(row[8]),
+            "anzahl_schwarz": _finite_or_none(row[9]),
+        },
+        "lifte": {
+            "anzahl": _finite_or_none(row[10]),
+            "anzahl_offen": _finite_or_none(row[11]),
+            "anzahl_seilbahnen": _finite_or_none(row[12]),
+            "anzahl_sesselbahnen": _finite_or_none(row[13]),
+            "anzahl_skilifte": _finite_or_none(row[14]),
+            "anzahl_babylifte": _finite_or_none(row[15]),
+            "anzahl_foerderband": _finite_or_none(row[34]),
+        },
+        "langlauf": {
+            "anzahl_loipen": _finite_or_none(row[16]),
+            "km_klassisch": _finite_or_none(row[17]),
+            "km_skating": _finite_or_none(row[18]),
+        },
+        "schlitteln": {
+            "anzahl": _finite_or_none(row[19]),
+            "anzahl_offen": _finite_or_none(row[20]),
+        },
+        "winterwandern": {
+            "anzahl_wege": _finite_or_none(row[21]),
+            "km": _finite_or_none(row[22]),
+        },
+        "schnee": {
+            "tiefe_tal_cm": _finite_or_none(row[23]),
+            "tiefe_piste_cm": _finite_or_none(row[24]),
+            "neuschnee_cm": _finite_or_none(row[25]),
+            "last_api_update": _t(row[27]),
+        },
+        "stammdaten": {
+            "ort": row[28],
+            "zip": row[29],
+            "telefon": row[30],
+            "url": row[31],
+            "oeffnungszeit": str(row[32]) if row[32] else None,
+            "schliessungszeit": str(row[33]) if row[33] else None,
+        },
+        "lawinengefahr_url": row[26],
+        "bbox": bbox,
+    }
+
+
 # ── ENDPUNKT: Schneehöhen prüfen/importieren ─────────────────
 @app.get("/schnee")
 def get_schnee():

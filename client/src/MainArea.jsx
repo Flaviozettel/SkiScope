@@ -8,6 +8,7 @@
 import { WeatherSidebar } from "./WeatherSidebar.jsx";
 import { SkiMap } from "./SkiMap.jsx";
 import { WeatherDayDetail } from "./WeatherDayDetail.jsx";
+import { SkigebietDetail } from "./SkigebietDetail.jsx";
 import "./MainArea.css";
 
 export const MainArea = ({
@@ -25,6 +26,8 @@ export const MainArea = ({
   setTooltipData,
   detailTag,
   setDetailTag,
+  detailStationId,
+  setDetailStationId,
 }) => {
   const heuteISO = new Date().toISOString().split("T")[0];
   const safeDatum = aktivDatum > heuteISO ? heuteISO : aktivDatum;
@@ -41,23 +44,35 @@ export const MainArea = ({
           setDetailTag={setDetailTag}
         />
         <div className="map-overlay-host">
-          <SkiMap
-            mapRef={mapRef}
-            safeDatum={safeDatum}
-            hoverMarker={hoverMarker}
-            setHoverMarker={setHoverMarker}
-            selectedMarker={selectedMarker}
-            setSelectedMarker={setSelectedMarker}
-            tooltipData={tooltipData}
-            setTooltipData={setTooltipData}
-            setWetterStation={setWetterStation}
-          />
-          {detailTag && (
-            <WeatherDayDetail
-              tag={detailTag}
-              station={wetterStation}
-              onClose={() => setDetailTag(null)}
+          {detailStationId ? (
+            <SkigebietDetail
+              stationId={detailStationId}
+              safeDatum={safeDatum}
+              setWetterStation={setWetterStation}
+              onBack={() => setDetailStationId(null)}
             />
+          ) : (
+            <>
+              <SkiMap
+                mapRef={mapRef}
+                safeDatum={safeDatum}
+                hoverMarker={hoverMarker}
+                setHoverMarker={setHoverMarker}
+                selectedMarker={selectedMarker}
+                setSelectedMarker={setSelectedMarker}
+                tooltipData={tooltipData}
+                setTooltipData={setTooltipData}
+                setWetterStation={setWetterStation}
+                onOpenDetail={(id) => setDetailStationId(id)}
+              />
+              {detailTag && (
+                <WeatherDayDetail
+                  tag={detailTag}
+                  station={wetterStation}
+                  onClose={() => setDetailTag(null)}
+                />
+              )}
+            </>
           )}
         </div>
       </div>

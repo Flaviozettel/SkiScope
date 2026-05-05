@@ -97,6 +97,9 @@ export const SkiMap = ({
   tooltipData,
   setTooltipData,
   setWetterStation,
+  initialBbox = null,
+  initialLayers = null,
+  onOpenDetail = null,
 }) => {
   const scratLayerRef = useRef(null);
   const scratAddedRef = useRef(false);
@@ -148,7 +151,9 @@ export const SkiMap = ({
     [mapRef],
   );
 
-  const [userToggle, setUserToggle] = useState({ schnee: null, pisten: null, lifte: null });
+  const [userToggle, setUserToggle] = useState(
+    initialLayers ?? { schnee: null, pisten: null, lifte: null },
+  );
   const zoomRef = useRef(7.5);
   const userToggleRef = useRef(userToggle);
   useEffect(() => {
@@ -326,6 +331,16 @@ export const SkiMap = ({
           paintReadyRef.current = false;
 
           applyLayerVisibility(map, userToggleRef.current, zoomRef.current);
+
+          if (initialBbox && initialBbox.length === 4) {
+            map.fitBounds(
+              [
+                [initialBbox[0], initialBbox[1]],
+                [initialBbox[2], initialBbox[3]],
+              ],
+              { padding: 40, duration: 0, maxZoom: 15 },
+            );
+          }
 
           const onSourceData = (ev) => {
             if (
@@ -620,6 +635,7 @@ export const SkiMap = ({
               setSelectedMarker(null);
               setTooltipData(null);
             }}
+            onOpenDetail={onOpenDetail}
           />
         )}
       </Map>
