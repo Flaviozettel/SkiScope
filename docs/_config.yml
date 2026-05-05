@@ -1,15 +1,17 @@
-theme: minima
-title: MapYourTrip
+title: SkiScope
 
-# your navbar links
 navbar:
-  - title: "Home"
-    url: "/"
-  - title: "Funktionalitäten"
-    url: "/01_Polarsteps.html"
-  - title: "Server"
-    url: "/backend.html"
-  - title: "Client"
-    url: "/frontend.html"
-  - title: "Schnittstellen"
-    url: "/Schnittstellen.html"
+  - title: Home
+    url: /
+
+  - title: Funktionalitäten
+    url: /01_xxxx.html
+
+  - title: Server
+    url: /backend.html
+
+  - title: Client
+    url: /frontend.html
+
+  - title: Schnittstellen
+    url: /schnittstellen.html
