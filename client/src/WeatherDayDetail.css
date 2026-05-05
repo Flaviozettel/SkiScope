@@ -74,6 +74,47 @@
   display: flex;
   flex-direction: column;
   padding-top: 12px;
+  gap: 12px;
+}
+
+.weather-day-detail-chart {
+  flex: 1 1 50%;
+  min-height: 0;
+}
+
+.weather-day-detail-stats {
+  flex: 1 1 50%;
+  min-height: 0;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.weather-day-detail-stat {
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm, 8px);
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.weather-day-detail-stat-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.weather-day-detail-stat-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
 }
 
 .weather-day-detail-status {
