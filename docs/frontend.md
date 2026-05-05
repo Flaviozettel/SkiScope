@@ -1,44 +1,57 @@
 ---
 layout: default
-title: MapYourTrip
+title: SkiScope Client
 ---
 
-## MapYourTrip Client
+# SkiScope Client
 
-React wird genutzt, um die Benutzeroberfläche aufzubauen und zu steuern, während npm dabei hilft, alle notwendigen Pakete und Abhängigkeiten zu verwalten. OpenLayers bindet die Kartendaten ein und bietet die Funktionalität für interaktive Kartennavigation an.
+Das Frontend besteht aus mehreren zentralen Komponenten und Seiten:
 
-Wie folgt ist die Code-Organisation im Front-End umgesetzt.
+### Hauptanwendung
 
-- Das Frontend besteht aus den 3 Seiten und dazugehörigen CSS-Stildateien:
+```txt
+client/src
+```
 
-  **Verwaltung:** http://localhost:3000/
-  - client\src\pages\HomePage.js
+#### Zentrale Komponenten
 
-  - client\src\pages\HomePage.css
+##### Header-Bar:
 
-  **Kartenbereich:** http://localhost:3000/map
-  - client\src\pages\MapPage.js
+client/src/Header.jsx
+client/src/Header.css
 
-  - client\src\pages\MapPage.css
+##### Hauptbereich:
 
-  **Statistik:** http://localhost:3000/stats
-  - client\src\pages\StatsPage.js
+client/src/MainArea.jsx
+client/src/MainArea.css
 
-- und einer **Komponente** die auf allen Seiten zu finden ist:
+##### Kartenbereich:
 
-  **Header-Bar**
-  - client\src\components\NavigationBar.js
+client/src/SkiMap.jsx
+client/src/SkiMap.css
 
-  - client\src\components\NavigationBar.css
+#### Interaktive Elemente
 
-## React
+##### Hover-Popup:
 
-React ermöglicht es Entwicklern, wiederverwendbare UI-Komponenten zu erstellen, die den Zustand der Anwendung effizient verwalten können. React wird verwendet, um eine reaktive, benutzerfreundliche Oberfläche zu schaffen, die sich dynamisch an die Interaktionen des Benutzers anpasst.
+client/src/MiniHoverPopup.jsx
+client/src/MiniHoverPopup.css
 
-## Node Package Manager
+##### Skigebiets-Popup:
 
-npm erleichtert das Installieren, Aktualisieren und Verwalten von Softwarepaketen, die für die Entwicklung des Frontends, einschliesslich React und OpenLayers, benötigt werden. npm verwaltet Abhängigkeiten für Node.js-Anwendungen.
+client/src/SkigebietPopup.jsx
+client/src/SkigebietPopup.css
 
-## Open Layers
+##### Detailansicht:
 
-OpenLayers wird eingesetzt, um die geografischen Daten in einer interaktiven Karte darzustellen, die Benutzerinteraktionen wie Zoomen, Verschieben und Klicken auf Elemente unterstützt. OpenLayers kann über seine umfangreichen Quellenoptionen direkt auf den Geoserver zugreifen, um räumliche Daten zu laden und anzuzeigen. Durch die Verwendung von WMS (Web Map Service) oder WFS (Web Feature Service), ermöglicht OpenLayers das Abrufen der bereitgestellten Geodaten auf dem Geoserver. Dazu wurden auf dem Geoserver die Layers `MapYourTrip:location` und `MapYourTrip:segment` publiziert.
+client/src/SkigebietDetail.jsx
+client/src/SkigebietDetail.css
+
+#### Zusatzfunktionen
+
+##### Wetter-Anzeige:
+
+#### Konfiguration
+
+client/src/config.js
+client/src/mapConfig.js

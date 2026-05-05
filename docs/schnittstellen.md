@@ -3,25 +3,34 @@ layout: default
 title: MapYourTrip
 ---
 
-## Schnittstellen
+# Schnittstellen
 
-Die Webapplikation MapYourTrip verwendet neben dem eigenen FastAPI Backend und dem Geoserver eine externe Schnittstelle zum OpenRouteService.
+Für die Anwendung _SkiScope_ werden verschiedene externe Datenquellen genutzt, um aktuelle und relevante Informationen zu Skigebieten bereitzustellen. Diese Daten werden automatisiert abgerufen, verarbeitet und im Frontend visualisiert.
 
-### OpenRouteService
+Folgende Daten werden für die Anwendung bezogen:
 
-Über den OpenRouteService wird die Routenoptimierung durchgeführt. Dabei werden Segmentinformationen (Start und Endpunkt) sowie das Verkehrsmitel dem Service geliefert und es wird eine dem Strassennetz angepaste Route wiedergegeben. Diese Route wird in die Datenbank gespeichert und ersetzt das alte Linienstück. In der aktuellen Version der Webaplikation ist der service `directions` implementiert.
+---
 
-Bei einer möglichen Erweiterung könnte die Funktionalität `elevation` sowie `pois` noch implementieren werden. Mit dem Service `elevation` ist angedacht ein Höhenprofil zu erstellen. Mittels dem Service `pois` kann man Punkte nach Interesse in der Nähe der Route Abfragen, wie zum Beispiel eine Abfrage zu Restaurants in der Nähe.
+### Geodaten
 
-#### OpenRouteService Aufbau
+Die Geodaten der Pisten und Liftanlagen wurden einmalig über die Overpass API (OpenStreetMap) bezogen und bilden die Grundlage für die kartografische Darstellung in der Anwendung.
+Aus den dazugehörigen Attributen wurden Informationen, wie Pistenlevel (...) oder der Liftart (Bügel, ...) gewonnen.
 
-Die nachfolgenden Beispiele zeigen Abfragen an den OpenRouteService. Weitere Details finden sich auf der offiziellen Webseite [https://openrouteservice.org/services/](https://openrouteservice.org/services/).
+---
 
-`https://api.openrouteservice.org/v2/{service}/{profile}?api_key=your-api-key&start=8.681495,49.41461&end=8.687872,49.420318`
+### Betriebsstatus Pisten und Skilifte
 
-- {service}: /directions, /elevation, /pois
-- {profile}: /Verkehrsmittel, /line or point, point
+Der Betriebsstatus der Pisten und Liftanlangen, sowie die Angaben zu Pistenlängen und Schneehöhen werden über die STNet API von Schweiz Tourismus bezogen.
 
-Unter der methode `help(openrouteservice)` können die möglichen profile (Verkehrsmittel) abgefragt werden.
+---
 
-- ["driving-car", "driving-hgv", "foot-walking","foot-hiking", "cycling-regular","cycling-road","cycling-mountain","cycling-electric",]
+### Meteodaten
+
+Die Wetterdaten (14-Tages Ansicht) werden über Open-Meteo anhand der Koordinaten der entsprechenden Skigebiete bezogen. Als Initialwert wird hier das Wetter von Muttenz geladen.
+Sobald eine neue Station, bzw. ein Skigebiet gewählt wird, werden die Meteodaten über ein den Backend-Endpunkt `/skigebiet/wetterprognose` geladen.
+
+---
+
+### Schneehöhen
+
+Die Schneehöhen werden im Vektorformat über eine API des SLF (Institut für Schnee- und Lawinenforschung) bezogen.
