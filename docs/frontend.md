@@ -22,12 +22,11 @@ Im Folgenden werden die im Ordner src/ enthaltenen Konfigurationsdateien (.js), 
 
 Die Dateien `client/src/config.js` und `client/src/mapConfig.js` enthalten zentrale Konfigurationsparameter sowie Hilfsfunktionen der Anwendung. Dazu gehören insbesondere API- und GeoServer-URLs, Kartenstile, Wetterdefinitionen, Kartenbegrenzungen sowie Legenden für die Visualisierung von Schneehöhen. Zusätzlich werden Funktionen zur dynamischen Erstellung von GeoServer-Layern und zur Konfiguration der MapLibre-Karte bereitgestellt.
 
-### React-Komponenten (`.jsx`) und Stylesheets (`.css`)
+### React-Komponenten (`.jsx`)
 
 #### Header-Bar
 
 `client/src/Header.jsx`  
-`client/src/Header.css`
 
 Die Header-Komponente bildet den oberen Einstiegsbereich der Anwendung. Sie enthält das SkiScope-Logo, die Suchfunktion für Skigebiete sowie zusätzliche Anzeigeelemente wie die maximale Schneehöhe oder die Logos der Anwendung.
 
@@ -38,17 +37,20 @@ Dabei werden maximal sechs passende Suchtreffer angezeigt. Wird ein Skigebiet au
 #### Hauptbereich
 
 `client/src/MainArea.jsx`  
-`client/src/MainArea.css`
 
 Der Hauptbereich strukturiert die zentrale Benutzeroberfläche der Anwendung. Er verbindet die Kartenansicht mit weiteren Anzeige- und Interaktionselementen.
 
 #### Kartenbereich
 
 `client/src/SkiMap.jsx`  
-`client/src/SkiMap.css`
 
-Der Kartenbereich stellt die interaktive MapLibre-Karte dar. Hier werden Skigebiete, GeoServer-Layer, Schneehöhen und weitere räumliche Informationen visualisiert.
+Der Quellcode SkiMap.jsx erstellt und steuert die zentrale interaktive Karte von SkiScope.
 
+Beim Laden der Komponente wird eine MapLibre-Karte mit swisstopo-Hintergrundkarte aufgebaut. Gleichzeitig werden Skigebietsdaten aus dem Backend geladen und die offenen Skigebiete gespeichert. Diese Informationen werden genutzt, um Skigebietspunkte auf der Karte farblich darzustellen: offene Skigebiete blau, geschlossene grau, ausgewählte oder berührte Punkte hervorgehoben.
+
+Über GeoServer werden verschiedene Kartenlayer eingebunden, darunter Schneehöhen, Pisten, Lifte und Skigebietspunkte. Die Layer können über ein Bedienfeld ein- und ausgeschaltet werden. Zusätzlich ändert sich die Sichtbarkeit automatisch je nach Zoomstufe: In kleinerem Massstab wird vor allem die Schneekarte gezeigt, bei stärkerem Hineinzoomen werden Pisten und Lifte sichtbar.
+
+Die Karte reagiert auf Benutzerinteraktionen. Bewegt der Benutzer die Maus über ein Skigebiet, wird ein Hover-Popup angezeigt und der Punkt hervorgehoben. Klickt der Benutzer auf ein Skigebiet, wird dieses ausgewählt, die Karte zoomt zum entsprechenden Gebiet, Detaildaten werden über die Backend-API geladen und in einem Popup dargestellt. Gleichzeitig wird das ausgewählte Skigebiet an die Wetteranzeige weitergegeben.
 ---
 
 ### Interaktive Elemente
@@ -56,21 +58,18 @@ Der Kartenbereich stellt die interaktive MapLibre-Karte dar. Hier werden Skigebi
 #### Hover-Popup
 
 `client/src/MiniHoverPopup.jsx`  
-`client/src/MiniHoverPopup.css`
 
 Das Hover-Popup zeigt kompakte Informationen zu einem Skigebiet an, sobald der Benutzer mit der Maus über ein entsprechendes Objekt fährt.
 
 #### Skigebiets-Popup
 
 `client/src/SkigebietPopup.jsx`  
-`client/src/SkigebietPopup.css`
 
 Das Skigebiets-Popup zeigt detailliertere Informationen zu einem ausgewählten Skigebiet direkt in der Kartenansicht an.
 
 #### Detailansicht
 
 `client/src/SkigebietDetail.jsx`  
-`client/src/SkigebietDetail.css`
 
 Die Detailansicht stellt umfassende Informationen zu einem ausgewählten Skigebiet bereit, beispielsweise Angaben zu Liften, Schneehöhe, Wetterdaten und weiteren Eigenschaften.
 
@@ -81,17 +80,16 @@ Die Detailansicht stellt umfassende Informationen zu einem ausgewählten Skigebi
 #### Wetter-Anzeige
 
 `client/src/WeatherSidebar.jsx`  
-`client/src/WeatherSidebar.css`
 
 `client/src/WeatherDayDetail.jsx`  
-`client/src/WeatherDayDetail.css`
 
 Die Wetter-Anzeige stellt aktuelle und prognostizierte Wetterinformationen dar. Die Sidebar gibt eine Übersicht über mehrere Tage, während die Tagesdetailansicht genauere Wetterwerte zu einem ausgewählten Tag zeigt.
 
 #### Footer
 
 `client/src/Footer.jsx`  
-`client/src/Footer.css`
 
 Der Footer bildet die Fusszeile der Anwendung und enthält allgemeine Projektinformationen wie Copyright, Modulnummer und Autorennamen.
+
+### Stylesheets (`.css`)
 
