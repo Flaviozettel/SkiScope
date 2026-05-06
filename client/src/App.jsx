@@ -100,12 +100,6 @@ export function App() {
     setDetailTag(null);
   }, [wetterStation?.station_id]);
 
-  // Detail-Wetter und Detail-Skigebiet schliessen sich gegenseitig aus —
-  // sonst springt das Wetter-Overlay nach Rückkehr aus dem Skigebiet-Detail auf.
-  useEffect(() => {
-    if (detailStationId) setDetailTag(null);
-  }, [detailStationId]);
-
   return (
     <div className="app">
       <Header mapRef={mapRef} topSchnee={topSchnee} />

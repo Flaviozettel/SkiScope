@@ -54,27 +54,25 @@ export const MainArea = ({
               onOpenDetail={(id) => setDetailStationId(id)}
             />
           ) : (
-            <>
-              <SkiMap
-                mapRef={mapRef}
-                safeDatum={safeDatum}
-                hoverMarker={hoverMarker}
-                setHoverMarker={setHoverMarker}
-                selectedMarker={selectedMarker}
-                setSelectedMarker={setSelectedMarker}
-                tooltipData={tooltipData}
-                setTooltipData={setTooltipData}
-                setWetterStation={setWetterStation}
-                onOpenDetail={(id) => setDetailStationId(id)}
-              />
-              {detailTag && (
-                <WeatherDayDetail
-                  tag={detailTag}
-                  station={wetterStation}
-                  onClose={() => setDetailTag(null)}
-                />
-              )}
-            </>
+            <SkiMap
+              mapRef={mapRef}
+              safeDatum={safeDatum}
+              hoverMarker={hoverMarker}
+              setHoverMarker={setHoverMarker}
+              selectedMarker={selectedMarker}
+              setSelectedMarker={setSelectedMarker}
+              tooltipData={tooltipData}
+              setTooltipData={setTooltipData}
+              setWetterStation={setWetterStation}
+              onOpenDetail={(id) => setDetailStationId(id)}
+            />
+          )}
+          {detailTag && (
+            <WeatherDayDetail
+              tag={detailTag}
+              station={wetterStation}
+              onClose={() => setDetailTag(null)}
+            />
           )}
         </div>
       </div>

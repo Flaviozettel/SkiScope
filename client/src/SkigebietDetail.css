@@ -9,6 +9,7 @@
   min-height: 0;
   display: grid;
   grid-template-columns: minmax(320px, 38%) 1fr;
+  grid-template-rows: 1fr;
   gap: 12px;
 }
 
@@ -101,10 +102,10 @@
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: 14px 16px 16px;
+  padding: 14px 18px 18px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
 }
 
 /* ── Sektionen ────────────────────────────────────────────── */
@@ -124,46 +125,100 @@
 .skidetail-section-body {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
 }
 
-/* ── Stat-Kacheln ────────────────────────────────────────── */
-.skidetail-stat-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+/* ── Inline „Pill"-Stats für die Übersicht (eine Reihe, kompakt) ── */
+.skidetail-pill-row {
+  display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
-.skidetail-stat {
+.skidetail-pill {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 12px;
   background: rgba(255, 255, 255, 0.55);
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 9px 11px;
+  border-radius: 999px;
+}
+.skidetail-pill-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  line-height: 1;
+}
+.skidetail-pill-value {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.1;
+}
+
+/* ── Schlichte Label/Value-Zeilen (ohne Kachel) ───────────── */
+.skidetail-rows {
+  display: flex;
+  flex-direction: column;
+}
+.skidetail-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px dashed var(--border);
+  font-size: 12px;
+}
+.skidetail-row:last-child {
+  border-bottom: none;
+}
+.skidetail-row-label {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+.skidetail-row-value {
+  font-weight: 700;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Schnee-Zeile (kompakt, ohne Kacheln) ─────────────────── */
+.skidetail-snow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+}
+.skidetail-snow-item {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
-.skidetail-stat-label {
+.skidetail-snow-label {
   font-size: 10px;
   font-weight: 600;
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.3px;
 }
-.skidetail-stat-value {
-  font-size: 14px;
+.skidetail-snow-value {
+  font-size: 16px;
   font-weight: 700;
   color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
 }
 
 .skidetail-meta {
-  font-size: 11px;
-  color: var(--text-tertiary);
+  font-size: 12px;
+  color: var(--text-secondary);
 }
 
 .skidetail-links {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 14px;
   font-size: 12px;
   font-weight: 600;
 }
@@ -178,7 +233,7 @@
   color: #d97706;
 }
 
-/* ── Stacked Bar ─────────────────────────────────────────── */
+/* ── Stacked Bar (nur noch für Schwierigkeit verwendet) ──── */
 .skidetail-bar {
   height: 10px;
   border-radius: 6px;
@@ -201,6 +256,7 @@
   gap: 10px;
   font-size: 11px;
   color: var(--text-secondary);
+  margin-top: 4px;
 }
 .skidetail-bar-tag {
   display: inline-flex;
@@ -219,6 +275,7 @@
   position: relative;
   min-width: 0;
   min-height: 0;
+  display: flex;
   border-radius: var(--radius-lg);
   overflow: hidden;
   border: 1px solid var(--glass-border);
