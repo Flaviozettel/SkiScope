@@ -14,7 +14,7 @@ SkiScope umfasst nahezu alle Skigebiete der Schweiz und stellt umfassende Inform
 Mit dieser GitHub Page erfährst du, wie die Anwendung gestartet wird, welche Funktionen sie bietet und wie sie strukturell aufgebaut ist.
 
 <figure class="image-container">
-  <img src="screenshot.png" alt="SkiScope Übersicht" class="imaget">
+  <img src="screenshot.png" alt="SkiScope Übersicht" class="image">
 
   <figcaption>
     Abbildung 1: Übersicht der Webanwendung SkiScope mit Darstellung der Schweizer Skigebiete, Wetterinformationen und Layersteuerung.
