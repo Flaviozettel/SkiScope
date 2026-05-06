@@ -8,13 +8,11 @@
       {% if item.children %}
       <div class="dropdown">
         <a href="{{ item.url | relative_url }}" class="site-nav-link"
-          >{{ item.title }}</a
-        >
+          >{{ item.title }}</a>
         <div class="dropdown-content">
-          <a href="{{ '/01_xxxx.html' | relative_url }}">xxxx</a>
-          <a href="{{ '/02_xxxx.html'   | relative_url }}">xxxx</a>
-          <a href="{{ '/03_xxxx.html'    | relative_url }}">xxxx</a>
-          <a href="{{ '/04_xxxx.html'   | relative_url }}">xxxx</a>
+          {% for child in item.children %}
+          <a href="{{ child.url | relative_url }}">{{ child.title }}</a>
+          {% endfor %}
         </div>
       </div>
       {% else %}
