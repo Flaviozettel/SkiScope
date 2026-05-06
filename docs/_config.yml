@@ -5,11 +5,27 @@ baseurl: "/SkiScope"
 navbar:
   - title: Home
     url: /
-  - title: Funktionalitäten
-    url: /01_xxxx.html
-  - title: Server
-    url: /backend.html
+
+  - title: Getting Started
+    url: /getting_started.html
+
+  - title: Features
+    url: /features.html
+    children:
+      - title: Feature 1
+        url: /01_xxxx.html
+      - title: Feature 2
+        url: /02_xxxx.html
+      - title: Feature 3
+        url: /03_xxxx.html
+      - title: Feature 4
+        url: /04_xxxx.html
+
   - title: Client
     url: /frontend.html
+
+  - title: Server
+    url: /backend.html
+
   - title: Schnittstellen
     url: /schnittstellen.html
