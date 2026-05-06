@@ -15,6 +15,9 @@ import { MiniHoverPopup } from "./MiniHoverPopup.jsx";
 import { SkigebietPopup } from "./SkigebietPopup.jsx";
 import "./SkiMap.css";
 
+const DUMMY = true; // ← auf true setzen für Februar-Schneekarte
+const DUMMY_DATUM = "2025-01-25";
+
 const SCHNEE_MAX_ZOOM = 13;
 const PISTEN_MIN_ZOOM = 13;
 const HIT = 8;
@@ -441,10 +444,15 @@ export const SkiMap = ({
         </button>
 
         <Source
-          key={safeDatum}
+          key={DUMMY ? DUMMY_DATUM : safeDatum}
           id="schnee"
           type="vector"
-          tiles={[geoserverTileUrl("schneehoehen_datum", `&viewparams=datum:${safeDatum}`)]}
+          tiles={[
+            geoserverTileUrl(
+              "schneehoehen_datum",
+              `&viewparams=datum:${DUMMY ? DUMMY_DATUM : safeDatum}`,
+            ),
+          ]}
           tileSize={512}
         >
           <Layer
@@ -474,7 +482,7 @@ export const SkiMap = ({
                 400,
                 "#041f4a",
               ],
-              "fill-opacity": 0.35,
+              "fill-opacity": 0.6,
               "fill-antialias": true,
             }}
             layout={{ "fill-sort-key": ["get", "value"] }}
