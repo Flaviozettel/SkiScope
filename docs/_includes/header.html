@@ -1,27 +1,37 @@
 <header class="site-header">
-  <div class="wrapper">
-    <div class="hero-banner">
-      <div class="hero-overlay">
-        <div class="hero-logo">❄ SkiScope</div>
-      </div>
+
+  <div class="header-overlay">
+
+    <div class="hero-logo">
+      ❄ SkiScope
     </div>
+
     <nav class="site-nav">
-      {% for item in site.navbar %} 
-      {% if item.children %}
-      <div class="dropdown">
-        <a href="{{ item.url | relative_url }}" class="site-nav-link"
-          >{{ item.title }}</a>
-        <div class="dropdown-content">
-          {% for child in item.children %}
-          <a href="{{ child.url | relative_url }}">{{ child.title }}</a>
-          {% endfor %}
-        </div>
-      </div>
-      {% else %}
-      <a class="site-nav-link" href="{{ item.url | relative_url }}">
-        {{ item.title }}
-      </a>
-      {% endif %} {% endfor %}
+      {% for item in site.navbar %}
+        {% if item.children %}
+          <div class="dropdown">
+            <a href="{{ item.url | relative_url }}" class="site-nav-link">
+              {{ item.title }}
+            </a>
+
+            <div class="dropdown-content">
+              {% for child in item.children %}
+                <a href="{{ child.url | relative_url }}">
+                  {{ child.title }}
+                </a>
+              {% endfor %}
+            </div>
+          </div>
+
+        {% else %}
+
+          <a class="site-nav-link" href="{{ item.url | relative_url }}">
+            {{ item.title }}
+          </a>
+
+        {% endif %}
+      {% endfor %}
     </nav>
+
   </div>
 </header>

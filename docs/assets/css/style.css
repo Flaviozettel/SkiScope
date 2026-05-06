@@ -1,30 +1,47 @@
 .site-header {
-  padding: 1em;
-  border-bottom: 1px solid #ddd;
+  max-width: 1100px;
+  margin: 1.5rem auto;
+  background-image: url("../images/Header_Berge.jpg");
+  background-size: cover;
+  background-position: center;
+  border-radius: 16px;
+  overflow: visible;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+}
+
+.header-overlay {
+  background: rgba(10, 35, 70, 0.45);
+  padding: 1.5rem 2rem;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.hero-logo {
+  color: white;
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
 }
 
 .wrapper {
-  max-width: 1200px;
+  width: 100%;
+  max-width: 1000px;
   margin: 0 auto;
+}
+
+.site-nav {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.site-title {
-  font-size: 1.5rem;
-  margin: 0;
-}
-
-.site-title a {
-  text-decoration: none;
-  color: inherit;
+  justify-content: center;
+  gap: 1.2rem;
+  flex-wrap: wrap;
 }
 
 .site-nav-link {
-  margin-left: 1em;
   text-decoration: none;
-  color: #0366d6;
+  color: white;
   font-weight: 500;
 }
 
@@ -32,130 +49,42 @@
   text-decoration: underline;
 }
 
-body {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding-left: 2em;
-  padding-right: 2em;
-  line-height: 1.6;
-  font-family: Arial, sans-serif;
-}
-
-/* Absatzabstände korrigieren */
-p {
-  margin-bottom: 1em;
-}
-
-/* Dropdown Container */
+/* Dropdown */
 .dropdown {
   position: relative;
   display: inline-block;
-  margin-left: 1em;
 }
 
-/* Submenu */
 .dropdown-content {
   display: none;
   position: absolute;
-  background-color: white;
-  min-width: 160px;
-  border: 1px solid #ddd;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  top: 100%;
+  left: 0;
+  background: white;
+  min-width: 190px;
+  border-radius: 8px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
   z-index: 1000;
+  overflow: hidden;
 }
 
-/* Links im Submenu */
 .dropdown-content a {
   color: #0366d6;
-  padding: 0.5em 1em;
+  padding: 0.6em 1em;
   text-decoration: none;
   display: block;
   white-space: nowrap;
 }
 
-/* Hover-Effekt */
 .dropdown-content a:hover {
   background-color: #f5f5f5;
 }
 
-/* Dropdown anzeigen */
 .dropdown:hover .dropdown-content {
   display: block;
 }
 
-/* Pfeil beim Dropdown */
 .dropdown > .site-nav-link::after {
   content: " ▼";
   font-size: 0.8em;
-}
-
-/* Screenshot */
-.screenshot {
-  width: 100%;
-  max-width: 900px;
-  height: auto;
-  display: block;
-  margin: 2em auto;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
-}
-
-.image {
-  width: 100%;
-  max-width: 900px;
-  height: auto;
-  display: block;
-  margin: 2em auto;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
-}
-
-.image-container {
-  text-align: center;
-  margin: 2em auto;
-}
-
-.image-container figcaption {
-  margin-top: 0.8em;
-  font-size: 0.9rem;
-  color: #666;
-  font-style: italic;
-}
-
-/* Gifs */
-.gifs {
-  width: 100%;
-  max-width: 900px;
-  height: auto;
-  display: block;
-  margin: 2em auto;
-  border-radius: 10px;
-}
-
-.hero-banner {
-  width: 100%;
-  max-width: 1000px;
-  height: 90px;
-  margin: 2em auto;
-  background-image: url("../images/Header_Berge.jpg");
-  background-size: cover;
-  background-position: center;
-  border-radius: 14px;
-  overflow: hidden;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
-}
-
-.hero-overlay {
-  height: 100%;
-  background: rgba(10, 35, 70, 0.45);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.hero-logo {
-  color: white;
-  font-size: 2rem;
-  font-weight: 700;
-  letter-spacing: 0.5px;
 }
