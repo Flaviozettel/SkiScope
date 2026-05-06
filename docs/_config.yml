@@ -15,9 +15,9 @@ navbar:
       - title: Suche
         url: /01_search.html
       - title: Skigebiet Informationen
-        url: /02_skigebiet_info.html
+        url: /02_skigebiet_informationen.html
       - title: Wetterdaten
-        url: /03_wetter_info.html
+        url: /03_wetterdaten.html
       - title: Layersteuerung
         url: /04_layersteuerung.html
 
