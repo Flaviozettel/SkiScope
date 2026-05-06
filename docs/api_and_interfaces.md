@@ -1,6 +1,6 @@
 ---
 layout: default
-title: MapYourTrip
+title: APIs and Interfaces
 ---
 
 # Schnittstellen

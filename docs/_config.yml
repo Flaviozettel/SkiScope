@@ -27,8 +27,8 @@ navbar:
   - title: Server
     url: /backend.html
 
-  - title: Schnittstellen
-    url: /schnittstellen.html
+  - title: APIs and Interfaces
+    url: /api_and_interfaces.html
 
   - title: Libraries and Technologies
     url: /libraries_and_technologies.html

@@ -7,7 +7,8 @@ Frontend:
 
 - React
 - Vite
-- MapLibre
+- MapLibre GL JS
+    - Ermöglicht die dynamische Darstellung und Interaktion der Webkarte sowie die Einbindung von GeoServer-Layern.
 
 Backend:
 

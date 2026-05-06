@@ -1,8 +1,10 @@
 <header class="site-header">
   <div class="wrapper">
-    <h1 class="site-title">
-      <a href="{{ '/' | relative_url }}">{{ site.title }}</a>
-    </h1>
+    <div class="hero-banner">
+      <div class="hero-overlay">
+        <div class="hero-logo">❄ SkiScope</div>
+      </div>
+    </div>
     <nav class="site-nav">
       {% for item in site.navbar %} 
       {% if item.children %}

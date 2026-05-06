@@ -31,9 +31,9 @@ Die Dateien `client/src/config.js` und `client/src/mapConfig.js` enthalten zentr
 
 Die Header-Komponente bildet den oberen Einstiegsbereich der Anwendung. Sie enthält das SkiScope-Logo, die Suchfunktion für Skigebiete sowie zusätzliche Anzeigeelemente wie die maximale Schneehöhe oder die Logos der Anwendung.
 
-Die wichtigste Funktion im Header ist die Suchfunktion, welche in einem ersten Schritt automatisch alle Skigebiete im Backend abfragt. Diese werden anhand des "Use-States" im Suchfenster gefiltert nach Eingabe und Betriebsstatus "offen". Dabei wird eine Auswahl von maximal 6 Treffern angezeigt, wobei bei "OnKlick" auf das Skigebiet in der Karte `client/src/SkiMap.jsx` gezommt wird.
+Die wohl wichtigste Funktion des Headers ist die integrierte Suchfunktion. In einem ersten Schritt werden sämtliche Skigebiete automatisch über die Backend-API geladen. Anschliessend werden diese anhand des React-States dynamisch nach Benutzereingabe sowie optional nach dem Betriebsstatus „offen“ gefiltert.
 
-
+Dabei werden maximal sechs passende Suchtreffer angezeigt. Wird ein Skigebiet ausgewählt, erfolgt über ein onClick-Event eine Geoserveranfrage, die die entsprechenden Koordinaten des Skigebiets abgreifen, womit ein automatischer Zoom auf die entsprechende Position innerhalb der interaktiven MapLibre-Karte in `client/src/SkiMap.jsx` erfolgen kann.
 
 #### Hauptbereich
 
@@ -95,13 +95,3 @@ Die Wetter-Anzeige stellt aktuelle und prognostizierte Wetterinformationen dar. 
 
 Der Footer bildet die Fusszeile der Anwendung und enthält allgemeine Projektinformationen wie Copyright, Modulnummer und Autorennamen.
 
----
-
-### Konfiguration (`.js`)
-
-`client/src/config.js`  
-`client/src/mapConfig.js`
-
-Die Datei `config.js` definiert zentrale Verbindungsparameter der Anwendung. Dazu gehören beispielsweise die Backend-API zur Abfrage von Skigebiets- und Wetterdaten sowie die GeoServer-Dienste zur Bereitstellung von Karten- und Geodaten.
-
-Die Datei `mapConfig.js` enthält verschiedene Karten- und Visualisierungskonfigurationen. Beispielsweise wird darin die swisstopo-Hintergrundkarte definiert, Wettercodes werden Symbolen und Beschreibungen zugeordnet und Legendenwerte für Schneehöhen festgelegt.
