@@ -49,6 +49,20 @@
   text-decoration: underline;
 }
 
+
+body {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-left: 2em;
+  padding-right: 2em;
+  line-height: 1.6;
+  font-family: Arial, sans-serif;
+}
+
+p {
+  margin-bottom: 1em;
+}
+
 /* Dropdown */
 .dropdown {
   position: relative;
