@@ -1,6 +1,6 @@
 ---
 layout: default
-title: SkiScope Client
+title: Client
 ---
 
 # SkiScope Client

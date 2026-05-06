@@ -12,14 +12,14 @@ navbar:
   - title: Features
     url: /features.html
     children:
-      - title: Feature 1
-        url: /01_xxxx.html
-      - title: Feature 2
-        url: /02_xxxx.html
-      - title: Feature 3
-        url: /03_xxxx.html
-      - title: Feature 4
-        url: /04_xxxx.html
+      - title: Suche
+        url: /01_search.html
+      - title: Skigebiet Informationen
+        url: /02_skigebiet_info.html
+      - title: Wetterdaten
+        url: /03_wetter_info.html
+      - title: Layersteuerung
+        url: /04_layersteuerung.html
 
   - title: Client
     url: /frontend.html
