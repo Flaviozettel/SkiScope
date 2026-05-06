@@ -26,27 +26,79 @@ const formatHour = (value) => {
 // `??` fängt nur null/undefined, nicht NaN — daher explizit auf endlich prüfen
 const toFinite = (v) => (Number.isFinite(v) ? v : null);
 
+// Feste Mindest-Skala für Regen, damit 1 mm/h nicht aussieht wie ein Unwetter.
+// Erst bei tatsächlich starkem Niederschlag wächst die Achse mit.
+const RAIN_MIN_DOMAIN = 5; // mm
+
+// Nur jeden N-ten Stunden-Tick auf der X-Achse — sonst überlappen sich die Labels
+// auf der schmalen Hälfte.
+const HOUR_TICK_INTERVAL = 2;
+
 const WeatherChart = ({ data }) => {
+  const tempDomain = useMemo(() => {
+    const vals = data.map((d) => d.temp_2m).filter((v) => Number.isFinite(v));
+    if (vals.length === 0) return [0, 10];
+    const min = Math.min(...vals);
+    const max = Math.max(...vals);
+    const pad = Math.max(2, (max - min) * 0.2);
+    // auf ganze Grad runden für saubere Ticks
+    return [Math.floor(min - pad), Math.ceil(max + pad)];
+  }, [data]);
+
+  const rainDomain = useMemo(() => {
+    const vals = data.map((d) => d.niederschlag).filter((v) => Number.isFinite(v));
+    const max = vals.length ? Math.max(...vals) : 0;
+    return [0, Math.max(RAIN_MIN_DOMAIN, Math.ceil(max))];
+  }, [data]);
+
   return (
     <ResponsiveContainer width="100%" height="100%">
       <ComposedChart
         data={data}
-        margin={{
-          top: 10,
-          right: 20,
-          bottom: 0,
-          left: 0,
-        }}
+        margin={{ top: 8, right: 12, bottom: 0, left: 0 }}
       >
-        <CartesianGrid stroke="#f5f5f5" />
+        <CartesianGrid stroke="#e5e7eb" strokeDasharray="2 4" vertical={false} />
 
-        <XAxis dataKey="timeLabel" />
+        <XAxis
+          dataKey="timeLabel"
+          interval={HOUR_TICK_INTERVAL}
+          tick={{ fontSize: 11, fill: "#6b7280" }}
+          tickLine={false}
+          axisLine={{ stroke: "#d1d5db" }}
+        />
 
-        <YAxis yAxisId="temp" width={40} unit="°" />
+        <YAxis
+          yAxisId="temp"
+          width={36}
+          unit="°"
+          domain={tempDomain}
+          tickCount={5}
+          allowDecimals={false}
+          tick={{ fontSize: 11, fill: "#6b7280" }}
+          tickLine={false}
+          axisLine={false}
+        />
 
-        <YAxis yAxisId="rain" orientation="right" width={45} unit=" mm" />
+        <YAxis
+          yAxisId="rain"
+          orientation="right"
+          width={42}
+          unit=" mm"
+          domain={rainDomain}
+          tickCount={5}
+          allowDecimals={false}
+          tick={{ fontSize: 11, fill: "#6b7280" }}
+          tickLine={false}
+          axisLine={false}
+        />
 
-        <YAxis yAxisId="sun" orientation="right" width={0} unit="min" hide={true} />
+        <YAxis
+          yAxisId="sun"
+          orientation="right"
+          width={0}
+          domain={[0, 60]}
+          hide
+        />
 
         <Tooltip
           formatter={(value, name) => {
@@ -58,7 +110,7 @@ const WeatherChart = ({ data }) => {
           }}
         />
 
-        <Legend />
+        <Legend wrapperStyle={{ fontSize: 11, paddingTop: 4 }} iconSize={10} />
 
         <Area
           yAxisId="sun"
@@ -67,14 +119,16 @@ const WeatherChart = ({ data }) => {
           name="Sonnenschein"
           fill="#fde68a"
           stroke="#e6c314"
+          fillOpacity={0.55}
         />
 
         <Bar
           yAxisId="rain"
           dataKey="niederschlag"
           name="Niederschlag"
-          barSize={14}
+          barSize={10}
           fill="#413ea0"
+          radius={[2, 2, 0, 0]}
         />
 
         <Line
@@ -135,6 +189,27 @@ const fmt = (value, unit, digits = 1) => {
   return `${value.toFixed(digits)} ${unit}`.trim();
 };
 
+const Section = ({ title, children }) => (
+  <section className="weather-day-detail-section">
+    <h3 className="weather-day-detail-section-title">{title}</h3>
+    {children}
+  </section>
+);
+
+const Pill = ({ label, value }) => (
+  <div className="weather-day-detail-pill">
+    <div className="weather-day-detail-pill-label">{label}</div>
+    <div className="weather-day-detail-pill-value">{value}</div>
+  </div>
+);
+
+const Row = ({ label, value }) => (
+  <div className="weather-day-detail-row">
+    <span className="weather-day-detail-row-label">{label}</span>
+    <span className="weather-day-detail-row-value">{value}</span>
+  </div>
+);
+
 const WeatherStats = ({ rows }) => {
   const stats = useMemo(() => {
     if (!rows || rows.length === 0) return null;
@@ -171,33 +246,46 @@ const WeatherStats = ({ rows }) => {
 
   if (!stats) return null;
 
-  const tiles = [
-    { label: "Temperatur (Min/Max)", value: stats.tempRange },
-    { label: "Gefühlt (Min/Max)", value: stats.feltRange },
-    { label: "Luftfeuchte (Ø)", value: stats.humidity },
-    { label: "Regen (Summe)", value: stats.rainSum },
-    { label: "Schneefall (Summe)", value: stats.snowfallSum },
-    { label: "Neuschnee (max.)", value: stats.snowfallHeight },
-    { label: "Schneedecke (max.)", value: stats.snowDepth },
-    { label: "Wind (max.)", value: stats.windMax },
-    { label: "Böen (max.)", value: stats.gustMax },
-    { label: "Bewölkung (Ø)", value: stats.cloudCover },
-    { label: "Tiefe Wolken (Ø)", value: stats.cloudLow },
-    { label: "Mittlere Wolken (Ø)", value: stats.cloudMid },
-    { label: "Hohe Wolken (Ø)", value: stats.cloudHigh },
-    { label: "Sonnenschein (Summe)", value: stats.sunshineSum },
-    { label: "Wettermodell", value: stats.model },
-  ];
-
   return (
-    <div className="weather-day-detail-stats">
-      {tiles.map((t) => (
-        <div key={t.label} className="weather-day-detail-stat">
-          <div className="weather-day-detail-stat-label">{t.label}</div>
-          <div className="weather-day-detail-stat-value">{t.value}</div>
+    <>
+      <Section title="Temperatur & Luft">
+        <div className="weather-day-detail-pill-row">
+          <Pill label="Temperatur (Min/Max)" value={stats.tempRange} />
+          <Pill label="Gefühlt (Min/Max)" value={stats.feltRange} />
+          <Pill label="Luftfeuchte (Ø)" value={stats.humidity} />
         </div>
-      ))}
-    </div>
+      </Section>
+
+      <Section title="Niederschlag & Schnee">
+        <div className="weather-day-detail-rows">
+          <Row label="Regen (Summe)" value={stats.rainSum} />
+          <Row label="Schneefall (Summe)" value={stats.snowfallSum} />
+          <Row label="Neuschnee (max.)" value={stats.snowfallHeight} />
+          <Row label="Schneedecke (max.)" value={stats.snowDepth} />
+        </div>
+      </Section>
+
+      <Section title="Wind">
+        <div className="weather-day-detail-pill-row">
+          <Pill label="Wind (max.)" value={stats.windMax} />
+          <Pill label="Böen (max.)" value={stats.gustMax} />
+        </div>
+      </Section>
+
+      <Section title="Bewölkung & Sonne">
+        <div className="weather-day-detail-rows">
+          <Row label="Bewölkung (Ø)" value={stats.cloudCover} />
+          <Row label="Tiefe Wolken (Ø)" value={stats.cloudLow} />
+          <Row label="Mittlere Wolken (Ø)" value={stats.cloudMid} />
+          <Row label="Hohe Wolken (Ø)" value={stats.cloudHigh} />
+          <Row label="Sonnenschein (Summe)" value={stats.sunshineSum} />
+        </div>
+      </Section>
+
+      <div className="weather-day-detail-footer">
+        Wettermodell: <code>{stats.model}</code>
+      </div>
+    </>
   );
 };
 
