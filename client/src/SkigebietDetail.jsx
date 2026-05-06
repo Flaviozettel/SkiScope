@@ -23,14 +23,22 @@ const Section = ({ title, children }) => (
   </section>
 );
 
-const Stat = ({ label, value }) => (
-  <div className="skidetail-stat">
-    <div className="skidetail-stat-label">{label}</div>
-    <div className="skidetail-stat-value">{value}</div>
+const Pill = ({ label, value }) => (
+  <div className="skidetail-pill">
+    <div className="skidetail-pill-label">{label}</div>
+    <div className="skidetail-pill-value">{value}</div>
   </div>
 );
 
-// Stacked Bar für Pisten- oder Lift-Verteilung
+const Row = ({ label, value }) => (
+  <div className="skidetail-row">
+    <span className="skidetail-row-label">{label}</span>
+    <span className="skidetail-row-value">{value}</span>
+  </div>
+);
+
+// Stacked Bar – nur noch für „Pisten nach Schwierigkeit", weil dort
+// die Farben (blau/rot/schwarz) eine direkte Bedeutung haben.
 const StackedBar = ({ segments }) => {
   const total = segments.reduce((s, x) => s + (x.value || 0), 0);
   if (total === 0) {
@@ -131,6 +139,19 @@ export const SkigebietDetail = ({
   const sn = data.schnee || {};
   const st = data.stammdaten || {};
 
+  const lifteOffenStr =
+    l.anzahl != null ? `${l.anzahl_offen ?? 0} / ${l.anzahl}` : "–";
+  const pistenOffenStr =
+    p.anzahl != null ? `${p.anzahl_offen ?? "–"} / ${p.anzahl}` : "–";
+
+  const liftTypes = [
+    { label: "Seilbahnen", value: l.anzahl_seilbahnen },
+    { label: "Sesselbahnen", value: l.anzahl_sesselbahnen },
+    { label: "Skilifte", value: l.anzahl_skilifte },
+    { label: "Babylifte", value: l.anzahl_babylifte },
+    { label: "Förderband", value: l.anzahl_foerderband },
+  ];
+
   return (
     <div className="skidetail-host">
       {/* Linke Info-Card */}
@@ -153,27 +174,13 @@ export const SkigebietDetail = ({
         </header>
 
         <div className="skidetail-scroll">
-          {/* Übersicht */}
+          {/* Übersicht – kompakte Pills statt grosser Kacheln */}
           <Section title="Übersicht">
-            <div className="skidetail-stat-grid">
-              <Stat
-                label="Lifte offen"
-                value={
-                  l.anzahl != null
-                    ? `${l.anzahl_offen ?? 0} / ${l.anzahl}`
-                    : "–"
-                }
-              />
-              <Stat
-                label="Pisten offen"
-                value={
-                  p.anzahl != null
-                    ? `${p.anzahl_offen ?? "–"} / ${p.anzahl}`
-                    : "–"
-                }
-              />
-              <Stat label="Pisten gesamt" value={fmtNum(p.km_gesamt, "km", 1)} />
-              <Stat label="Pisten offen" value={fmtNum(p.km_offen, "km", 1)} />
+            <div className="skidetail-pill-row">
+              <Pill label="Lifte offen" value={lifteOffenStr} />
+              <Pill label="Pisten offen" value={pistenOffenStr} />
+              <Pill label="Pisten gesamt" value={fmtNum(p.km_gesamt, "km", 1)} />
+              <Pill label="Pisten offen" value={fmtNum(p.km_offen, "km", 1)} />
             </div>
             {(st.oeffnungszeit || st.schliessungszeit) && (
               <div className="skidetail-meta">
@@ -187,7 +194,6 @@ export const SkigebietDetail = ({
                   🌐 Webseite
                 </a>
               )}
-              {st.telefon && <a href={`tel:${st.telefon}`}>📞 {st.telefon}</a>}
               {data.lawinengefahr_url && (
                 <a
                   href={data.lawinengefahr_url}
@@ -201,16 +207,31 @@ export const SkigebietDetail = ({
             </div>
           </Section>
 
-          {/* Schnee */}
+          {/* Schnee – inline ohne Kacheln */}
           <Section title="Schnee">
-            <div className="skidetail-stat-grid">
-              <Stat label="Schneehöhe Tal" value={fmtNum(sn.tiefe_tal_cm, "cm", 0)} />
-              <Stat label="Schneehöhe Piste" value={fmtNum(sn.tiefe_piste_cm, "cm", 0)} />
-              <Stat label="Neuschnee" value={fmtNum(sn.neuschnee_cm, "cm", 0)} />
+            <div className="skidetail-snow">
+              <div className="skidetail-snow-item">
+                <span className="skidetail-snow-label">Tal</span>
+                <span className="skidetail-snow-value">
+                  {fmtNum(sn.tiefe_tal_cm, "cm", 0)}
+                </span>
+              </div>
+              <div className="skidetail-snow-item">
+                <span className="skidetail-snow-label">Piste</span>
+                <span className="skidetail-snow-value">
+                  {fmtNum(sn.tiefe_piste_cm, "cm", 0)}
+                </span>
+              </div>
+              <div className="skidetail-snow-item">
+                <span className="skidetail-snow-label">Neuschnee</span>
+                <span className="skidetail-snow-value">
+                  {fmtNum(sn.neuschnee_cm, "cm", 0)}
+                </span>
+              </div>
             </div>
           </Section>
 
-          {/* Pisten nach Farbe */}
+          {/* Pisten nach Schwierigkeit – Bar mit bedeutungsvollen Farben */}
           <Section title="Pisten nach Schwierigkeit">
             <StackedBar
               segments={[
@@ -221,31 +242,27 @@ export const SkigebietDetail = ({
             />
           </Section>
 
-          {/* Lifte nach Typ */}
+          {/* Lifte nach Typ – rein numerisch, ohne Farbcode und Balken */}
           <Section title="Lifte nach Typ">
-            <StackedBar
-              segments={[
-                { label: "Seilbahnen", value: l.anzahl_seilbahnen, color: "#0d9488" },
-                { label: "Sesselbahnen", value: l.anzahl_sesselbahnen, color: "#2d6cdf" },
-                { label: "Skilifte", value: l.anzahl_skilifte, color: "#7c3aed" },
-                { label: "Babylifte", value: l.anzahl_babylifte, color: "#f59e0b" },
-                { label: "Förderband", value: l.anzahl_foerderband, color: "#ec4899" },
-              ]}
-            />
+            <div className="skidetail-rows">
+              {liftTypes.map((t) => (
+                <Row key={t.label} label={t.label} value={t.value ?? 0} />
+              ))}
+            </div>
           </Section>
 
-          {/* Weitere Aktivitäten */}
+          {/* Weitere Aktivitäten – Label/Value-Zeilen statt Kacheln */}
           <Section title="Weitere Aktivitäten">
-            <div className="skidetail-stat-grid">
-              <Stat
+            <div className="skidetail-rows">
+              <Row
                 label="Langlauf klassisch"
                 value={fmtNum(ll.km_klassisch, "km", 1)}
               />
-              <Stat
+              <Row
                 label="Langlauf skating"
                 value={fmtNum(ll.km_skating, "km", 1)}
               />
-              <Stat
+              <Row
                 label="Schlittelwege"
                 value={
                   sl.anzahl != null
@@ -253,7 +270,7 @@ export const SkigebietDetail = ({
                     : "–"
                 }
               />
-              <Stat label="Winterwandern" value={fmtNum(ww.km, "km", 1)} />
+              <Row label="Winterwandern" value={fmtNum(ww.km, "km", 1)} />
             </div>
           </Section>
         </div>
