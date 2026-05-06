@@ -43,6 +43,7 @@ export const WMO_MAP = {
   80: { icon: "🌦️", text: "Regenschauer" },
   81: { icon: "🌧️", text: "Starke Schauer" },
   82: { icon: "⛈️", text: "Heftige Schauer" },
+  85: { icon: "🌨️", text: "Schneeschauer" },
   95: { icon: "⛈️", text: "Gewitter" },
   96: { icon: "⛈️", text: "Gewitter mit Hagel" },
   99: { icon: "⛈️", text: "Starkes Gewitter" },

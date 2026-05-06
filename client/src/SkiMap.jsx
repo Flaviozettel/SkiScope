@@ -154,6 +154,7 @@ export const SkiMap = ({
   const [userToggle, setUserToggle] = useState(
     initialLayers ?? { schnee: null, pisten: null, lifte: null },
   );
+  const [currentZoom, setCurrentZoom] = useState(7.5);
   const zoomRef = useRef(7.5);
   const userToggleRef = useRef(userToggle);
   useEffect(() => {
@@ -330,7 +331,7 @@ export const SkiMap = ({
           layerOrderDone.current = false;
           paintReadyRef.current = false;
 
-          applyLayerVisibility(map, userToggleRef.current, zoomRef.current);
+          applyLayerVisibility(map, userToggleRef.current, currentZoom);
 
           if (initialBbox && initialBbox.length === 4) {
             map.fitBounds(
@@ -369,6 +370,7 @@ export const SkiMap = ({
         onMove={(e) => {
           const z = e.viewState.zoom;
           zoomRef.current = z;
+          setCurrentZoom(z);
           const map = mapRef.current?.getMap?.();
           if (map) applyLayerVisibility(map, userToggleRef.current, z);
           const layer = scratLayerRef.current;
@@ -403,7 +405,7 @@ export const SkiMap = ({
             { key: "pisten", label: "Pisten", color: "#e74c3c" },
             { key: "lifte", label: "Lifte & Bahnen", color: "#2b2b2b" },
           ].map(({ key, label, color }) => {
-            const isOn = calcEffective(userToggle, zoomRef.current)[key];
+            const isOn = calcEffective(userToggle, currentZoom)[key];
             return (
               <div key={key} className="layer-toggle-row" onClick={() => toggleLayer(key)}>
                 <div className="layer-toggle-left">
