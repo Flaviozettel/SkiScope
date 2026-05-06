@@ -13,7 +13,7 @@ Platzhalter Flussdiagramm
 
 ## Skigebiet Informationen {#skigebiet-informationen}
 
-{% include_relative 02_skigebiet_information.md %}
+{% include_relative 02_skigebiet_informationen.md %}
 
 ## Wetterdaten {#wetterdaten}
 

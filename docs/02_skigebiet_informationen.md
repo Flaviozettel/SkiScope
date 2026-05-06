@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Skigebiet Information
+title: Skigebiet Informationen
 ---
 
 <img src="assets/gifs/Click_on_Skigebiet.gif" alt="" class="gifs">
