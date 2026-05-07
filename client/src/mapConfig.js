@@ -26,27 +26,44 @@ export function geoserverTileUrl(layer, extraParams = "") {
 
 export const WMO_MAP = {
   0: { icon: "☀️", text: "Klar" },
+
   1: { icon: "🌤️", text: "Überwiegend klar" },
   2: { icon: "⛅", text: "Teilweise bewölkt" },
   3: { icon: "☁️", text: "Bedeckt" },
+
   45: { icon: "🌫️", text: "Nebel" },
   48: { icon: "🌫️", text: "Raureifnebel" },
+
   51: { icon: "🌦️", text: "Leichter Niesel" },
   53: { icon: "🌦️", text: "Niesel" },
   55: { icon: "🌦️", text: "Starker Niesel" },
+
+  56: { icon: "🌧️", text: "Leichter gefrierender Niesel" },
+  57: { icon: "🌧️", text: "Starker gefrierender Niesel" },
+
   61: { icon: "🌧️", text: "Leichter Regen" },
   63: { icon: "🌧️", text: "Regen" },
   65: { icon: "🌧️", text: "Starker Regen" },
-  71: { icon: "🌨️", text: "Leichter Schnee" },
-  73: { icon: "🌨️", text: "Schnee" },
+
+  66: { icon: "🧊", text: "Leichter gefrierender Regen" },
+  67: { icon: "🧊", text: "Starker gefrierender Regen" },
+
+  71: { icon: "🌨️", text: "Leichter Schneefall" },
+  73: { icon: "🌨️", text: "Schneefall" },
   75: { icon: "❄️", text: "Starker Schneefall" },
-  80: { icon: "🌦️", text: "Regenschauer" },
-  81: { icon: "🌧️", text: "Starke Schauer" },
-  82: { icon: "⛈️", text: "Heftige Schauer" },
-  85: { icon: "🌨️", text: "Schneeschauer" },
+
+  77: { icon: "❄️", text: "Schneegriesel" },
+
+  80: { icon: "🌦️", text: "Leichte Regenschauer" },
+  81: { icon: "🌧️", text: "Regenschauer" },
+  82: { icon: "⛈️", text: "Heftige Regenschauer" },
+
+  85: { icon: "🌨️", text: "Leichte Schneeschauer" },
+  86: { icon: "❄️", text: "Starke Schneeschauer" },
+
   95: { icon: "⛈️", text: "Gewitter" },
-  96: { icon: "⛈️", text: "Gewitter mit Hagel" },
-  99: { icon: "⛈️", text: "Starkes Gewitter" },
+  96: { icon: "⛈️", text: "Gewitter mit leichtem Hagel" },
+  99: { icon: "⛈️", text: "Gewitter mit starkem Hagel" },
 };
 
 export const SWITZERLAND_BOUNDS = [
