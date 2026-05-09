@@ -1,26 +1,26 @@
---  Dieses Skript erstellt die das (noch nicht!!) vollständige logische Datenbankschema für das Skiscope projekt.
---  Es ist bewusst nicht vollstänidg normalisiert (pragmatische 3NF).
---  Die Daten werden mit den skripts im /preprocessing Ordner importiert.
-
-
---  Import-Strategie für die STnet Daten: vollständiger DELETE+INSERT pro Station
---  bei jedem Cronjob-Lauf. Kein Stammdaten/Bewegungsdaten-Split.
+-- ============================================================
+--  02_schema.sql – Logisches Schema für SkiScope
+--
+--  Bewusst nicht vollständig normalisiert (pragmatische 3NF).
+--  Daten werden mit den Skripten in /preprocessing importiert.
+--
+--  Import-Strategie für die STnet-Daten: vollständiger DELETE+INSERT
+--  pro Station bei jedem Cronjob-Lauf. Kein Stammdaten/Bewegungsdaten-Split.
 --  updated_at: wird vom Cronjob bei jedem Import gesetzt.
+--
 --  API liefert zwei unabhängige Datenquellen:
---    api_agg_*   Manuell von Station nachgeführte Aggregatwerte
+--    api_agg_*       Manuell von Station nachgeführte Aggregatwerte
 --    Detailtabellen  Einzelne Pisten/Lifte (nicht alle Stationen)
 --  View skigebiete_kennzahlen wählt je Kennzahl:
 --    1. api_agg wenn vorhanden (offizielle Stationszahl)
 --    2. Sonst selbst aus Detailtabelle aggregieren
 --    3. Sonst NULL
-
 -- ============================================================
 
--- PostGis instalieren
 
-CREATE EXTENSION IF NOT EXISTS postgis;
-
--- LOOKUP-TABELLEN  (statisch, werden nicht vom Cronjob berührt)
+-- ============================================================
+--  LOOKUP-TABELLEN  (Inhalt → 03_seed.sql)
+-- ============================================================
 
 CREATE TABLE strecken_typen (
     typ_id      INTEGER      PRIMARY KEY,
@@ -30,74 +30,12 @@ CREATE TABLE strecken_typen (
     bezeichnung TEXT         NOT NULL
 );
 
-INSERT INTO strecken_typen VALUES
-    (4100, 'piste',      'Keine Angaben'),
-    (4101, 'piste',      'Blaue Piste'),
-    (4102, 'piste',      'Rote Piste'),
-    (4103, 'piste',      'Schwarze Piste'),
-    (4104, 'piste',      'Gelbe Piste (unpräpariert)'),
-    (4105, 'piste',      'Orange Piste (Skiroute)'),
-    (4106, 'piste',      'Blau/rote Piste'),
-    (4107, 'piste',      'Rot/schwarze Piste'),
-    (4108, 'piste',      'Schwarz/blaue Piste'),
-    (4109, 'piste',      'Hochgeschwindigkeits-Piste'),
-    (4000, 'lift',       'Keine Angaben'),
-    (4001, 'lift',       'Ponylift'),
-    (4002, 'lift',       'Skilift'),
-    (4004, 'lift',       'Sessellift 2 Personen'),
-    (4005, 'lift',       'Sessellift 3 Personen'),
-    (4006, 'lift',       'Sessellift 4 Personen'),
-    (4008, 'lift',       'Sessellift 6 Personen'),
-    (4009, 'lift',       'Sessellift 8 Personen'),
-    (4010, 'lift',       'Luftseilbahn'),
-    (4011, 'lift',       'Seilbahn'),
-    (4013, 'lift',       'Zahnradbahn'),
-    (4014, 'lift',       'Kombibahn'),
-    (4015, 'lift',       'Dreifachgondel'),
-    (4016, 'lift',       'Babylift'),
-    (4017, 'lift',       'Zauberteppich'),
-    (4018, 'lift',       'Standseilbahn'),
-    (4200, 'langlauf',   'Keine Angaben'),
-    (4201, 'langlauf',   'Klassisch und Skating'),
-    (4202, 'langlauf',   'Skating'),
-    (4203, 'langlauf',   'Klassisch'),
-    (4204, 'langlauf',   'Hundeloipe Skating'),
-    (4205, 'langlauf',   'Hundeloipe klassisch'),
-    (4206, 'langlauf',   'Hundeloipe klassisch und Skating'),
-    (4400, 'wandern',    'Keine Angabe'),
-    (4401, 'wandern',    'Wanderweg'),
-    (4402, 'wandern',    'Schneeschuhwandern'),
-    (4403, 'wandern',    'Klettersteig'),
-    (4405, 'wandern',    'Bergwandern'),
-    (4500, 'schlitteln', 'Keine Angaben'),
-    (4501, 'schlitteln', 'Schlitteln');
-
-
 CREATE TABLE strecken_stati (
     status_id   INTEGER      PRIMARY KEY,
     kontext     VARCHAR(20)  NOT NULL
                     CHECK (kontext IN ('piste_langlauf','lift','wandern')),
     bezeichnung TEXT         NOT NULL
 );
-
-INSERT INTO strecken_stati VALUES
-    (800,  'piste_langlauf', 'Keine Meldung'),
-    (801,  'piste_langlauf', 'Gut'),
-    (802,  'piste_langlauf', 'Gut-fahrbar'),
-    (803,  'piste_langlauf', 'Fahrbar-gut'),
-    (804,  'piste_langlauf', 'Fahrbar'),
-    (805,  'piste_langlauf', 'Geschlossen'),
-    (806,  'piste_langlauf', 'Saisonschluss'),
-    (807,  'piste_langlauf', 'Auf Anfrage'),
-    (3000, 'lift',           'Keine Angaben'),
-    (3001, 'lift',           'Offen'),
-    (3002, 'lift',           'In Vorbereitung'),
-    (3003, 'lift',           'Geschlossen'),
-    (1200, 'wandern',        'Keine Meldung'),
-    (1201, 'wandern',        'Gut'),
-    (1202, 'wandern',        'Begehbar'),
-    (1203, 'wandern',        'Geschlossen'),
-    (1204, 'wandern',        'Saisonschluss');
 
 
 -- ============================================================
@@ -236,7 +174,7 @@ CREATE TABLE winterwandern (
 );
 
 
--- Hier Werte die im frontend dann nicht verwendet werden löschen umd die Datenbank schlank zu halten.
+-- Wetter pro Stunde
 CREATE TABLE wetter_skigebiet_h (
     station_id                      INTEGER      REFERENCES skigebiete(station_id),
     zeitpunkt                       TIMESTAMPTZ  NOT NULL,
@@ -259,6 +197,7 @@ CREATE TABLE wetter_skigebiet_h (
     PRIMARY KEY (station_id, zeitpunkt)
 );
 
+-- Wetter pro Tag
 CREATE TABLE wetter_skigebiet_d (
     station_id                     INTEGER      REFERENCES skigebiete(station_id),
     tag                            date NOT NULL,
@@ -282,22 +221,22 @@ CREATE TABLE skigebiet_geom (
 );
 
 CREATE TABLE pisten_geom_multiline (
-    piste_geom_ml_id     	SERIAL      PRIMARY KEY,
-    station_id           	INTEGER     REFERENCES skigebiete(station_id),
-    geom                    			GEOMETRY(MultiLineString, 4326),
-    farbe                            	VARCHAR(20)
+    piste_geom_ml_id     SERIAL      PRIMARY KEY,
+    station_id           INTEGER     REFERENCES skigebiete(station_id),
+    geom                 GEOMETRY(MultiLineString, 4326),
+    farbe                VARCHAR(20)
 );
 
 CREATE TABLE pisten_geom_multipolygon (
-    piste_geom_mp_id    	SERIAL      PRIMARY KEY,
-    station_id        		INTEGER     REFERENCES skigebiete(station_id),
-    geom		                        GEOMETRY(MultiPolygon, 4326),
-    farbe                            	VARCHAR(20)
+    piste_geom_mp_id    SERIAL      PRIMARY KEY,
+    station_id          INTEGER     REFERENCES skigebiete(station_id),
+    geom                GEOMETRY(MultiPolygon, 4326),
+    farbe               VARCHAR(20)
 );
 
 
 -- ============================================================
---  INDIZES (diese sind zwingend nötig um den VIEW performant zu machen.
+--  INDIZES (zwingend nötig, damit der View performant bleibt)
 -- ============================================================
 
 CREATE INDEX ON pisten        (station_id);
@@ -324,20 +263,22 @@ CREATE INDEX ON winterwandern (status_id);
 
 -- ============================================================
 --  VIEW: skigebiete_kennzahlen
--- Problematik: API liefert zum einen aggregierte Kennzahlen auf den Stationen,
--- zum anderen Detaildaten wie einzelne Pisten und Lifte die mit den Stationen verknüpft sind.
--- Es gibt aber keine Garantie, dass die API-Aggregate immer gepflegt sind, oder dass es immer Detaildaten gibt.
--- Deshlab ist ein Fallback nötig, um fehlende aggregatsdaten selber aus den Detaildaten zu berechnen. 
---Es gibt aber auch Fälle, wo weder Aggregat- noch Detaildaten vorhanden sind.
 --
---  Priorität je Kennzahl:
+-- Problematik: Die API liefert sowohl aggregierte Kennzahlen pro Station
+-- als auch Detaildaten (einzelne Pisten / Lifte), die mit den Stationen
+-- verknüpft sind. Es gibt aber keine Garantie, dass die API-Aggregate
+-- gepflegt sind, oder dass es überhaupt Detaildaten gibt. Deshalb ein
+-- Fallback, der fehlende Aggregate selber aus den Detaildaten berechnet.
+-- Es gibt aber auch Fälle, wo weder Aggregat- noch Detaildaten da sind.
+--
+-- Priorität je Kennzahl:
 --    1. api_agg IS NOT NULL  →  api_agg            (quelle = 'api_agg')
---    2. api_agg IS NULL, Detail vorhanden           (quelle = 'detail_aggregiert')
---    3. Beides fehlt         →  NULL               (quelle = 'keine_daten')
+--    2. api_agg IS NULL, Detail vorhanden          (quelle = 'detail_aggregiert')
+--    3. Beides fehlt          →  NULL              (quelle = 'keine_daten')
 --
---  Lifte: immer api_agg (kein Detailarray in der API).
---  Pistenfarben / Loipenanzahl: immer aus Detail, da api_agg
---  diese Aufschlüsselung nicht enthält.
+-- Lifte: immer api_agg (kein Detailarray in der API).
+-- Pistenfarben / Loipenanzahl: immer aus Detail, da api_agg
+-- diese Aufschlüsselung nicht enthält.
 -- ============================================================
 CREATE VIEW skigebiete_kennzahlen AS
 WITH
