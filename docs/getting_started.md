@@ -35,9 +35,10 @@ Die Anleitung gliedert sich in fünf Abschnitte:
 
 1. [System vorbereiten](#1-system-vorbereiten)
 2. [Datenbank aufsetzen](#2-datenbank-aufsetzen)
-3. [Backend installieren](#3-backend-installieren)
-4. [Frontend installieren](#4-frontend-installieren)
-5. [Cronjobs für laufende Daten](#5-cronjobs-für-laufende-daten)
+3. [Geoserver aufsetzen](#3-geoserver-aufsetzen)
+4. [Backend installieren](#3-backend-installieren)
+5. [Frontend installieren](#4-frontend-installieren)
+6. [Cronjobs für laufende Daten](#5-cronjobs-für-laufende-daten)
 
 ---
 
@@ -128,7 +129,74 @@ Wenn eine Zahl > 0 zurückkommt, ist die DB bereit.
 
 ## 3. Geoserver aufsetzen
 
-Todo
+### Java installieren
+
+GeoServer benötigt Java. Prüfen ob bereits vorhanden:
+
+    java -version
+
+Falls nicht:
+
+    sudo apt -y install default-jre
+
+### GeoServer installieren
+
+    wget https://sourceforge.net/projects/geoserver/files/GeoServer/2.26.2/geoserver-2.26.2-bin.zip
+    sudo unzip geoserver-2.26.2-bin.zip -d /usr/share/geoserver
+    cd /usr/share/geoserver/
+    sudo chmod 777 data_dir
+    echo "export GEOSERVER_HOME=/usr/share/geoserver" >> ~/.profile
+    . ~/.profile
+    sudo chown -R gisadmin /usr/share/geoserver/
+
+### Vector Tiles Extension installieren
+
+    cp ~/skiscope/SkiScope/geoserver/vectortiles-extension/*.jar \
+      /usr/share/geoserver/webapps/geoserver/WEB-INF/lib/
+
+### CORS aktivieren
+
+    sudo nano /usr/share/geoserver/webapps/geoserver/WEB-INF/web.xml
+
+Den auskommentierten CORS-Filter-Block einkommentieren (suche nach `cross-origin`).
+Sicherstellen dass folgender Wert gesetzt ist:
+
+    <param-name>allowedOrigins</param-name>
+    <param-value>*</param-value>
+
+Datei speichern mit `CTRL+O`, beenden mit `CTRL+X`.
+
+### data_dir einspielen
+
+Anstatt alle Layer manuell zu konfigurieren, wird der vorkonfigurierte
+`data_dir` aus dem Repo verwendet:
+
+    rm -rf /usr/share/geoserver/data_dir
+    unzip ~/skiscope/SkiScope/geoserver/geoserver_data_dir.zip \
+      -d /usr/share/geoserver/
+
+Datenbankverbindung anpassen:
+
+    nano /usr/share/geoserver/data_dir/workspaces/skiscope/PostGIS/datastore.xml
+
+Die folgenden Werte eintragen:
+
+    <string key="host">localhost</string>
+    <string key="port">5432</string>
+    <string key="database">skiscope</string>
+    <string key="user">skiscopeadm</string>
+    <string key="passwd">dein_pw</string>
+
+### GeoServer starten
+
+    cd /usr/share/geoserver/bin
+    sudo sh startup.sh
+
+Im Browser prüfen:
+
+    http://<pi-hostname-oder-ip>:8080/geoserver/web
+
+Login: `admin / geoserver` — **Passwort nach erstem Login ändern.**
 
 ## 4. Backend installieren
 
