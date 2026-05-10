@@ -172,12 +172,12 @@ Anstatt alle Layer manuell zu konfigurieren, wird der vorkonfigurierte
 `data_dir` aus dem Repo verwendet:
 
     rm -rf /usr/share/geoserver/data_dir
-    unzip ~/skiscope/SkiScope/geoserver/geoserver_data_dir.zip \
+    unzip ~/skiscope/SkiScope/geoserver/data_dir.zip \
       -d /usr/share/geoserver/
 
 Datenbankverbindung anpassen:
 
-    nano /usr/share/geoserver/data_dir/workspaces/skiscope/PostGIS/datastore.xml
+    nano /usr/share/geoserver/data_dir/workspaces/skiscope/DB_skiscope/datastore.xml
 
 Die folgenden Werte eintragen:
 
