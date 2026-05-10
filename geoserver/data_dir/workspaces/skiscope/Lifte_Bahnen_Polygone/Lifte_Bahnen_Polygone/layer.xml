@@ -1,0 +1,16 @@
+<layer>
+  <name>Lifte_Bahnen_Polygone</name>
+  <id>LayerInfoImpl--557d8464:19d77f29a3c:-7b9b</id>
+  <type>VECTOR</type>
+  <defaultStyle>
+    <id>StyleInfoImpl--570ae188:124761b8d78:-7fe0</id>
+  </defaultStyle>
+  <resource class="featureType">
+    <id>FeatureTypeInfoImpl--557d8464:19d77f29a3c:-7b9c</id>
+  </resource>
+  <attribution>
+    <logoWidth>0</logoWidth>
+    <logoHeight>0</logoHeight>
+  </attribution>
+  <dateCreated>2026-04-10 15:27:16.386 UTC</dateCreated>
+</layer>

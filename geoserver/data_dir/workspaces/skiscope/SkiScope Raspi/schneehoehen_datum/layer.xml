@@ -1,0 +1,16 @@
+<layer>
+  <name>schneehoehen_datum</name>
+  <id>LayerInfoImpl--26159a76:19d63569724:-7fff</id>
+  <type>VECTOR</type>
+  <defaultStyle>
+    <id>StyleInfoImpl--570ae188:124761b8d78:-7fe0</id>
+  </defaultStyle>
+  <resource class="featureType">
+    <id>FeatureTypeInfoImpl--26159a76:19d63569724:-8000</id>
+  </resource>
+  <attribution>
+    <logoWidth>0</logoWidth>
+    <logoHeight>0</logoHeight>
+  </attribution>
+  <dateCreated>2026-04-06 15:08:32.472 UTC</dateCreated>
+</layer>
