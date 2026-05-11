@@ -31,7 +31,7 @@ inklusive Temperatur, Windgeschwindigkeit und Schneehöhe.
 Die Sichtbarkeit der Layer passt sich ausserdem automatisch dem Zoom-Level an.
 {% include_relative 04_layersteuerung.md %}
 
-## Nice to know {#nice to know}
+## Nice to know {#nice-to-know}
 
 ### 🐿️ Easter Nut — Scrat
 
