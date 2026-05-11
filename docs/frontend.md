@@ -18,9 +18,13 @@ Der Ordner src/ bildet den zentralen Bestandsteiil der Anwendung und enthält de
 
 Im Folgenden werden die im Ordner src/ enthaltenen Konfigurationsdateien (.js), React-Komponenten (.jsx) sowie die zugehörigen Stylesheets (.css) vorgestellt.
 
+---
+
 ### Konfigurationsdateien (.js)
 
 Die Dateien `client/src/config.js` und `client/src/mapConfig.js` enthalten zentrale Konfigurationsparameter sowie Hilfsfunktionen der Anwendung. Dazu gehören insbesondere API- und GeoServer-URLs, Kartenstile, Wetterdefinitionen, Kartenbegrenzungen sowie Legenden für die Visualisierung von Schneehöhen. Zusätzlich werden Funktionen wie `geoserverTileUrl()` bereitgestellt, um dynamisch URL-Vorlagen für GeoServer-Vector-Tile-Layer zu erzeugen und diese in der MapLibre-Karte einzubinden.
+
+---
 
 ### React-Komponenten (`.jsx`)
 
@@ -65,6 +69,8 @@ Beim Laden der Komponente wird eine MapLibre-Karte mit swisstopo-Hintergrundkart
 Über GeoServer werden verschiedene Kartenlayer eingebunden, darunter Schneehöhen, Pisten, Lifte und Skigebietspunkte. Die Layer können über ein Bedienfeld ein- und ausgeschaltet werden. Zusätzlich ändert sich die Sichtbarkeit automatisch je nach Zoomstufe: In kleinerem Massstab wird vor allem die Schneekarte gezeigt, bei stärkerem Hineinzoomen werden Pisten und Lifte sichtbar.
 
 Die Karte reagiert auf Benutzerinteraktionen. Bewegt der Benutzer die Maus über ein Skigebiet, wird ein Hover-Popup angezeigt und der Punkt hervorgehoben. Klickt der Benutzer auf ein Skigebiet, wird dieses ausgewählt, die Karte zoomt zum entsprechenden Gebiet, Detaildaten werden über die Backend-API geladen und über die SkigebietPopup.jsx- Komponente dargestellt. Gleichzeitig wird das ausgewählte Skigebiet an die Wetteranzeige weitergegeben.
+
+---
 
 ### Interaktive Elemente
 
