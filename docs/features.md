@@ -31,9 +31,9 @@ inklusive Temperatur, Windgeschwindigkeit und Schneehöhe.
 Die Sichtbarkeit der Layer passt sich ausserdem automatisch dem Zoom-Level an.
 {% include_relative 04_layersteuerung.md %}
 
-## Nice to know
+## Nice to know {#nice to know}
 
-### 🐿️ Easter Egg — Scrat
+### 🐿️ Easter Nut — Scrat
 
 Wer die Karte in den 3D-Modus kippt (Pitch > 10°),
 wird von einem besonderen Gast begrüsst:
