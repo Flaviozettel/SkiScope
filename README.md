@@ -2,7 +2,7 @@
 
 Webanwendung für die Planung von Wintersportausflügen in Schweizer Skigebieten. Zeigt aktuelle Schneehöhen, Pisten-/Liftstatus und Wetterprognosen für nahezu alle Skigebiete der Schweiz auf einer interaktiven Karte.
 
-Entwickelt im Rahmen des Moduls **4230 Geoinformatik und Raumanalyse (FHNW)** von *Schiefermüller, Hubler und Zettel* als Geodateninfrastruktur (GDI).
+Entwickelt im Rahmen des Moduls **4230 Geoinformatik und Raumanalyse (FHNW)** von _Schiefermüller, Hubler und Zettel_ als Geodateninfrastruktur (GDI).
 
 **Dokumentation (GitHub Pages):** <https://314a.github.io/GDI_Project/>
 
@@ -16,7 +16,7 @@ Entwickelt im Rahmen des Moduls **4230 Geoinformatik und Raumanalyse (FHNW)** vo
 - **Geodaten-Dienst:** GeoServer (Vector Tiles / MVT)
 - **Hosting:** Raspberry Pi
 
-Vollständige Auflistung: siehe [Libraries and Technologies](https://314a.github.io/GDI_Project/libraries_and_technologies.html) auf der GitHub Page.
+Vollständige Auflistung: siehe [Libraries and Technologies](https://flaviozettel.github.io/SkiScope/getting_started.html) auf der GitHub Page.
 
 ---
 
