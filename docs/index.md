@@ -3,21 +3,11 @@ layout: default
 title: Home
 ---
 
-# Dein Weg zum perfekten Skigebiet
+# Dein Weg zum perfekten Ski-Erlebnis
 
-GitHub Repository: <https://github.com/Flaviozettel/SkiScope>
+Skiscope ist eine Webanwendung mit dem Ziel die Planung Deiner Skitage zu erleichern. Mit aktuellen Informationen zu geöffneten Skigebieten, Pisten und Schneeverhältnissen bietet es eine hervorragende Übersicht über das Wintersportangebot der Schweiz. Egal ob Du auf der suche nach einem neuen Lieblingsskigebiet bist, oder nur wissen willst, ob auf der Thalabfahrt Schnee liegt. Alle nötigen Informationen findest du auf Skiscope.
 
-Mit dieser Anwendung
-
-<!-- Überarbeiten und nicht mit "im Rahmen... starten". Z.B. Mit Mit dieser Anwendung  -->
-
-Im Rahmen des Moduls 4230 Geoinformatik und Raumanalyse sollte durch die Studierenden eine Geodateninfrastruktur (GDI) als Webanwendung mit unterschiedlichen Funktionalitäten aufgebaut werden.
-
-Die Gruppe Schiefermüller, Hubler und Zettel entwickelte im Rahmen dieses Projekts die GDI SkiScope, eine Webanwendung, die Wintersportfans bei der Planung ihrer Ausflüge in Schweizer Skigebiete unterstützt.
-
-SkiScope umfasst nahezu alle Skigebiete der Schweiz und stellt umfassende Informationen zu Pisten, Wetterbedingungen und Schneelage in den jeweiligen Gebieten bereit.
-
-Mit dieser GitHub Page erfährst du, wie die Anwendung gestartet wird, welche Funktionen sie bietet und wie sie strukturell aufgebaut ist.
+Finde auf der [Feature Seite](features.html) heraus, was SkiScope alles kann!
 
 <figure class="image-container">
   <img src="screenshot.png" alt="SkiScope Übersicht" class="image">
@@ -29,4 +19,4 @@ Mit dieser GitHub Page erfährst du, wie die Anwendung gestartet wird, welche Fu
 
 #### Quellen
 
-GitHub Repository: https://github.com/314a/GDI_Project
+GitHub Repository: https://github.com/Flaviozettel/SkiScope

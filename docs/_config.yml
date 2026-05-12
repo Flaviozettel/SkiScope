@@ -20,7 +20,7 @@ navbar:
       - title: Shortcut maximale Schneehöhe
         url: /features.html#shortcut_maximale_schneehöhe
       - title: Mehr
-        url: /features.html#mehr
+        url: /features.html#nice_to_know
 
   - title: Architektur GDI
     url: /frontend.html
