@@ -1,6 +1,0 @@
-#featuretable {
-  display: flex;
-  flex-flow: column wrap;
-  flex: 0 1 600px;
-  overflow: auto;
-}
