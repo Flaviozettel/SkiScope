@@ -5,7 +5,7 @@ title: Home
 
 # Dein Weg zum perfekten Skigebiet
 
-GitHub Repository: (https://github.com/Flaviozettel/SkiScope)
+GitHub Repository: <https://github.com/Flaviozettel/SkiScope>
 
 Mit dieser Anwendung
 

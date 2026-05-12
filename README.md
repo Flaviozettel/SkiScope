@@ -4,7 +4,7 @@ Webanwendung für die Planung von Wintersportausflügen in Schweizer Skigebieten
 
 Entwickelt im Rahmen des Moduls **4230 Geoinformatik und Raumanalyse (FHNW)** von _Schiefermüller, Hubler und Zettel_ als Geodateninfrastruktur (GDI).
 
-**Dokumentation (GitHub Pages):** <https://314a.github.io/GDI_Project/>
+**Dokumentation (GitHub Pages):** <https://flaviozettel.github.io/SkiScope/>
 
 ---
 
