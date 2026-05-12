@@ -17,8 +17,10 @@ navbar:
         url: //features.html#03_wetterdaten
       - title: Layersteuerung
         url: //features.html#04_layersteuerung
-      - title: Mehr
-        url: //features.html#05_mehr
+      - title: Shortcut Maximale Schneehöhe
+        url: //features.html#05_shortcut_maximale_schneehöhe
+      - title: Nice to know
+        url: //features.html#06_nice_to_know
 
   - title: Architektur GDI
     url: /frontend.html
