@@ -1,71 +1,75 @@
-# GDI_Project
-Server Client Projekt für eine Geodateninfrastruktur Webportal im Rahmen des Moduls 4230
+# SkiScope
 
-- **Frontend:** React.js, OpenLayers und MUI
-- **Backend:** FastAPI, GeoServer
+Webanwendung für die Planung von Wintersportausflügen in Schweizer Skigebieten. Zeigt aktuelle Schneehöhen, Pisten-/Liftstatus und Wetterprognosen für nahezu alle Skigebiete der Schweiz auf einer interaktiven Karte.
 
-GitHub Pages: https://314a.github.io/GDI_Project/
+Entwickelt im Rahmen des Moduls **4230 Geoinformatik und Raumanalyse (FHNW)** von *Schiefermüller, Hubler und Zettel* als Geodateninfrastruktur (GDI).
 
-Getestet mit Node version 22.14.0, openlayers 9.1.0, maplibre 5.1.0, react 18.3.1
+**Dokumentation (GitHub Pages):** <https://314a.github.io/GDI_Project/>
 
-Vergleich von Mapping Libraries, siehe: [client/map_libraries_comparisons.md](client/map_libraries_comparisons.md)
+---
 
-## Requirements
+## Tech-Stack
 
-- [Git](https://git-scm.com/)
-- IDE wie [Visual Studio Code](https://code.visualstudio.com/) 
-- [Anaconda Distribution](https://www.anaconda.com/products/distribution) oder [Miniconda](https://docs.conda.io/en/latest/miniconda.html)
-- Node.js und npm ([https://docs.npmjs.com/downloading-and-installing-node-js-and-npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)) 
+- **Frontend:** React, Vite, MapLibre GL JS, Recharts
+- **Backend:** FastAPI (Python), psycopg2
+- **Datenhaltung:** PostgreSQL mit PostGIS
+- **Geodaten-Dienst:** GeoServer (Vector Tiles / MVT)
+- **Hosting:** Raspberry Pi
 
-## Repository lokal klonen
-Mit Git in einem Terminal das GitHub Repository *Geoharvester* in ein lokales Verzeichnis klonen.
+Vollständige Auflistung: siehe [Libraries and Technologies](https://314a.github.io/GDI_Project/libraries_and_technologies.html) auf der GitHub Page.
 
-``` shell
-cd /path/to/workspace
-# Clone Repository 
-git clone https://github.com/314a/GDI_Project.git
+---
+
+## Repository klonen
+
+```bash
+git clone https://github.com/314a/GDI_Project.git SkiScope
+cd SkiScope
 ```
 
-### Git Projekt mit Visual Studio Code lokal klonen
-Öffne ein neues Visual Studio Code Fenster und wähle unter Start *Clone Git Repository*. Alternativ öffne die Command Palette in VS Code `CTRL+Shift+P` (*View / Command Palette*) und wähle `Git: clone`. 
-Füge die Git web URL `https://github.com/314a/GDI_Project.git` ein und bestätige die Eingabe mit Enter. Wähle einen Ordner in welchen das Repository *geklont* werden soll.
+## Quick Start (lokal)
 
-## Frontend installieren
-Öffne ein Terminal (Command Prompt in VS Code) und wechsle in den *client* Ordner in diesem Projekt
+> Vollständige Anleitung inkl. Datenbank, GeoServer-Setup und Cronjobs auf einem Raspberry Pi: siehe **[Getting Started](https://314a.github.io/GDI_Project/getting_started.html)** auf der GitHub Page.
 
-``` shell
+**Frontend**
+
+```bash
 cd client
-# aktiviere node.js (falls nvm genutzt wird) 
-# nvm use 22.14.0
-# install all the node.js dependencies
 npm install
-# node Projekt ausführen
-# npm run dev ist in package.json definiert
 npm run dev
 ```
 
-## Backend installieren
-Öffne ein Terminal und wechsle in den *server* Ordner.
-1. Virtuelle Umgebung für Python mit allen Requirements in der `requirements.txt` Datei aufsetzen.
+**Backend**
 
-```shell
-# Requirements
+```bash
 cd server
-# Füge conda-forge den als Channel in conda hinzu, da sonst nicht alle Pakete installiert werden können.
-conda config --add channels conda-forge
-# Erstelle ein neues Conda Environment und füge die Python Packges requirements.txt hinzu, requirements.txt befindet sich im Ordner server/app
-conda create --name gdiproject python=3.10.9 --file app/requirements.txt
-```
-
-2. Backend ausführen, virtuelle Umgebung starten und server *uvicorn* starten. Öffne http://localhost:8000/docs im Browser und verifiziere, ob das Backend läuft.
-``` shell
-cd server
-# aktiviere die conda umgebung gdiproject
-conda activate gdiproject
-# start server auf localhost aus dem Ordner "server"
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r app/requirements.txt
 uvicorn app.main:app --reload
-# Öffne die angegebene URL im Browser und verifiziere, ob das Backend läuft.
 ```
 
-## API Dokumentation
-Fast API kommt mit vorinstallierter Swagger UI. Wenn der Fast API Backen Server läuft, kann auf die Dokumentation der API über Swagger UI auf http://localhost:8000/docs verfügbar.
+API-Dokumentation (Swagger UI): <http://localhost:8000/docs>
+
+Voraussetzungen für den Quick Start: Node.js ≥ 22, Python ≥ 3.10, eine erreichbare PostgreSQL-/PostGIS-Instanz sowie eine `.env`-Datei mit DB-Zugangsdaten (Details siehe Getting Started).
+
+---
+
+## Repository-Struktur
+
+```
+SkiScope/
+├── client/          React-/Vite-Frontend (MapLibre)
+├── server/
+│   ├── app/         FastAPI-Backend
+│   └── database/    SQL-Schema + Init-Skripte
+├── geoserver/       GeoServer data_dir + Vector-Tiles-Extension
+├── preprocessing/   Cron-Skripte für laufende Datenimporte
+└── docs/            GitHub-Pages-Quellen (Jekyll)
+```
+
+---
+
+## Vergleich Mapping-Libraries
+
+Eine Gegenüberstellung von MapLibre und OpenLayers, die der Wahl von MapLibre zugrunde lag, findet sich in [client/map_libraries_comparisons.md](client/map_libraries_comparisons.md).
