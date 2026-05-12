@@ -3,9 +3,13 @@ layout: default
 title: Home
 ---
 
-# Projektarbeit Modul Geoinformatik und Raumanalyse 
+# Dein Weg zum perfekten Skigebiet
 
-Im Rahmen des Moduls 4230 Geoinformatik und Raumanalyse sollte durch die Studierenden eine Geodateninfrastruktur (GDI) als Webanwendung mit unterschiedlichen Funktionalitäten aufgebaut werden. 
+Mit dieser Anwendung
+
+<!-- Überarbeiten und nicht mit "im Rahmen... starten". Z.B. Mit Mit dieser Anwendung  -->
+
+Im Rahmen des Moduls 4230 Geoinformatik und Raumanalyse sollte durch die Studierenden eine Geodateninfrastruktur (GDI) als Webanwendung mit unterschiedlichen Funktionalitäten aufgebaut werden.
 
 Die Gruppe Schiefermüller, Hubler und Zettel entwickelte im Rahmen dieses Projekts die GDI SkiScope, eine Webanwendung, die Wintersportfans bei der Planung ihrer Ausflüge in Schweizer Skigebiete unterstützt.
 
@@ -21,9 +25,6 @@ Mit dieser GitHub Page erfährst du, wie die Anwendung gestartet wird, welche Fu
   </figcaption>
 </figure>
 
-
 #### Quellen
 
 GitHub Repository: https://github.com/314a/GDI_Project
-
-

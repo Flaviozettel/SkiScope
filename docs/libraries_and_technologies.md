@@ -12,7 +12,6 @@ title: Libraries and Technologies
 - **MapLibre GL JS** — Ermöglicht die dynamische Darstellung und Interaktion der Webkarte sowie die Einbindung von GeoServer-Layern
 - **react-map-gl** — React-Wrapper für MapLibre GL JS
 - **Recharts** — Darstellung der Wetterdaten als Diagramme
-- **Swisstopo Vector Tiles** — Basiskarte der Schweiz
 
 ## Backend
 
@@ -26,3 +25,4 @@ title: Libraries and Technologies
 - **MeteoSchweiz** — Wetterdaten und Schneehöhen
 - **OpenStreetMap** — Geodaten für Pisten und Liftanlagen
 - **Schweiz Tourismus** — Daten zu Skigebieten
+- **Swisstopo Vector Tiles** — Basiskarte der Schweiz
