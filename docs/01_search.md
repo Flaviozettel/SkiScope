@@ -1,11 +1,9 @@
-Jedes Mal,, wenn der Nutzer in das Suchfeld tippt, wird die Funktion 'handleSearch' mit dem akutellen Wert darin aufgerufen. Ein Such-Timer sorgt dafür, dass nicht bei jedem einzelnen Tastendruck eine neue Suche gestartet wird.
+Das Suchfeld ermöglicht eine schnelle und effiziente Suche nach Skigebieten. Dabei muss nicht der vollständige Name eingegeben werden, da bereits einzelne Buchstabenkombinationen mit allen vorhandenen Skigebietnamen verglichen werden. Die Gross- und Kleinschreibung spielt dabei keine Rolle.
 
-Bei der Suche nach dem Skigebiet, werden der Eingabewert, sowie die aus dem Backend empfangneen Skigebietnamen so umgewandelt, dass die Gross-/kleinschreibung ignoriert wird. Heisst, ZERMATT wird zu zermatt.
+Zusätzlich kann die Suche über den Filter Nur geöffnete eingeschränkt werden. Dadurch werden nur Skigebiete angezeigt, bei denen aktuell mindestens ein Lift in Betrieb ist.
 
-Im Anschliessenden Schritt wird geprüft, ob der Suchtext in den angefragten Skigebietnahmen enthalten ist.
+In der Ergebnisliste wird zudem angezeigt, wie viele Lifte im jeweiligen Skigebiet geöffnet sind. Dadurch erhält der Nutzer bereits während der Suche eine erste Einschätzung zum aktuellen Betriebszustand.
 
-Sofern es Skigebitnamen gibt, die den Suchtext enthalten, wird ein Resultat, aber maximal 6 angezeigt.
-
-Nebst der Anzeige der offenen Skilifte im Dropdown, kann optional der Suche die Filterung "nur geöffnete" Lifte darstellen.
+Mit dem "Klick" auf ein Skigebiet aus dem Suchdropdown, wird direkt auf das entsprechende Skigebiet in der MapLibre Karte gesprungen.
 
 <img src="assets/gifs/Search_Skigebiet.gif" alt="" class="gifs">

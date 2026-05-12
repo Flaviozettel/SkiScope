@@ -34,9 +34,18 @@ Die Dateien `client/src/config.js` und `client/src/mapConfig.js` enthalten zentr
 
 Die Header-Komponente bildet den oberen Einstiegsbereich der Anwendung. Sie enthält das SkiScope-Logo, die Suchfunktion für Skigebiete sowie zusätzliche Anzeigeelemente wie die maximale Schneehöhe oder die Logos der Anwendung.
 
-Die wohl wichtigste Funktion des Headers ist die integrierte Suchfunktion. In einem ersten Schritt werden sämtliche Skigebiete automatisch über die Backend-API geladen. Anschliessend werden diese anhand des React-States dynamisch nach Benutzereingabe sowie optional nach dem Betriebsstatus „offen“ gefiltert.
+Die wohl wichtigste Funktion des Headers ist die integrierte Suchfunktion:
+Jedes Mal, wenn der Nutzer in das Suchfeld tippt, wird die Funktion handleSearch mit dem aktuellen Eingabewert aufgerufen. Ein Such-Timer sorgt dafür, dass nicht bei jedem einzelnen Tastendruck sofort eine neue Suche ausgeführt wird.
 
-Dabei werden maximal sechs passende Suchtreffer angezeigt. Wird ein Skigebiet ausgewählt, erfolgt über ein onClick-Event eine Geoserveranfrage, die die entsprechenden Koordinaten des Skigebiets abgreifen, womit ein automatischer Zoom auf die entsprechende Position innerhalb der interaktiven MapLibre-Karte in `client/src/SkiMap.jsx` erfolgen kann.
+Bei der Suche nach einem Skigebiet werden sowohl der Eingabewert als auch die aus dem Backend empfangenen Skigebietnamen in Kleinbuchstaben umgewandelt. Dadurch wird die Gross- und Kleinschreibung ignoriert. Das heisst, ZERMATT wird zu zermatt.
+
+Anschliessend wird geprüft, ob der eingegebene Suchtext in einem der geladenen Skigebietnamen enthalten ist.
+
+Falls passende Skigebietnamen gefunden werden, werden diese als Suchresultate im Dropdown angezeigt. Dabei werden maximal sechs Resultate ausgegeben.
+
+Zusätzlich wird im Dropdown angezeigt, ob ein Skigebiet offene Lifte hat. Über den Filter Nur geöffnete kann die Suche optional auf Skigebiete eingeschränkt werden, bei denen mindestens ein Lift offen ist.
+
+Wird ein Skigebiet ausgewählt, erfolgt über ein onClick-Event eine Geoserveranfrage, die die entsprechenden Koordinaten des Skigebiets abgreifen, womit ein automatischer Zoom auf die entsprechende Position innerhalb der interaktiven MapLibre-Karte in `client/src/SkiMap.jsx` erfolgen kann.
 
 #### Hauptbereich
 
@@ -84,7 +93,15 @@ Falls noch keine Daten geladen sind, zeigt das Popup einen Ladezustand an. Bei f
 
 `client/src/SkigebietDetail.jsx`
 
-SkigebietDetail.jsx zeigt die Detailansicht eines ausgewählten Skigebiets. Die Komponente erhält eine stationId, lädt damit über das Backend die passenden Detaildaten und stellt diese links in einer Info-Card dar. Dazu gehören unter anderem Name, Ort, offene Lifte, Pisten, Schneehöhen, Lifttypen und weitere Winteraktivitäten. Rechts wird zusätzlich eine eigene SkiMap gerendert, die mit der bbox des Skigebiets direkt auf das ausgewählte Gebiet zoomt und die relevanten Kartenlayer aktiviert.
+Die Komponente SkigebietDetail.jsx zeigt eine ausführliche Ansicht zu einem ausgewählten Skigebiet. Sie wird geöffnet, wenn der Nutzer aus dem Popup oder einer anderen Ansicht in die Detailansicht wechselt. Anhand der übergebenen stationId werden die passenden Detailinformationen aus dem Backend geladen.
+
+Die Ansicht ist in zwei Bereiche aufgeteilt. Links befindet sich eine Info-Card mit den wichtigsten Kennzahlen und weiterführenden Informationen zum Skigebiet. Dazu gehören unter anderem die geöffneten Lifte, geöffnete Pisten, die gesamten Pistenkilometer, Schneehöhen im Tal und auf der Piste sowie Angaben zu Neuschnee.
+
+Zusätzlich werden die Pisten nach Schwierigkeit dargestellt. Die blauen, roten und schwarzen Pisten werden in einem Balken zusammengefasst, sodass schnell erkennbar ist, für welche Fahrniveaus das Skigebiet besonders geeignet ist. Auch die verschiedenen Lifttypen wie Seilbahnen, Sesselbahnen, Skilifte oder Babylifte werden als Übersicht angezeigt.
+
+Neben dem klassischen Skibetrieb enthält die Detailansicht auch Informationen zu weiteren Winteraktivitäten. Dazu gehören Langlauf, Schlitteln und Winterwandern, sofern entsprechende Daten vorhanden sind. Über Links kann der Nutzer ausserdem zur Webseite des Skigebiets oder zur Lawinengefahr wechseln.
+
+Rechts wird eine eigene Karte angezeigt, die direkt auf das ausgewählte Skigebiet ausgerichtet ist. Dafür wird die bbox des Skigebiets verwendet. Die relevanten Kartenlayer wie Schnee, Pisten und Lifte sind dabei bereits aktiviert, damit das Gebiet räumlich genauer betrachtet werden kann.
 
 ---
 
