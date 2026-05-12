@@ -6,21 +6,18 @@ navbar:
   - title: Home
     url: /
 
-  - title: Features
     url: /features.html
     children:
       - title: Suche
-        url: /features.html#01_search
+        url: /features.html#suche
       - title: Skigebiet Informationen
-        url: //features.html#02_skigebiet_informationen
+        url: /features.html#skigebiet-informationen
       - title: Wetterdaten
-        url: //features.html#03_wetterdaten
+        url: /features.html#wetterdaten
       - title: Layersteuerung
-        url: //features.html#04_layersteuerung
-      - title: Shortcut Maximale Schneehöhe
-        url: //features.html#05_shortcut_maximale_schneehöhe
-      - title: Nice to know
-        url: //features.html#06_nice_to_know
+        url: /features.html#layersteuerung
+      - title: Mehr
+        url: /features.html#mehr
 
   - title: Architektur GDI
     url: /frontend.html
