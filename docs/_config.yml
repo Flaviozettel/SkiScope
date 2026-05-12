@@ -6,7 +6,6 @@ navbar:
   - title: Home
     url: /
 
-
   - title: Features
     url: /features.html
     children:
@@ -34,4 +33,4 @@ navbar:
         url: /libraries_and_technologies.html
 
   - title: Getting Started
-      url: /getting_started.html
+    url: /getting_started.html
