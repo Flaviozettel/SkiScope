@@ -10,16 +10,20 @@
 --  (GeoServer, FastAPI-Backend, Schema-Änderungen): skiscopeadm.
 -- ============================================================
 
--- Rolle idempotent anlegen (kein Fehler bei Re-Run, Passwort wird aktualisiert)
-DO $$
-BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'skiscopeadm') THEN
-        CREATE ROLE skiscopeadm LOGIN PASSWORD :'adm_pw';
-    ELSE
-        EXECUTE format('ALTER ROLE skiscopeadm WITH LOGIN PASSWORD %L', :'adm_pw');
-    END IF;
-END
-$$;
+-- Rolle idempotent anlegen bzw. Passwort aktualisieren.
+-- WICHTIG: Wir verwenden hier KEIN DO $$ ... $$, weil psql-Variablen
+-- (:'adm_pw') innerhalb von Dollar-Quotes nicht substituiert werden.
+-- Stattdessen \gexec: das SELECT baut den fertigen SQL-Befehl als
+-- String zusammen (mit korrekt gequotetem Passwort via %L) und \gexec
+-- führt das Ergebnis als nächste Anweisung aus.
+
+SELECT format('CREATE ROLE skiscopeadm LOGIN PASSWORD %L', :'adm_pw')
+WHERE NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'skiscopeadm')
+\gexec
+
+SELECT format('ALTER ROLE skiscopeadm WITH LOGIN PASSWORD %L', :'adm_pw')
+WHERE EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'skiscopeadm')
+\gexec
 
 -- Datenbank anlegen, falls noch nicht vorhanden.
 -- (CREATE DATABASE darf nicht in einer Transaktion laufen, deshalb \gexec)
