@@ -99,8 +99,10 @@ einfach unter `sudo -u postgres`.
 ```bash
 cd ~/skiscope/SkiScope/server/database
 chmod +x init.sh
-ADM_PW='dein_pw' sudo -u postgres ./init.sh
+sudo -u postgres ADM_PW='dein_pw' ./init.sh
 ```
+
+> `sudo` filtert Umgebungsvariablen standardmässig aus dem Aufruf, deshalb muss `ADM_PW` **nach** dem `-u postgres` gesetzt werden — sonst bricht das Skript mit `bitte ADM_PW setzen` ab.
 
 Das Skript legt Rolle `skiscopeadm` und die Datenbank `skiscope` an. Weiter werden PostGIS-Extension,
 alle Tabellen, Indizes, Views und die Lookup-Daten angelegt.
