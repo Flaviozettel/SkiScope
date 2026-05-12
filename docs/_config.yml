@@ -6,6 +6,7 @@ navbar:
   - title: Home
     url: /
 
+  - title: Features
     url: /features.html
     children:
       - title: Suche
@@ -16,6 +17,8 @@ navbar:
         url: /features.html#wetterdaten
       - title: Layersteuerung
         url: /features.html#layersteuerung
+      - title: Shortcut maximale Schneehöhe
+        url: /features.html#shortcut_maximale_schneehöhe
       - title: Mehr
         url: /features.html#mehr
 
@@ -23,13 +26,13 @@ navbar:
     url: /frontend.html
     children:
       - title: Client
-        url: /frontend.html
+        url: /frontend.html#client
       - title: Server
-        url: /backend.html
+        url: /backend.html#server
       - title: APIs and Interfaces
-        url: /api_and_interfaces.html
+        url: /api_and_interfaces.html#api_and_interfaces
       - title: Libraries and Technologies
-        url: /libraries_and_technologies.html
+        url: /libraries_and_technologies.html#libraries_and_technologies
 
   - title: Getting Started
     url: /getting_started.html
