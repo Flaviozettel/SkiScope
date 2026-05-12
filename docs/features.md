@@ -31,7 +31,7 @@ SkiScope bietet mehrere Funktionsbereiche, die in den folgenden Kapiteln beschri
 
 ---
 
-## Shortcut maximale Schneehöhe {shortcut_maximale_schneehoehe}
+## Shortcut maximale Schneehöhe {#shortcut_maximale_schneehoehe}
 
 {% include_relative 05_shortcut_maximale_schneehoehe.md %}
 

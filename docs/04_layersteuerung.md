@@ -1,8 +1,3 @@
----
-layout: default
-title: Layersteuerung
----
-
 ### Layersteuerung
 
 Die Karte von SkiScope bündelt mehrere thematische Layer: die schweizweite **Schneehöhenkarte** sowie die **Pisten** und **Lifte** der einzelnen Skigebiete. Damit die Karte auf jeder Zoomstufe lesbar bleibt, kombiniert SkiScope eine automatische Layer-Steuerung mit einer manuellen Bedienleiste.

@@ -1,8 +1,3 @@
----
-layout: default
-title: Suche
----
-
 ### Suche
 
 Das Suchfeld ermöglicht eine schnelle und effiziente Suche nach Skigebieten. Dabei muss nicht der vollständige Name eingegeben werden, da bereits einzelne Buchstabenkombinationen mit allen vorhandenen Skigebietnamen verglichen werden. Die Gross- und Kleinschreibung spielt dabei keine Rolle.

@@ -19,7 +19,7 @@ navbar:
         url: /features.html#layersteuerung
       - title: Shortcut maximale Schneehöhe
         url: /features.html#shortcut_maximale_schneehoehe
-      - title: Mehr
+      - title: Nice to know
         url: /features.html#nice_to_know
 
   - title: Architektur GDI

@@ -1,8 +1,3 @@
----
-layout: default
-title: Skigebiet Informationen
----
-
 ### Skigebiet Informationen
 
 #### Popup Informationen
