@@ -62,7 +62,7 @@ export const Header = ({ mapRef, topSchnee }) => {
     if (!map) return;
 
     try {
-      const url = `${GEOSERVER_WFS}&CQL_FILTER=neuneuneu_station_id=${skigebiet.station_id}&SRSNAME=EPSG:4326`;
+      const url = `${GEOSERVER_WFS}&CQL_FILTER=station_id=${skigebiet.station_id}&SRSNAME=EPSG:4326`;
       const res = await fetch(url);
       const data = await res.json();
       const coords = data.features?.[0]?.geometry?.coordinates;
@@ -77,7 +77,7 @@ export const Header = ({ mapRef, topSchnee }) => {
   const handleSnowBadgeClick = async () => {
     if (!topSchnee?.station_id) return;
     try {
-      const url = `${GEOSERVER_WFS}&CQL_FILTER=neuneuneu_station_id=${topSchnee.station_id}&SRSNAME=EPSG:4326`;
+      const url = `${GEOSERVER_WFS}&CQL_FILTER=station_id=${topSchnee.station_id}&SRSNAME=EPSG:4326`;
       const res = await fetch(url);
       const data = await res.json();
       const coords = data.features?.[0]?.geometry?.coordinates;
