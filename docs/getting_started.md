@@ -83,7 +83,7 @@ Ergebnis: PostgreSQL läuft, Port 5432 ist offen.
 ```bash
 mkdir -p ~/skiscope
 cd ~/skiscope
-git clone https://github.com/314a/GDI_Project.git SkiScope
+git clone https://github.com/flaviozettel/SkiScope.git SkiScope
 ```
 
 Das Repo liegt jetzt unter `~/skiscope/SkiScope/`.
