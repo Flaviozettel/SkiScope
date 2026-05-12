@@ -5,9 +5,7 @@ title: Getting Started
 
 # Getting Started
 
-Diese Anleitung beschreibt, wie SkiScope auf einem \*\*frisch aufgesetzten
-Raspberry Pi mit Raspberry Pi OS
-komplett von Null aufgesetzt wird.
+Diese Anleitung beschreibt, wie SkiScope auf einem **frisch aufgesetzten Raspberry Pi mit Raspberry Pi OS** komplett von Null aufgesetzt wird.
 
 ## Verzeichnisstruktur
 
@@ -31,14 +29,14 @@ werden.
 > User benutzt, musst du den Pfad an mehreren Stellen anpassen — siehe
 > Kasten weiter unten zum Thema _hartkodierter `.env`-Pfad_.
 
-Die Anleitung gliedert sich in fünf Abschnitte:
+Die Anleitung gliedert sich in sechs Abschnitte:
 
 1. [System vorbereiten](#1-system-vorbereiten)
 2. [Datenbank aufsetzen](#2-datenbank-aufsetzen)
 3. [Geoserver aufsetzen](#3-geoserver-aufsetzen)
-4. [Backend installieren](#3-backend-installieren)
-5. [Frontend installieren](#4-frontend-installieren)
-6. [Cronjobs für laufende Daten](#5-cronjobs-für-laufende-daten)
+4. [Backend installieren](#4-backend-installieren)
+5. [Frontend installieren](#5-frontend-installieren)
+6. [Cronjobs für laufende Daten](#6-cronjobs-für-laufende-daten)
 
 ---
 
@@ -215,9 +213,6 @@ DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=skiscope
 DB_USER=skiscopeadm
-DB_PASSWORD=dein_pw
-
-# Wird zusätzlich von den Preprocessing-Skripten erwartet (gleiche Rolle):
 DB_PASS=dein_pw
 
 # Für den STnet-Cronjob:
@@ -228,6 +223,8 @@ EOF
 
 chmod 600 ~/skiscope/.env
 ```
+
+> Backend und Preprocessing lesen das DB-Passwort beide aus der Variable `DB_PASS`.
 
 ### Virtuelle Python-Umgebung
 
@@ -305,11 +302,7 @@ npm run dev -- --host
 http://<pi-hostname-oder-ip>:5173
 ```
 
-### Für Produktion bauen
-
-falls Zeit bleibt
-
-## 5. Cronjobs für laufende Daten
+## 6. Cronjobs für laufende Daten
 
 Die statischen Geometrien sind fertig — die **dynamischen** Daten
 (Schneehöhen, Pisten- und Liftstati, Wetter) müssen regelmässig nachgezogen
