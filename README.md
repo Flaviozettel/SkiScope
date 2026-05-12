@@ -67,9 +67,3 @@ SkiScope/
 ├── preprocessing/   Cron-Skripte für laufende Datenimporte
 └── docs/            GitHub-Pages-Quellen (Jekyll)
 ```
-
----
-
-## Vergleich Mapping-Libraries
-
-Eine Gegenüberstellung von MapLibre und OpenLayers, die der Wahl von MapLibre zugrunde lag, findet sich in [client/map_libraries_comparisons.md](client/map_libraries_comparisons.md).
