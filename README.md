@@ -16,7 +16,7 @@ Entwickelt im Rahmen des Moduls **4230 Geoinformatik und Raumanalyse (FHNW)** vo
 - **Geodaten-Dienst:** GeoServer (Vector Tiles / MVT)
 - **Hosting:** Raspberry Pi
 
-Vollständige Auflistung: siehe [Libraries and Technologies](https://flaviozettel.github.io/SkiScope/getting_started.html) auf der GitHub Page.
+Vollständige Auflistung: siehe [Libraries and Technologies](https://flaviozettel.github.io/SkiScope/libraries_and_technologies.html) auf der GitHub Page.
 
 ---
 
@@ -29,7 +29,7 @@ cd SkiScope
 
 ## Quick Start (lokal)
 
-> Vollständige Anleitung inkl. Datenbank, GeoServer-Setup und Cronjobs auf einem Raspberry Pi: siehe **[Getting Started](https://314a.github.io/GDI_Project/getting_started.html)** auf der GitHub Page.
+> Vollständige Anleitung inkl. Datenbank, GeoServer-Setup und Cronjobs auf einem Raspberry Pi: siehe **[Getting Started](https://flaviozettel.github.io/SkiScope/getting_started.html)** auf der GitHub Page.
 
 **Frontend**
 
