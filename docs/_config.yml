@@ -23,14 +23,14 @@ navbar:
       - title: Nice to know
         url: /features.html#nice-to-know
 
-  - title: Client
+  - title: Architektur GDI
     url: /frontend.html
-
-  - title: Server
-    url: /backend.html
-
-  - title: APIs and Interfaces
-    url: /api_and_interfaces.html
-
-  - title: Libraries and Technologies
-    url: /libraries_and_technologies.html
+    children:
+      - title: Client
+        url: /frontend.html
+      - title: Server
+        url: /backend.html
+      - title: APIs and Interfaces
+        url: /api_and_interfaces.html
+      - title: Libraries and Technologies
+        url: /libraries_and_technologies.html
