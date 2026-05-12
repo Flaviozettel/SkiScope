@@ -5,17 +5,6 @@ title: Features
 
 # Features
 
-SkiScope bietet mehrere Funktionsbereiche, die in den folgenden Unterseiten im Detail beschrieben sind:
-
----
-
-layout: default
-title: Features
-
----
-
-# Features
-
 SkiScope bietet mehrere Funktionsbereiche, die in den folgenden Kapiteln beschrieben werden.
 
 ## Suche {#suche}
