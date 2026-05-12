@@ -12,13 +12,21 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
-: "${PGHOST:=localhost}"
 : "${PGPORT:=5432}"
 : "${PGUSER:=postgres}"
 : "${ADM_PW:?bitte ADM_PW setzen}"
 
-PSQL_SUPER=(psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -v ON_ERROR_STOP=1)
-PSQL_ADM=(psql -h "$PGHOST" -p "$PGPORT" -U skiscopeadm -d skiscope -v ON_ERROR_STOP=1)
+# Superuser-Connection via Unix-Socket → Peer-Auth (kein Passwort nötig, da das
+# Skript ohnehin als Linux-User 'postgres' läuft). Auf Debian/Raspbian liegt der
+# Socket unter /var/run/postgresql. Per PGHOST_SUPER überschreibbar.
+: "${PGHOST_SUPER:=/var/run/postgresql}"
+
+# Admin-Connection (skiscopeadm) via TCP, weil Peer-Auth hier nicht greift
+# (es gibt keinen gleichnamigen Linux-User). PGPASSWORD wird unten pro Call gesetzt.
+: "${PGHOST_ADM:=localhost}"
+
+PSQL_SUPER=(psql -h "$PGHOST_SUPER" -p "$PGPORT" -U "$PGUSER" -v ON_ERROR_STOP=1)
+PSQL_ADM=(psql -h "$PGHOST_ADM" -p "$PGPORT" -U skiscopeadm -d skiscope -v ON_ERROR_STOP=1)
 
 echo "→ 1/4  Rolle + DB"
 "${PSQL_SUPER[@]}" -v adm_pw="$ADM_PW" -f 00_roles.sql
