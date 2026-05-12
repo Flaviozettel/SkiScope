@@ -23,7 +23,7 @@ Vollständige Auflistung: siehe [Libraries and Technologies](https://flaviozette
 ## Repository klonen
 
 ```bash
-git clone https://github.com/314a/GDI_Project.git SkiScope
+git clone https://github.com/Flaviozettel/SkiScope.git SkiScope
 cd SkiScope
 ```
 
