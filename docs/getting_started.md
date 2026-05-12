@@ -105,23 +105,20 @@ sudo -u postgres ADM_PW='dein_pw' ./init.sh
 Das Skript legt Rolle `skiscopeadm` und die Datenbank `skiscope` an. Weiter werden PostGIS-Extension,
 alle Tabellen, Indizes, Views und die Lookup-Daten angelegt.
 
-### Statische OSM-Geometrien importieren
-
-```bash
-PGPASSWORD='dein_pw' \
-  psql -h localhost -U skiscopeadm -d skiscope \
-       -f ~/skiscope/SkiScope/server/database/import_static_geom.sql
-```
+> **Hinweis:** Die Tabelle `skigebiete` ist nach `init.sh` noch leer. Sie wird im
+> [Schritt 6 (Cronjobs)](#6-cronjobs-für-laufende-daten) durch den ersten
+> STnet-Lauf gefüllt. Erst danach lassen sich die statischen OSM-Geometrien
+> importieren — die haben Foreign Keys auf `skigebiete.station_id`.
 
 ### Test
 
 ```bash
 PGPASSWORD='dein_pw' \
   psql -h localhost -U skiscopeadm -d skiscope \
-       -c "SELECT count(*) FROM skigebiet_geom;"
+       -c "SELECT count(*) FROM strecken_typen;"
 ```
 
-Wenn eine Zahl > 0 zurückkommt, ist die DB bereit.
+Wenn eine Zahl > 0 zurückkommt, ist das Schema bereit.
 
 ---
 
@@ -308,7 +305,11 @@ Die statischen Geometrien sind fertig — die **dynamischen** Daten
 (Schneehöhen, Pisten- und Liftstati, Wetter) müssen regelmässig nachgezogen
 werden. Dazu liegen Skripte in `preprocessing/scripts/`.
 
-### Manueller Testlauf
+### Erstlauf: Skigebiete in die DB schreiben
+
+Dieser Schritt füllt die noch leere `skigebiete`-Tabelle. Erst **danach** können
+die statischen OSM-Geometrien importiert werden, weil deren Foreign Keys auf
+`skigebiete.station_id` zeigen.
 
 ```bash
 cd ~/skiscope/SkiScope
@@ -316,7 +317,33 @@ source ~/skiscope/.venv/bin/activate
 python preprocessing/scripts/update_STnet_cron.py
 ```
 
-Wenn das ohne Fehler durchläuft, sind die Skigebiete gefüllt.
+Verifizieren, dass Skigebiete vorhanden sind:
+
+```bash
+PGPASSWORD='dein_pw' psql -h localhost -U skiscopeadm -d skiscope \
+  -c "SELECT count(*) FROM skigebiete;"
+```
+
+Erwartete Grössenordnung: ≈ 211 Skigebiete.
+
+### Statische OSM-Geometrien importieren
+
+Jetzt können die vorbereiteten Pisten- und Lift-Geometrien geladen werden:
+
+```bash
+PGPASSWORD='dein_pw' \
+  psql -h localhost -U skiscopeadm -d skiscope \
+       -f ~/skiscope/SkiScope/server/database/import_static_geom.sql
+```
+
+Test:
+
+```bash
+PGPASSWORD='dein_pw' psql -h localhost -U skiscopeadm -d skiscope \
+  -c "SELECT count(*) FROM pisten_geom_multipolygon;"
+```
+
+Wenn eine Zahl > 0 zurückkommt, sind die Geometrien drin.
 
 ### Log-Ordner anlegen
 
