@@ -5,31 +5,10 @@ title: Features
 
 # Features
 
-Platzhalter Flussdiagramm
+SkiScope bietet mehrere Funktionsbereiche, die in den folgenden Unterseiten im Detail beschrieben sind:
 
-## Suche {#suche}
-
-{% include_relative 01_search.md %}
-
-## Skigebiet Informationen {#skigebiet-informationen}
-
-{% include_relative 02_skigebiet_informationen.md %}
-
-## Wetterdaten {#wetterdaten}
-
-{% include_relative 03_wetterdaten.md %}
-
-## Layersteuerung {#layersteuerung}
-
-{% include_relative 04_layersteuerung.md %}
-
-## Maximale Schneehöhen
-
-## Nice to know {#nice-to-know}
-
-### 🐿️ Easter Nut — Scrat
-
-Wer die Karte in den 3D-Modus kippt (Pitch > 10°),
-wird von einem besonderen Gast begrüsst:
-Scrat aus Ice Age taucht auf der Karte auf.
-Einfach die rechte Maustaste gedrückt halten und die Karte neigen.
+- [Suche](01_search.html) – schnelles Auffinden eines Skigebiets, optional gefiltert nach geöffneten Liften.
+- [Skigebiet Informationen](02_skigebiet_informationen.html) – Popup und Detailansicht mit Kennzahlen zu Pisten, Liften, Schnee und Wetter.
+- [Wetterdaten](03_wetterdaten.html) – 14-Tages-Prognose und stündliche Detailansicht je Skigebiet.
+- [Layersteuerung](04_layersteuerung.html) – automatische und manuelle Steuerung der Kartenlayer.
+- [Mehr](05_mehr.html) – Anzeige der maximalen Schneehöhe und ein kleines Easter Egg.

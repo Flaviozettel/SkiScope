@@ -15,14 +15,24 @@ title: Libraries and Technologies
 
 ## Backend
 
-- **GeoServer** — Geodatenserver, liefert alle Layer als Vector Tiles (MVT)
-- **PostgreSQL / PostGIS** — Relationale Datenbank mit Geodaten-Erweiterung
 - **FastAPI** — Python-Framework für die REST API
+- **psycopg2** — PostgreSQL-Treiber für Python
+- **openmeteo-requests** — Offizieller Open-Meteo-Client für Python
+- **requests-cache** — HTTP-Cache-Schicht (1 h) für Open-Meteo-Anfragen
+- **retry-requests** — Automatische Wiederholung fehlgeschlagener HTTP-Anfragen
+- **pandas** — Aufbereitung der Wetterdaten als DataFrame
+- **python-dotenv** — Laden der `.env`-Datei mit DB-Zugangsdaten und API-Keys
+
+## Datenhaltung und Geodaten-Dienst
+
+- **PostgreSQL / PostGIS** — Relationale Datenbank mit Geodaten-Erweiterung
+- **GeoServer** — Geodatenserver, liefert alle Layer als Vector Tiles (MVT)
 - **Raspberry Pi** — Hardware auf der GeoServer, PostgreSQL und das Backend laufen
 
 ## Externe Datenquellen
 
-- **MeteoSchweiz** — Wetterdaten und Schneehöhen
-- **OpenStreetMap** — Geodaten für Pisten und Liftanlagen
-- **Schweiz Tourismus** — Daten zu Skigebieten
+- **Open-Meteo** — Wetterprognosen (täglich und stündlich), inkl. Modelle MeteoSwiss ICON Seamless und ECMWF IFS
+- **SLF** (Institut für Schnee- und Lawinenforschung) — Schneehöhen-Polygone als GeoJSON
+- **STNet / Schweiz Tourismus** — Betriebsstatus von Pisten und Liftanlagen, Schneehöhen je Skigebiet
+- **OpenStreetMap / Overpass API** — Geodaten für Pisten und Liftanlagen (einmaliger Import)
 - **Swisstopo Vector Tiles** — Basiskarte der Schweiz
