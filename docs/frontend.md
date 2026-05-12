@@ -58,18 +58,6 @@ Beim Laden der Komponente wird eine MapLibre-Karte mit swisstopo-Hintergrundkart
 
 Die Karte reagiert auf Benutzerinteraktionen. Bewegt der Benutzer die Maus über ein Skigebiet, wird ein Hover-Popup angezeigt und der Punkt hervorgehoben. Klickt der Benutzer auf ein Skigebiet, wird dieses ausgewählt, die Karte zoomt zum entsprechenden Gebiet, Detaildaten werden über die Backend-API geladen und in einem Popup dargestellt. Gleichzeitig wird das ausgewählte Skigebiet an die Wetteranzeige weitergegeben.
 
-#### Kartenbereich
-
-`client/src/SkiMap.jsx`
-
-Der Quellcode SkiMap.jsx erstellt und steuert die zentrale interaktive Karte von SkiScope.
-
-Beim Laden der Komponente wird eine MapLibre-Karte mit swisstopo-Hintergrundkarte aufgebaut. Gleichzeitig werden Skigebietsdaten aus dem Backend geladen und die offenen Skigebiete gespeichert. Diese Informationen werden genutzt, um Skigebietspunkte auf der Karte farblich darzustellen: offene Skigebiete blau, geschlossene grau, ausgewählte oder berührte Punkte hervorgehoben.
-
-Über GeoServer werden verschiedene Kartenlayer eingebunden, darunter Schneehöhen, Pisten, Lifte und Skigebietspunkte. Die Layer können über ein Bedienfeld ein- und ausgeschaltet werden. Zusätzlich ändert sich die Sichtbarkeit automatisch je nach Zoomstufe: In kleinerem Massstab wird vor allem die Schneekarte gezeigt, bei stärkerem Hineinzoomen werden Pisten und Lifte sichtbar.
-
-Die Karte reagiert auf Benutzerinteraktionen. Bewegt der Benutzer die Maus über ein Skigebiet, wird ein Hover-Popup angezeigt und der Punkt hervorgehoben. Klickt der Benutzer auf ein Skigebiet, wird dieses ausgewählt, die Karte zoomt zum entsprechenden Gebiet, Detaildaten werden über die Backend-API geladen und über die SkigebietPopup.jsx- Komponente dargestellt. Gleichzeitig wird das ausgewählte Skigebiet an die Wetteranzeige weitergegeben.
-
 ---
 
 ### Interaktive Elemente
