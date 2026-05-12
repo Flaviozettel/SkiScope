@@ -1,10 +1,3 @@
----
-layout: default
-title: APIs and Interfaces
----
-
-# Schnittstellen
-
 Für die Anwendung _SkiScope_ werden verschiedene externe Datenquellen genutzt, um aktuelle und relevante Informationen zu Skigebieten bereitzustellen. Diese Daten werden automatisiert abgerufen, verarbeitet und im Frontend visualisiert.
 
 Folgende Daten werden für die Anwendung bezogen:

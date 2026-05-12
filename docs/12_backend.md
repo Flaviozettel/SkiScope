@@ -1,8 +1,3 @@
----
-layout: default
-title: Server
----
-
 Der Server bündelt sämtliche Datenflüsse zwischen externen Datenquellen, der eigenen Datenhaltung und dem Client. Die gesamte Server-Infrastruktur läuft auf einem **Raspberry Pi** und besteht aus drei Komponenten: einem **GeoServer** für die Bereitstellung OGC-Konformer Kartenelemente, einer **PostgreSQL-/PostGIS-Datenbank** für die Daten- und Cache-Haltung sowie einer **FastAPI-Anwendung** als REST-Schnittstelle.
 
 ---

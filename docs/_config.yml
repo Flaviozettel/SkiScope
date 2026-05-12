@@ -23,7 +23,7 @@ navbar:
         url: /features.html#nice_to_know
 
   - title: Architektur GDI
-    url: /frontend.html
+    url: /architektur_gdi.html
     children:
       - title: Client
         url: /frontend.html#client

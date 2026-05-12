@@ -1,8 +1,3 @@
----
-layout: default
-title: Client
----
-
 Der Client ist die Weboberfläche von SkiScope und vereint Karte, Suche, Detailansichten und Wetterprognose in einer einzigen interaktiven Anwendung. Technisch basiert er auf einer **React-/Vite-Anwendung**, die alle Karteninhalte über **MapLibre GL JS** rendert.
 
 ---
@@ -68,13 +63,13 @@ Der Client nutzt zwei unterschiedliche Wege auf den Server (ausführlich beschri
 
 Die Zuordnung zwischen UI-Aktion und Endpunkt:
 
-| UI-Aktion | Endpunkt |
-| --- | --- |
-| Initiales Laden der Skigebiete (für Suche und Marker-Status) | `GET /skigebiete` |
-| Klick auf einen Skigebiets-Marker (Popup-Inhalt) | `GET /skigebiet?station_id=` |
-| Öffnen der Detailansicht | `GET /skigebiet/detail?station_id=` |
-| 14-Tages-Prognose in der Wetter-Sidebar | `GET /skigebiet/wetterprognose?type=woche` |
-| Stündliche Detailansicht eines Wettertages | `GET /skigebiet/wetterprognose?type=tag` |
+| UI-Aktion                                                    | Endpunkt                                   |
+| ------------------------------------------------------------ | ------------------------------------------ |
+| Initiales Laden der Skigebiete (für Suche und Marker-Status) | `GET /skigebiete`                          |
+| Klick auf einen Skigebiets-Marker (Popup-Inhalt)             | `GET /skigebiet?station_id=`               |
+| Öffnen der Detailansicht                                     | `GET /skigebiet/detail?station_id=`        |
+| 14-Tages-Prognose in der Wetter-Sidebar                      | `GET /skigebiet/wetterprognose?type=woche` |
+| Stündliche Detailansicht eines Wettertages                   | `GET /skigebiet/wetterprognose?type=tag`   |
 
 ---
 

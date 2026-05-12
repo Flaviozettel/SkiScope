@@ -1,11 +1,4 @@
----
-layout: default
-title: Libraries and Technologies
----
-
-# Libraries and Technologies
-
-## Frontend
+### Frontend
 
 - **React** — JavaScript-Framework für den Aufbau der Benutzeroberfläche
 - **Vite** — Build-Tool und Entwicklungsserver
@@ -13,7 +6,7 @@ title: Libraries and Technologies
 - **react-map-gl** — React-Wrapper für MapLibre GL JS
 - **Recharts** — Darstellung der Wetterdaten als Diagramme
 
-## Backend
+### Backend
 
 - **FastAPI** — Python-Framework für die REST API
 - **psycopg2** — PostgreSQL-Treiber für Python
@@ -23,13 +16,13 @@ title: Libraries and Technologies
 - **pandas** — Aufbereitung der Wetterdaten als DataFrame
 - **python-dotenv** — Laden der `.env`-Datei mit DB-Zugangsdaten und API-Keys
 
-## Datenhaltung und Geodaten-Dienst
+### Datenhaltung und Geodaten-Dienst
 
 - **PostgreSQL / PostGIS** — Relationale Datenbank mit Geodaten-Erweiterung
 - **GeoServer** — Geodatenserver, liefert alle Layer als Vector Tiles (MVT)
 - **Raspberry Pi** — Hardware auf der GeoServer, PostgreSQL und das Backend laufen
 
-## Externe Datenquellen
+### Externe Datenquellen
 
 - **Open-Meteo** — Wetterprognosen (täglich und stündlich), inkl. Modelle MeteoSwiss ICON Seamless und ECMWF IFS
 - **SLF** (Institut für Schnee- und Lawinenforschung) — Schneehöhen-Polygone als GeoJSON

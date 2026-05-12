@@ -1,5 +1,3 @@
-### Suche
-
 Das Suchfeld ermöglicht eine schnelle und effiziente Suche nach Skigebieten. Dabei muss nicht der vollständige Name eingegeben werden, da bereits einzelne Buchstabenkombinationen mit allen vorhandenen Skigebietnamen verglichen werden. Die Gross- und Kleinschreibung spielt dabei keine Rolle.
 
 Zusätzlich kann die Suche über den Filter "nur geöffnete" eingeschränkt werden. Dadurch werden nur Skigebiete angezeigt, bei denen aktuell mindestens ein Lift in Betrieb ist.

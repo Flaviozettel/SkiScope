@@ -1,5 +1,3 @@
-### Skigebiet Informationen
-
 #### Popup Informationen
 
 Sobald der Nutzer auf der Karte ein Skigebiet auswählt, öffnet sich an der entsprechenden Kartenposition ein Popup mit den wichtigsten aktuellen Informationen. Dadurch erhält der Nutzer direkt auf der Karte eine erste Einschätzung zur Situation im Skigebiet, ohne sofort in die Detailansicht wechseln zu müssen.
