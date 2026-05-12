@@ -4,7 +4,7 @@
 #
 #  Reihenfolge:
 #    0. Rolle + Datenbank anlegen   (postgres)
-#    1. Extensions installieren     (skiscopeadm)
+#    1. Extensions installieren     (postgres, da PostGIS Superuser-Rechte braucht)
 #    2. Schema erzeugen             (skiscopeadm)
 #    3. Lookup-Seeds                (skiscopeadm)
 #
@@ -26,13 +26,17 @@ cd "$(dirname "$0")"
 : "${PGHOST_ADM:=localhost}"
 
 PSQL_SUPER=(psql -h "$PGHOST_SUPER" -p "$PGPORT" -U "$PGUSER" -v ON_ERROR_STOP=1)
+PSQL_SUPER_SKI=(psql -h "$PGHOST_SUPER" -p "$PGPORT" -U "$PGUSER" -d skiscope -v ON_ERROR_STOP=1)
 PSQL_ADM=(psql -h "$PGHOST_ADM" -p "$PGPORT" -U skiscopeadm -d skiscope -v ON_ERROR_STOP=1)
 
 echo "→ 1/4  Rolle + DB"
 "${PSQL_SUPER[@]}" -v adm_pw="$ADM_PW" -f 00_roles.sql
 
+# Extensions müssen als Superuser angelegt werden — PostGIS verweigert sich sonst.
+# Wir greifen dafür auf den postgres-Socket-Kanal zurück, jetzt aber gegen die
+# bereits angelegte Zieldatenbank `skiscope`.
 echo "→ 2/4  Extensions"
-PGPASSWORD="$ADM_PW" "${PSQL_ADM[@]}" -f 01_extensions.sql
+"${PSQL_SUPER_SKI[@]}" -f 01_extensions.sql
 
 echo "→ 3/4  Schema"
 PGPASSWORD="$ADM_PW" "${PSQL_ADM[@]}" -f 02_schema.sql
