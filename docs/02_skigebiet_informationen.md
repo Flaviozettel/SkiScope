@@ -22,3 +22,5 @@ Das Popup ermöglicht zudem den Zugriff auf eine Detailansicht und, sofern vorha
 Über den weiterführenden Button "Details ->" im zuvor erwähnten Popup wird eine Detailansicht anstelle der Karte gerendert.
 
 Die Detailansicht stellt eine ausführliche Detailseite eines Skigebiets dar. Der Nutzer erhält dort eine strukturierte Übersicht zu Betrieb, Pisten, Schnee, Liften und weiteren Winterangeboten. Links werden die wichtigsten Informationen in Abschnitten dargestellt, rechts zeigt eine Karte das ausgewählte Gebiet mit den passenden Kartenebenen.
+
+<img src="assets/gifs/Detailansicht.gif" alt="Detailansicht des Skigebiets" class="gifs">
