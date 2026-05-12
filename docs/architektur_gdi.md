@@ -7,8 +7,6 @@ title: Architektur GDI
 
 Die GDI-Architektur von SkiScope beschreibt den technischen Aufbau der Anwendung und zeigt, wie Client, Server, Schnittstellen und eingesetzte Technologien zusammenarbeiten. Sie bildet die Grundlage dafür, dass Geodaten, Wetterinformationen und Skigebietsdaten strukturiert verarbeitet, bereitgestellt und in der Webanwendung dargestellt werden können.
 
-<img src="assets/gifs/Stack.svg" alt="Architekturaufbau" style="background:white; padding:1rem; border-radius:12px;">
-
 ## Client {#client}
 
 {% include_relative 11_frontend.md %}

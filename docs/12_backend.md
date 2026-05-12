@@ -4,7 +4,7 @@ Der Server bündelt sämtliche Datenflüsse zwischen externen Datenquellen, der 
 
 ### Architekturüberblick
 
-![Server-Architektur](assets/images/server_architektur.png)
+<img src="assets/gifs/Stack.svg" alt="Architekturaufbau" style="background:white; padding:1rem; border-radius:12px;">
 
 Das Zusammenspiel der Komponenten lässt sich in drei Ebenen einteilen:
 
