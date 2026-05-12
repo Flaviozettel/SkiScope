@@ -6,19 +6,18 @@ navbar:
   - title: Home
     url: /
 
-  - title: Features
     url: /features.html
     children:
       - title: Suche
-        url: /features.html#01_search
+        url: /features.html#suche
       - title: Skigebiet Informationen
-        url: //features.html#02_skigebiet_informationen
+        url: /features.html#skigebiet-informationen
       - title: Wetterdaten
-        url: //features.html#03_wetterdaten
+        url: /features.html#wetterdaten
       - title: Layersteuerung
-        url: //features.html#04_layersteuerung
+        url: /features.html#layersteuerung
       - title: Mehr
-        url: //features.html#05_mehr
+        url: /features.html#mehr
 
   - title: Architektur GDI
     url: /frontend.html
