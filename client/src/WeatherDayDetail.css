@@ -1,8 +1,8 @@
 /* ============================================================
-   WeatherDayDetail.css – Detail-Overlay über der Karte
-   Liegt links, deckt nur die halbe Fläche ab (analog SkigebietDetail).
+   WeatherDayDetail.css – Stunden-Detail-Overlay über der Karte
    ============================================================ */
 
+/* Overlay: linke Hälfte der Karte */
 .weather-day-detail {
   position: absolute;
   top: 0;
@@ -12,12 +12,9 @@
   z-index: 50;
   display: flex;
   flex-direction: column;
-  background: var(--surface, rgba(255, 255, 255, 0.96));
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--glass-shadow);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
   overflow: hidden;
 }
 
@@ -27,30 +24,32 @@
   }
 }
 
+/* ── Header ──────────────────────────────────────────────── */
 .weather-day-detail-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
   padding: 14px 18px;
-  border-bottom: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.4);
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
 }
 
 .weather-day-detail-title {
   font-size: 14px;
   font-weight: 800;
-  color: var(--text-primary);
+  color: #1e293b;
   letter-spacing: 0.2px;
 }
 
 .weather-day-detail-subtitle {
   font-size: 11px;
   font-weight: 600;
-  color: var(--text-tertiary);
+  color: #94a3b8;
   margin-top: 2px;
 }
 
+/* Schliessen-Button */
 .weather-day-detail-close {
   font-family: inherit;
   font-size: 22px;
@@ -61,24 +60,26 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--border);
+  border: 1px solid #e2e8f0;
   border-radius: 50%;
   background: transparent;
-  color: var(--text-secondary);
+  color: #64748b;
   cursor: pointer;
   flex-shrink: 0;
-  transition: background 0.12s ease, color 0.12s ease, transform 0.12s ease;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease,
+    transform 0.12s ease;
 }
-
 .weather-day-detail-close:hover {
-  background: rgba(0, 0, 0, 0.06);
-  color: var(--text-primary);
+  background: #f1f5f9;
+  color: #1e293b;
 }
-
 .weather-day-detail-close:active {
   transform: scale(0.95);
 }
 
+/* ── Body ────────────────────────────────────────────────── */
 .weather-day-detail-body {
   flex: 1;
   min-height: 0;
@@ -94,7 +95,7 @@
   min-height: 0;
 }
 
-/* ── Stat-Sektionen analog zur Skigebiet-Detail-Card ───────── */
+/* ── Sektionen ───────────────────────────────────────────── */
 .weather-day-detail-section {
   display: flex;
   flex-direction: column;
@@ -107,36 +108,39 @@
   font-weight: 700;
   letter-spacing: 0.4px;
   text-transform: uppercase;
-  color: var(--text-tertiary);
+  color: #94a3b8;
 }
 
-/* Pill-Reihe (kompakte abgerundete Stats) */
+/* Pill-Stats */
 .weather-day-detail-pill-row {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
+
 .weather-day-detail-pill {
   display: inline-flex;
   flex-direction: column;
   gap: 2px;
   padding: 8px 12px;
-  background: rgba(255, 255, 255, 0.55);
-  border: 1px solid var(--border);
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
   border-radius: 999px;
 }
+
 .weather-day-detail-pill-label {
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.3px;
   text-transform: uppercase;
-  color: var(--text-tertiary);
+  color: #94a3b8;
   line-height: 1;
 }
+
 .weather-day-detail-pill-value {
   font-size: 13px;
   font-weight: 700;
-  color: var(--text-primary);
+  color: #1e293b;
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
 }
@@ -146,43 +150,50 @@
   display: flex;
   flex-direction: column;
 }
+
 .weather-day-detail-row {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: 12px;
   padding: 6px 0;
-  border-bottom: 1px dashed var(--border);
+  border-bottom: 1px dashed #e2e8f0;
   font-size: 12px;
 }
+
 .weather-day-detail-row:last-child {
   border-bottom: none;
 }
+
 .weather-day-detail-row-label {
-  color: var(--text-secondary);
+  color: #64748b;
   font-weight: 500;
 }
+
 .weather-day-detail-row-value {
   font-weight: 700;
-  color: var(--text-primary);
+  color: #1e293b;
   font-variant-numeric: tabular-nums;
 }
 
+/* ── Footer ──────────────────────────────────────────────── */
 .weather-day-detail-footer {
   font-size: 11px;
-  color: var(--text-tertiary);
+  color: #94a3b8;
 }
+
 .weather-day-detail-footer code {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 11px;
-  color: var(--text-secondary);
+  color: #64748b;
 }
 
+/* Lade-/Fehlerzustand */
 .weather-day-detail-status {
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 13px;
-  color: var(--text-tertiary);
+  color: #94a3b8;
 }

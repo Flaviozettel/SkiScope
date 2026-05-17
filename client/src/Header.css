@@ -1,5 +1,5 @@
 /* ============================================================
-   Header.css – Hero-Banner mit Logo, Slogan und Snow-Badge
+   Header.css
    ============================================================ */
 
 body {
@@ -10,6 +10,7 @@ body {
     sans-serif;
 }
 
+/* ── Hero-Banner ─────────────────────────────────────────── */
 .hero {
   height: 64px;
   position: relative;
@@ -19,7 +20,7 @@ body {
   flex-shrink: 0;
 }
 
-/* Starkes Gradient-Overlay – dunkler am Rand, transparent in Mitte */
+/* Dunkles Gradient-Overlay */
 .hero-gradient {
   position: absolute;
   inset: 0;
@@ -32,7 +33,7 @@ body {
   );
 }
 
-/* Frosted-glass Leiste am Boden des Headers */
+/* Trennlinie am unteren Rand */
 .hero::after {
   content: "";
   position: absolute;
@@ -43,6 +44,7 @@ body {
   background: rgba(255, 255, 255, 0.15);
 }
 
+/* 3-Spalten Grid: Badge | Logo | Suche */
 .hero-inner {
   position: relative;
   height: 100%;
@@ -52,19 +54,17 @@ body {
   padding: 0 24px;
 }
 
-/* Logo */
+/* ── Logo ────────────────────────────────────────────────── */
 .logo-mark {
   display: flex;
   align-items: center;
   justify-content: center;
-  display: flex;
   gap: 8px;
   flex-shrink: 0;
 }
 
 .logo-snowflake {
   font-size: 40px;
-  filter: drop-shadow(0 0 8px rgba(147, 200, 255, 0.8));
   color: #ffffff;
 }
 
@@ -73,48 +73,34 @@ body {
   font-weight: 700;
   color: #ffffff;
   letter-spacing: -0.5px;
-  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.3);
 }
 
-/* Tagline – zentriert */
+/* ── Tagline ─────────────────────────────────────────────── */
 .hero-tagline {
   justify-self: end;
   align-self: end;
   padding-bottom: 10px;
-  text-align: right;
-  flex: 1;
   font-size: 20px;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.75);
-  letter-spacing: 0.1px;
 }
 
-/* Snow Badge im Header – Glas */
+/* ── Snow Badge ──────────────────────────────────────────── */
 .hero-snow-badge {
   justify-self: start;
   display: flex;
   align-items: center;
   gap: 10px;
-
-  background: rgba(255, 255, 255, 0.5); /* weniger weiss */
-  backdrop-filter: blur(14px) saturate(180%);
-  -webkit-backdrop-filter: blur(14px) saturate(180%);
-
+  background: rgba(255, 255, 255, 0.577);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: var(--radius-md);
-
+  border-radius: 10px;
   padding: 7px 14px;
   flex-shrink: 0;
-
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
 }
 
 .hero-snow-badge:hover {
-  border: 2px solid rgba(255, 255, 255, 0.6);
-
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.3),
-    0 4px 20px rgba(45, 108, 223, 0.25); /* blauer Glow passend zu deiner Map */
+  background: rgba(255, 255, 255, 0.28);
+  border-color: rgba(255, 255, 255, 0.5);
 }
 
 .snow-badge-icon {
@@ -137,7 +123,7 @@ body {
 .snow-badge-value {
   font-size: 12px;
   font-weight: 700;
-  color: #fff;
+  color: #ffffff;
 }
 
 .snow-badge-week-icon {
@@ -156,16 +142,16 @@ body {
 .snow-badge-week-value {
   font-size: 13px;
   font-weight: 700;
-  color: var(--accent);
+  color: #2d6cdf;
 }
 
 .snow-badge-week-arrow {
-  color: var(--accent);
+  color: #2d6cdf;
   opacity: 0.7;
   flex-shrink: 0;
 }
 
-/* Suchfeld */
+/* ── Suchfeld ────────────────────────────────────────────── */
 .hero-search-wrapper {
   position: relative;
   width: 320px;
@@ -177,30 +163,21 @@ body {
 .hero-search-input {
   width: 100%;
   height: 38px;
-
-  background: rgba(255, 255, 255, 0.388);
-  backdrop-filter: blur(14px) saturate(180%);
-  -webkit-backdrop-filter: blur(14px) saturate(180%);
-
+  background: rgba(255, 255, 255, 0.371);
   border: 1px solid rgba(255, 255, 255, 0.25);
   border-radius: 10px;
-
   padding: 0 130px 0 14px;
   color: #ffffff;
   font-family: inherit;
   font-size: 14px;
-  letter-spacing: 0.1px;
   font-weight: bold;
+  letter-spacing: 0.1px;
+  text-transform: uppercase;
   outline: none;
   box-sizing: border-box;
-  text-transform: uppercase;
-
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
-
   transition:
     background 0.15s,
-    border 0.15s,
-    box-shadow 0.15s;
+    border 0.15s;
 }
 
 .hero-search-input::placeholder {
@@ -208,7 +185,7 @@ body {
 }
 
 .hero-search-input:focus {
-  background: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.28);
   border-color: rgba(255, 255, 255, 0.6);
 }
 
@@ -221,14 +198,15 @@ body {
   pointer-events: none;
 }
 
+/* Suchergebnis-Dropdown */
 .hero-search-results {
   position: absolute;
   top: calc(100% + 6px);
   left: 0;
   right: 0;
-  background: #fff;
+  background: #ffffff;
   border-radius: 10px;
-  border: 0.5px solid #ddd;
+  border: 1px solid #e2e8f0;
   list-style: none;
   margin: 0;
   padding: 4px 0;
@@ -240,12 +218,12 @@ body {
 .hero-search-result-item {
   padding: 9px 14px;
   font-size: 13px;
-  color: #1a1a1a;
+  color: #1e293b;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 8px;
-  border-bottom: 0.5px solid #f0f0f0;
+  border-bottom: 1px solid #f1f5f9;
 }
 
 .hero-search-result-item:last-child {
@@ -260,9 +238,10 @@ body {
   font-size: 13px;
 }
 
+/* Filter-Buttons im Suchfeld */
 .hero-search-filter {
   background: rgba(255, 255, 255, 0.2);
-  border: 0.5px solid rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.4);
   border-radius: 6px;
   color: rgba(255, 255, 255, 0.85);
   font-size: 11px;
@@ -280,6 +259,7 @@ body {
   font-weight: 600;
 }
 
+/* Status-Punkt (grün/grau) */
 .hero-result-status {
   width: 7px;
   height: 7px;
@@ -300,6 +280,7 @@ body {
   font-weight: 600;
 }
 
+/* Rechter Bereich im Suchfeld (Filter + Icon) */
 .hero-search-right {
   position: absolute;
   right: 10px;

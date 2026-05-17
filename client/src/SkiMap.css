@@ -1,40 +1,35 @@
 /* ============================================================
-   SkiMap.css – MapLibre-Karten-Container, Legende und
-   Maplibre-Popup-Overrides
+   SkiMap.css
    ============================================================ */
 
+/* Karten-Container */
 .map-container {
   flex: 1;
   min-height: 0;
-  border-radius: var(--radius-lg);
+  border-radius: 12px;
   overflow: hidden;
-  border: 1px solid var(--border);
+  border: 1px solid #e2e8f0;
   position: relative;
-  box-shadow: var(--shadow-lg);
 }
 
-/* ── MAP LEGENDE ───────────────────────────────────────── */
+/* ── Legende (unten links) ───────────────────────────────── */
 .map-legende {
   position: absolute;
   bottom: 14px;
-  font:
-    12px "DM Sans",
-    sans-serif;
   left: 14px;
   background: #ffffff;
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-md);
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
   padding: 10px 12px;
   z-index: 10;
-  box-shadow: var(--glass-shadow);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  font-size: 12px;
 }
 
 .legende-title {
   font-size: 10px;
   font-weight: 700;
-  color: var(--text-secondary);
+  color: #64748b;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 8px;
@@ -50,8 +45,7 @@
   flex-direction: column;
   align-items: center;
   font-size: 9px;
-  color: var(--text-tertiary);
-  font-family: Arial, Helvetica, sans-serif;
+  color: #94a3b8;
 }
 
 .legende-color {
@@ -62,64 +56,56 @@
   border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
-/* ── MapLibre Popup-Shell überschreiben (gilt für alle Popups) ── */
+/* ── MapLibre Popup-Shell überschreiben ──────────────────── */
 .maplibregl-popup-content {
-  background: #ffffff;
+  background: transparent !important;
   box-shadow: none !important;
   padding: 0 !important;
-  overflow: visible !important;
-  border-radius: 0 !important;
+  border-radius: 10px !important;
 }
 
 .maplibregl-popup-tip {
-  border-top-color: rgb(255, 255, 255) !important;
   display: none !important;
 }
 
-/* Standort */
+/* ── Standort-Button (rechts, unter Navigation) ──────────── */
 .location-button {
   position: absolute;
   top: 105px;
   right: 10px;
-
   width: 30px;
   height: 30px;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   font-size: 18px;
-
-  background: rgb(255, 255, 255);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  border-radius: 100px;
-
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .location-button:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(45, 108, 223, 0.25);
+  box-shadow: 0 4px 12px rgba(45, 108, 223, 0.2);
 }
 
-/* Layer ein / ausblenden */
+/* ── Layer-Toggle Panel (unten rechts) ───────────────────── */
 .layer-toggle-panel {
   position: absolute;
   bottom: 50px;
   right: 14px;
   background: #ffffff;
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-md);
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
   padding: 10px 12px;
   z-index: 10;
-  box-shadow: var(--glass-shadow);
-  font:
-    12px "DM Sans",
-    sans-serif;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  font-size: 12px;
   min-width: 170px;
 }
 
@@ -133,8 +119,9 @@
   cursor: pointer;
   transition: background 0.1s;
 }
+
 .layer-toggle-row:hover {
-  background: rgba(0, 0, 0, 0.04);
+  background: #f8fafc;
 }
 
 .layer-toggle-left {
@@ -143,15 +130,17 @@
   gap: 7px;
 }
 
+/* Toggle-Switch */
 .toggle-switch {
   width: 28px;
   height: 16px;
   border-radius: 8px;
-  background: rgba(0, 0, 0, 0.15);
+  background: #cbd5e1;
   position: relative;
   transition: background 0.2s;
   flex-shrink: 0;
 }
+
 .toggle-switch.on {
   background: #2d6cdf;
 }
@@ -163,9 +152,16 @@
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: #fff;
+  background: #ffffff;
   transition: left 0.2s;
 }
+
 .toggle-switch.on .toggle-knob {
   left: 14px;
+}
+
+.layer-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
 }

@@ -1,7 +1,8 @@
 /* ============================================================
-   WeatherSidebar.css – Wetter-Sidebar links neben der Karte
+   WeatherSidebar.css
    ============================================================ */
 
+/* Sidebar rechts neben der Karte */
 .weather-sidebar {
   position: relative;
   z-index: 100;
@@ -11,24 +12,20 @@
   flex-direction: column;
   justify-content: space-between;
   gap: 3px;
-  background: var(--glass-bg);
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-lg);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
   padding: 12px 10px;
-  box-shadow: var(--glass-shadow);
   overflow: visible;
 }
 
+/* Titel mit Stationsname */
 .weather-sidebar-title {
-  font-size: 9px;
-  font-weight: 700;
-  color: var(--text-secondary);
-  text-transform: none;
-  letter-spacing: 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
   padding: 0 4px 8px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid #e2e8f0;
   margin-bottom: 4px;
   display: flex;
   align-items: center;
@@ -36,16 +33,21 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: 11px;
-  font-weight: 600;
 }
 
+.weather-sidebar-name {
+  font-size: 15px;
+  font-weight: 800;
+  color: #1e293b;
+}
+
+/* ── Wetter-Zeile ────────────────────────────────────────── */
 .weather-row {
   display: flex;
   flex-direction: column;
   gap: 6px;
   padding: 7px 6px;
-  border-radius: var(--radius-sm);
+  border-radius: 8px;
   transition: background 0.12s ease;
 }
 
@@ -59,11 +61,13 @@
   background: rgba(45, 108, 223, 0.07);
 }
 
+/* Aktive Zeile (ausgewählter Tag) */
 .weather-row.active {
-  background: #2c76ffcb;
-  box-shadow: 0 3px 10px rgba(45, 108, 223, 0.5);
+  background: #2d6cdf;
+  box-shadow: 0 3px 10px rgba(45, 108, 223, 0.35);
 }
 
+/* Detail-Button */
 .weather-row-detail-btn {
   align-self: stretch;
   font-family: inherit;
@@ -71,29 +75,29 @@
   font-weight: 700;
   letter-spacing: 0.3px;
   text-transform: uppercase;
-  color: var(--accent, #2d6cdf);
-  background: rgba(45, 108, 223, 0.12);
-  border: 1px solid rgba(45, 108, 223, 0.28);
-  border-radius: var(--radius-sm);
+  color: #2d6cdf;
+  background: rgba(45, 108, 223, 0.1);
+  border: 1px solid rgba(45, 108, 223, 0.25);
+  border-radius: 8px;
   padding: 5px 8px;
   cursor: pointer;
-  transition: background 0.12s ease, transform 0.12s ease;
+  transition:
+    background 0.12s ease,
+    transform 0.12s ease;
 }
-
 .weather-row-detail-btn:hover {
-  background: rgba(45, 108, 223, 0.22);
+  background: rgba(45, 108, 223, 0.2);
 }
-
 .weather-row-detail-btn:active {
   transform: scale(0.98);
 }
-
 .weather-row.active .weather-row-detail-btn {
-  color: #fff;
+  color: #ffffff;
   background: rgba(255, 255, 255, 0.18);
   border-color: rgba(255, 255, 255, 0.4);
 }
 
+/* Icon */
 .weather-row-icon {
   font-size: 18px;
   flex-shrink: 0;
@@ -101,6 +105,7 @@
   text-align: center;
 }
 
+/* Tag + Beschreibung */
 .weather-row-info {
   display: flex;
   flex-direction: column;
@@ -111,25 +116,27 @@
 .weather-row-day {
   font-size: 11px;
   font-weight: 700;
-  color: var(--text-primary);
+  color: #1e293b;
   line-height: 1.2;
 }
 
 .weather-row-desc {
   font-size: 9px;
-  color: var(--text-tertiary);
+  color: #94a3b8;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   line-height: 1.3;
 }
 
+/* Aktive Zeile: Text weiss */
 .weather-row.active .weather-row-day,
 .weather-row.active .weather-row-desc,
 .weather-row.active .weather-row-temp {
   color: rgba(255, 255, 255, 0.95);
 }
 
+/* Temperatur */
 .weather-row-temp {
   display: flex;
   flex-direction: row;
@@ -142,16 +149,14 @@
 }
 
 .weather-row-temp-max {
-  color: var(--text-secondary);
+  color: #64748b;
 }
-
 .weather-row-temp-sep {
-  color: var(--text-tertiary);
+  color: #94a3b8;
   font-weight: 500;
 }
-
 .weather-row-temp-min {
-  color: var(--text-tertiary);
+  color: #94a3b8;
   font-weight: 600;
 }
 
@@ -159,10 +164,4 @@
 .weather-row.active .weather-row-temp-sep,
 .weather-row.active .weather-row-temp-min {
   color: rgba(255, 255, 255, 0.95);
-}
-
-.weather-sidebar-name {
-  font-size: 15px;
-  font-weight: 800;
-  color: var(--text-primary);
 }

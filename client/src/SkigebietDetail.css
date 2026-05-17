@@ -1,8 +1,9 @@
 /* ============================================================
-   SkigebietDetail.css – Detail-Ansicht eines Skigebiets
-   Layout: 38 % Info-Card | 62 % Karte
+   SkigebietDetail.css
+   Layout: 38% Info-Card | 62% Karte
    ============================================================ */
 
+/* Grid-Layout: Info links, Karte rechts */
 .skidetail-host {
   flex: 1;
   min-width: 0;
@@ -13,20 +14,22 @@
   gap: 12px;
 }
 
+/* Lade-/Fehlerzustand zentriert */
 .skidetail-status {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
   flex-direction: column;
-  color: var(--text-tertiary);
+  color: #94a3b8;
   font-size: 14px;
 }
 
+/* Ladeanimation */
 .skidetail-spinner {
   width: 22px;
   height: 22px;
-  border: 2px solid var(--border);
+  border: 2px solid #e2e8f0;
   border-top-color: #2d6cdf;
   border-radius: 50%;
   animation: skidetail-spin 0.8s linear infinite;
@@ -42,22 +45,20 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
-  background: var(--surface, rgba(255, 255, 255, 0.96));
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--glass-shadow);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
   overflow: hidden;
 }
 
+/* Header mit Zurück-Button und Titel */
 .skidetail-header {
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 14px 16px;
-  border-bottom: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.4);
+  border-bottom: 1px solid #e2e8f0;
+  background: #f8fafc;
 }
 
 .skidetail-back-btn {
@@ -68,17 +69,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--border);
+  border: 1px solid #e2e8f0;
   border-radius: 50%;
   background: transparent;
-  color: var(--text-secondary);
+  color: #64748b;
   cursor: pointer;
   flex-shrink: 0;
-  transition: background 0.12s ease, transform 0.1s ease;
+  transition:
+    background 0.12s ease,
+    transform 0.1s ease;
 }
 .skidetail-back-btn:hover {
-  background: rgba(0, 0, 0, 0.06);
-  color: var(--text-primary);
+  background: #f1f5f9;
+  color: #1e293b;
 }
 .skidetail-back-btn:active {
   transform: scale(0.95);
@@ -87,17 +90,18 @@
 .skidetail-name {
   font-size: 16px;
   font-weight: 800;
-  color: var(--text-primary);
+  color: #1e293b;
   letter-spacing: -0.2px;
   line-height: 1.2;
 }
 .skidetail-sub {
   font-size: 11px;
   font-weight: 600;
-  color: var(--text-tertiary);
+  color: #94a3b8;
   margin-top: 2px;
 }
 
+/* Scrollbarer Inhaltsbereich */
 .skidetail-scroll {
   flex: 1;
   min-height: 0;
@@ -120,7 +124,7 @@
   font-weight: 700;
   letter-spacing: 0.4px;
   text-transform: uppercase;
-  color: var(--text-tertiary);
+  color: #94a3b8;
 }
 .skidetail-section-body {
   display: flex;
@@ -128,7 +132,7 @@
   gap: 6px;
 }
 
-/* ── Inline „Pill"-Stats für die Übersicht (eine Reihe, kompakt) ── */
+/* ── Pill-Stats (kompakte runde Kacheln) ─────────────────── */
 .skidetail-pill-row {
   display: flex;
   flex-wrap: wrap;
@@ -139,8 +143,8 @@
   flex-direction: column;
   gap: 2px;
   padding: 8px 12px;
-  background: rgba(255, 255, 255, 0.55);
-  border: 1px solid var(--border);
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
   border-radius: 999px;
 }
 .skidetail-pill-label {
@@ -148,17 +152,17 @@
   font-weight: 700;
   letter-spacing: 0.3px;
   text-transform: uppercase;
-  color: var(--text-tertiary);
+  color: #94a3b8;
   line-height: 1;
 }
 .skidetail-pill-value {
   font-size: 13px;
   font-weight: 700;
-  color: var(--text-primary);
+  color: #1e293b;
   line-height: 1.1;
 }
 
-/* ── Schlichte Label/Value-Zeilen (ohne Kachel) ───────────── */
+/* ── Label/Value-Zeilen ──────────────────────────────────── */
 .skidetail-rows {
   display: flex;
   flex-direction: column;
@@ -169,23 +173,23 @@
   justify-content: space-between;
   gap: 12px;
   padding: 6px 0;
-  border-bottom: 1px dashed var(--border);
+  border-bottom: 1px dashed #e2e8f0;
   font-size: 12px;
 }
 .skidetail-row:last-child {
   border-bottom: none;
 }
 .skidetail-row-label {
-  color: var(--text-secondary);
+  color: #64748b;
   font-weight: 500;
 }
 .skidetail-row-value {
   font-weight: 700;
-  color: var(--text-primary);
+  color: #1e293b;
   font-variant-numeric: tabular-nums;
 }
 
-/* ── Schnee-Zeile (kompakt, ohne Kacheln) ─────────────────── */
+/* ── Schnee-Werte ────────────────────────────────────────── */
 .skidetail-snow {
   display: flex;
   flex-wrap: wrap;
@@ -199,22 +203,23 @@
 .skidetail-snow-label {
   font-size: 10px;
   font-weight: 600;
-  color: var(--text-tertiary);
+  color: #94a3b8;
   text-transform: uppercase;
   letter-spacing: 0.3px;
 }
 .skidetail-snow-value {
   font-size: 16px;
   font-weight: 700;
-  color: var(--text-primary);
+  color: #1e293b;
   font-variant-numeric: tabular-nums;
 }
 
 .skidetail-meta {
   font-size: 12px;
-  color: var(--text-secondary);
+  color: #64748b;
 }
 
+/* Links und Warnungen */
 .skidetail-links {
   display: flex;
   flex-wrap: wrap;
@@ -233,13 +238,13 @@
   color: #d97706;
 }
 
-/* ── Stacked Bar (nur noch für Schwierigkeit verwendet) ──── */
+/* ── Schwierigkeits-Bar ──────────────────────────────────── */
 .skidetail-bar {
   height: 10px;
   border-radius: 6px;
   overflow: hidden;
   display: flex;
-  background: var(--border);
+  background: #e2e8f0;
 }
 .skidetail-bar-seg {
   height: 100%;
@@ -247,7 +252,7 @@
 }
 .skidetail-bar-empty {
   font-size: 11px;
-  color: var(--text-tertiary);
+  color: #94a3b8;
   font-style: italic;
 }
 .skidetail-bar-legend {
@@ -255,7 +260,7 @@
   flex-wrap: wrap;
   gap: 10px;
   font-size: 11px;
-  color: var(--text-secondary);
+  color: #64748b;
   margin-top: 4px;
 }
 .skidetail-bar-tag {
@@ -276,12 +281,12 @@
   min-width: 0;
   min-height: 0;
   display: flex;
-  border-radius: var(--radius-lg);
+  border-radius: 12px;
   overflow: hidden;
-  border: 1px solid var(--glass-border);
+  border: 1px solid #e2e8f0;
 }
 
-/* Schmal: stapeln */
+/* Schmaler Bildschirm: stapeln */
 @media (max-width: 900px) {
   .skidetail-host {
     grid-template-columns: 1fr;

@@ -1,35 +1,7 @@
 /* ============================================================
-   App.css – Globale Stile, CSS-Variablen, Layout-Shell
-
-   Komponenten-spezifische Stile liegen in eigenen CSS-Dateien
-   (Header.css, MainArea.css, WeatherSidebar.css, SkiMap.css,
-    MiniHoverPopup.css, SkigebietPopup.css) und werden hier
-   gesammelt importiert.
+   App.css – Globale Stile und Layout-Shell
    ============================================================ */
-
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=DM+Mono:wght@400;500&display=swap");
-
-/* ── CSS VARIABLEN ─────────────────────────────────────────── */
-:root {
-  --accent: #2d6cdf;
-  --accent-soft: rgba(45, 108, 223, 0.1);
-  --accent-border: rgba(45, 108, 223, 0.2);
-  --glass-border: rgba(0, 0, 0, 0.1);
-  --glass-border: rgba(255, 255, 255, 0.5);
-  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.6) inset;
-  --surface: #f5f7fa;
-  --surface-2: #ffffff;
-  --border: rgba(0, 0, 0, 0.07);
-  --text-primary: #111318;
-  --text-secondary: #6b7280;
-  --text-tertiary: #9ca3af;
-  --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.07), 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
-  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
-}
 
 /* ── RESET ─────────────────────────────────────────────────── */
 *,
@@ -46,8 +18,8 @@ body {
     -apple-system,
     BlinkMacSystemFont,
     sans-serif;
-  background: var(--surface);
-  color: var(--text-primary);
+  background: #f5f7fa;
+  color: #111318;
   height: 100%;
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
@@ -58,33 +30,30 @@ body {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: var(--surface);
+  background: #f5f7fa;
 }
 
-/* ── CARD SHELL ────────────────────────────────────────────── */
+/* Hauptbereich zwischen Header und Footer */
 .page-card {
-  background: var(--surface-2);
-  margin: 0 16px 0;
-  box-shadow: var(--shadow-md);
   display: flex;
   flex: 1;
   overflow: hidden;
-  border-radius: 0;
-  border-top: 1px solid var(--border);
+  background: #ffffff;
+  border-top: 1px solid rgba(0, 0, 0, 0.07);
 }
 
 /* ── FOOTER ────────────────────────────────────────────────── */
 footer {
   text-align: center;
   font-size: 11px;
-  color: var(--text-tertiary);
+  color: #9ca3af;
   padding: 8px;
   letter-spacing: 0.3px;
-  background: var(--surface-2);
-  border-top: 1px solid var(--border);
+  background: #ffffff;
+  border-top: 1px solid rgba(0, 0, 0, 0.07);
   flex-shrink: 0;
 }
 
 footer a {
-  color: var(--text-tertiary);
+  color: #9ca3af;
 }

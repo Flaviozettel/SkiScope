@@ -56,6 +56,9 @@ export const SkigebietPopup = ({ selectedMarker, tooltipData, onClose, onOpenDet
           <div className="popup-loading">
             <div className="popup-loading-spinner" />
             <span>Lade Daten…</span>
+            <button className="popup-close-btn" onClick={onClose} style={{ marginLeft: "auto" }}>
+              ✕
+            </button>
           </div>
         )}
 
@@ -78,6 +81,9 @@ export const SkigebietPopup = ({ selectedMarker, tooltipData, onClose, onOpenDet
               >
                 {liftStatus}
               </div>
+              <button className="popup-close-btn" onClick={onClose}>
+                ✕
+              </button>
             </div>
 
             {/* Lift-Auslastungsbalken */}

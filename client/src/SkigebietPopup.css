@@ -1,16 +1,17 @@
+/* ============================================================
+   SkigebietPopup.css
+   ============================================================ */
+
 .popup-glass {
   width: 268px;
-  background: var(--glass-bg);
-  backdrop-filter: blur(24px) saturate(200%);
-  -webkit-backdrop-filter: blur(24px) saturate(200%);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-lg);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
   padding: 16px;
-  box-shadow: var(--shadow-lg);
-  font-family: "DM Sans", sans-serif;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
-/* Header */
+/* ── Header ──────────────────────────────────────────────── */
 .popup-header {
   display: flex;
   align-items: flex-start;
@@ -18,14 +19,16 @@
   gap: 10px;
   margin-bottom: 14px;
 }
+
 .popup-name {
   font-size: 15px;
   font-weight: 800;
-  color: var(--text-primary);
+  color: #1e293b;
   letter-spacing: -0.3px;
   line-height: 1.2;
   flex: 1;
 }
+
 .popup-status-badge {
   font-size: 10px;
   font-weight: 600;
@@ -37,61 +40,95 @@
   margin-top: 2px;
 }
 
-/* Lift-Balken */
+/* ── Schliessen-Button (innerhalb der Box) ───────────────── */
+.popup-close-btn {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e2e8f0;
+  border-radius: 50%;
+  background: #f8fafc;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 14px;
+  flex-shrink: 0;
+  transition: background 0.12s ease;
+}
+.popup-close-btn:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+/* MapLibre eigenen Schliessen-Button verstecken */
+.maplibregl-popup-close-button {
+  display: none !important;
+}
+
+/* ── Lift-Balken ─────────────────────────────────────────── */
 .popup-lift-bar-wrap {
   margin-bottom: 14px;
 }
+
 .popup-lift-bar {
   height: 5px;
   border-radius: 4px;
-  background: var(--border);
+  background: #e2e8f0;
   overflow: hidden;
   margin-bottom: 5px;
 }
+
 .popup-lift-bar-fill {
   height: 100%;
   border-radius: 4px;
   transition: width 0.4s ease;
 }
+
 .popup-lift-label {
   font-size: 11px;
-  color: var(--text-tertiary);
+  color: #94a3b8;
 }
 
-/* Stat-Kacheln */
+/* ── Stat-Kacheln ────────────────────────────────────────── */
 .popup-stat-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
   margin-bottom: 14px;
 }
+
 .popup-stat {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: var(--glass-border);
+  background: #f8fafc;
   border-radius: 10px;
   padding: 9px 10px;
 }
+
 .popup-stat-icon {
   font-size: 18px;
   line-height: 1;
 }
+
 .popup-stat-value {
   font-size: 13px;
   font-weight: 700;
-  color: var(--text-primary);
+  color: #1e293b;
   line-height: 1.2;
 }
+
 .popup-stat-label {
   font-size: 10px;
-  color: var(--text-tertiary);
+  color: #94a3b8;
 }
 
-/* Pisten */
+/* ── Pisten ──────────────────────────────────────────────── */
 .popup-pisten-section {
   margin-bottom: 14px;
 }
+
 .popup-pisten-bar {
   height: 7px;
   border-radius: 6px;
@@ -99,21 +136,24 @@
   display: flex;
   margin-bottom: 6px;
 }
+
 .popup-pisten-bar > div {
   transition: width 0.3s ease;
 }
+
 .popup-pisten-labels {
   display: flex;
   gap: 12px;
 }
+
 .popup-pisten-dot {
   font-size: 10px;
-  color: var(--text-tertiary);
+  color: #94a3b8;
   display: flex;
   align-items: center;
   gap: 4px;
-  font-family: "DM Mono", monospace;
 }
+
 .popup-pisten-dot::before {
   content: "";
   width: 8px;
@@ -123,16 +163,17 @@
   flex-shrink: 0;
 }
 
-/* Footer */
+/* ── Footer ──────────────────────────────────────────────── */
 .popup-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid #e2e8f0;
   padding-top: 10px;
   font-size: 10px;
-  color: var(--text-tertiary);
+  color: #94a3b8;
 }
+
 .popup-lawine-link {
   color: #d97706;
   font-weight: 700;
@@ -142,12 +183,13 @@
 .popup-lawine-link:hover {
   text-decoration: underline;
 }
+
 .popup-lawine-disabled {
-  color: var(--text-tertiary);
+  color: #94a3b8;
   font-size: 11px;
 }
 
-/* Detail-Link */
+/* ── Detail-Button ───────────────────────────────────────── */
 .popup-detail-link {
   margin-top: 10px;
   width: 100%;
@@ -164,7 +206,9 @@
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: background 0.15s ease, transform 0.1s ease;
+  transition:
+    background 0.15s ease,
+    transform 0.1s ease;
 }
 .popup-detail-link:hover {
   background: #1a4fa0;
@@ -173,31 +217,32 @@
   transform: scale(0.98);
 }
 
-/* Error */
+/* ── Fehler / Loader ─────────────────────────────────────── */
 .popup-error {
   color: #c0392b;
   font-size: 12px;
   padding: 4px 0;
 }
 
-/* Loader */
 .popup-loading {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 8px 4px;
   font-size: 13px;
-  color: #6b7280;
+  color: #64748b;
 }
+
 .popup-loading-spinner {
   width: 16px;
   height: 16px;
-  border: 2px solid #e5e7eb;
+  border: 2px solid #e2e8f0;
   border-top-color: #2d6cdf;
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
   flex-shrink: 0;
 }
+
 @keyframes spin {
   to {
     transform: rotate(360deg);
