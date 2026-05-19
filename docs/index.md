@@ -17,6 +17,10 @@ Finde auf der [Feature Seite](features.html) heraus, was SkiScope alles kann!
   </figcaption>
 </figure>
 
+Das folgende Video demonstriert den Aufbau der Webseite sowie die verschiedenen Interaktionsmöglichkeiten. Es vermittelt einen direkten Eindruck von den verfügbaren Features und dem Benutzererlebnis der Anwendung.
+
+<img src="assets/gifs/Benutzerfuehrung.gif" alt="Beispiel einer Nutzers beim Erkunden und Suchen eines passenden Skigebiets " class="gifs">
+
 #### Quellen
 
 GitHub Repository: https://github.com/Flaviozettel/SkiScope
