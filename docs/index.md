@@ -23,6 +23,25 @@ Das folgende Video demonstriert den Aufbau der Webseite sowie die verschiedenen 
   <source src="assets/gifs/Nutzerfuehrung_.mp4" type="video/mp4">
 </video>
 
+## Mögliche zukünftige Erweiterungen
+
+SkiScope ist noch lange nicht am Ende. Das Projekt bietet verschiedene Möglichkeiten für zukünftige Erweiterungen. Denkbar wären unter anderem:
+
+- Integration einer „Slope Aspect Rose“, welche die Ausrichtung der Pisten visualisiert und zeigt, ob ein Skigebiet eher Nord-, Süd-, Ost- oder Westhänge besitzt
+  - Analyse der Sonnenexposition einzelner Pisten
+  - Kombination mit Wetterdaten zur Analyse windanfälliger Pistenbereiche
+
+- Routing-Funktionen, beispielsweise zur Suche des nächstgelegenen Skigebiets
+
+- Erweiterte Informationen zu Skigebieten:
+  - Verpflegungsmöglichkeiten
+  - Parkierungsmöglichkeiten
+
+- 3D-Darstellungen von Gelände, Pisten und Schneehöhen
+
+- Mobile Optimierungen und verbesserte Benutzerführung
+
+
 #### Quellen
 
 GitHub Repository: https://github.com/Flaviozettel/SkiScope
