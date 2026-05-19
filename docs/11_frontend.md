@@ -10,7 +10,7 @@ Der Client ist die Weboberfläche von SkiScope und vereint Karte, Suche, Detaila
 - **react-map-gl** – React-Wrapper, der MapLibre deklarativ in den Komponentenbaum einbettet.
 - **Recharts** – Darstellung der stündlichen Wetterdaten als Diagramm.
 
-Eine vollständige Auflistung aller eingesetzten Bibliotheken findet sich im Kapitel [Libraries and Technologies](#libraries-and-technologies).
+Eine vollständige Auflistung aller eingesetzten Bibliotheken findet sich auf der Seite [Libraries and Technologies]({{ '/architektur_gdi.html#libraries_and_technologies' | relative_url }}).
 
 #### Warum MapLibre und nicht OpenLayers?
 
