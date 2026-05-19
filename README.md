@@ -78,7 +78,7 @@ Die Nutzung gliedert sich in folgende Kernbereiche:
 
 ### 1. Code-Effizienz & UI-Styling
 
-- **GitHub Copilot:** Einsatz als intelligentes Auto-Complete-Werkzeug zur Beschleunigung von repetitivem Code.
+- **GitHub Copilot:** Einsatz als intelligentes Auto-Complete-Werkzeug beim Schreiben von repetitivem Code.
 - **CSS & Komponenten-Design:** Unterstützung bei der Gestaltung und dem CSS-Styling von UI-Elementen.
 
 ### 2. Debugging, Erklärungen, Brainstorming
@@ -95,8 +95,9 @@ Die Nutzung gliedert sich in folgende Kernbereiche:
 
 Es wurde kein Code ungeprüft übernommen. Alle KI-generierten Vorschläge wurden vom Team getestet und auf die spezifische Systemumgebung angepasst oder gegebenenfalls verworfen.
 
-Die inhaltliche, konzeptionelle und architektonische Aufbau lag zu jedem Zeitpunkt vollständig beim Projektteam. Folgende Kernkomponenten sind besonders als Eigenleistungen hervorzuheben:
+Die inhaltlichen Entscheidungen, die Systemarchitektur sowie die Projektplanung und Umsetzung erfolgten jedoch eigenständig durch das Team.
+Folgende Kernkomponenten sind besonders als Eigenleistungen hervorzuheben:
 
-- **Systemarchitektur & GDI-Pipeline:** Die Konzeption und das Deployment der gesamten Pipeline – von der PostgreSQL/PostGIS-Datenhaltung über die Vector-Tile-Generierung (MVT) im GeoServer bis hin zur API-Bereitstellung via FastAPI.
+- **Systemarchitektur & GDI-Pipeline:** Die Entwicklung und Erstellung der gesamten Datenpipeline – von der PostgreSQL/PostGIS-Datenhaltung über die Vector-Tile-Generierung (MVT) im GeoServer bis hin zur API-Bereitstellung via FastAPI.
 - **Datenmodellierung & Preprocessing:** Das Design des relationalen Datenmodells für die Schweizer Skigebiete sowie die Logik der automatisierten Import- und Cron-Skripte.
 - **Projektmanagement:** Die Planung des Projekts, das Festlegen von Prioritäten sowie das Zusammenführen und Konfigurieren aller einzelnen Komponenten auf dem Raspberry Pi, damit das Gesamtsystem läuft.
