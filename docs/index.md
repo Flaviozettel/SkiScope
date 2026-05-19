@@ -19,7 +19,9 @@ Finde auf der [Feature Seite](features.html) heraus, was SkiScope alles kann!
 
 Das folgende Video demonstriert den Aufbau der Webseite sowie die verschiedenen Interaktionsmöglichkeiten. Es vermittelt einen direkten Eindruck von den verfügbaren Features und dem Benutzererlebnis der Anwendung.
 
-<img src="assets/gifs/Benutzerfuehrung.gif" alt="Beispiel einer Nutzers beim Erkunden und Suchen eines passenden Skigebiets " class="gifs">
+<video autoplay muted loop playsinline class="gifs">
+  <source src="assets/gifs/Nutzerfuehrung_.mp4" type="video/mp4">
+</video>
 
 #### Quellen
 
