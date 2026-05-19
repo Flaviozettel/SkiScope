@@ -26,7 +26,7 @@ Auf dem Server kommen folgende Technologien zum Einsatz:
 - **PostgreSQL mit PostGIS** als zentrale Datenhaltung, sowohl für Sachdaten als auch für Geometrien (Pisten, Lifte, Skigebiete, Schneehöhen-Polygone).
 - **GeoServer**, der die Geometrien direkt aus PostGIS als **Mapbox Vector Tiles (MVT)** ausliefert.
 
-Eine vollständige Auflistung aller eingesetzten Bibliotheken findet sich auf der Seite [Libraries and Technologies](libraries_and_technologies.html).
+Eine vollständige Auflistung aller eingesetzten Bibliotheken findet sich auf der Seite [Libraries and Technologies]({{ '/architektur_gdi.html#libraries_and_technologies' | relative_url }}).
 
 ---
 
@@ -40,7 +40,7 @@ Der Client nutzt zwei unterschiedliche Kommunikationswege auf den Server:
 
 Die Trennung dieser beiden Wege ist bewusst gewählt: GeoServer liefert performant grosse Geometrien, FastAPI liefert kleine, semantisch strukturierte JSON-Antworten.
 
-Eine Übersicht der angebundenen externen APIs ist auf der Seite [APIs and Interfaces](api_and_interfaces.html) zu finden.
+Eine Übersicht der angebundenen externen APIs ist auf der Seite [APIs and Interfaces]({{ '/architektur_gdi.html#api_and_interfaces' | relative_url }}) zu finden.
 
 ---
 

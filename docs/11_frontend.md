@@ -56,7 +56,7 @@ Da Daten aus mehreren externen Quellen kommen, wird jeder Ladezustand explizit d
 
 ### Zusammenspiel mit dem Server
 
-Der Client nutzt zwei unterschiedliche Wege auf den Server (ausführlich beschrieben auf der [Server-Seite](backend.html)):
+Der Client nutzt zwei unterschiedliche Wege auf den Server (ausführlich beschrieben auf der [Server-Seite]({{ '/architektur_gdi.html#server' | relative_url }})):
 
 - **Karten-Layer** (Schneehöhen, Pisten, Lifte, Skigebietspunkte) werden direkt vom **GeoServer** als Vector Tiles bezogen. Die Tile-URLs werden über die Hilfsfunktion `geoserverTileUrl()` aus `mapConfig.js` aufgebaut.
 - **Strukturierte Sachdaten** (Skigebiet-Liste, Detaildaten, Wetterprognose) gehen über die **FastAPI**.

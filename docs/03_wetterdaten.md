@@ -14,6 +14,6 @@ In der Detailansicht werden die stündlichen Wetterdaten als Diagramm dargestell
 
 #### Datenquelle und Caching
 
-Die Wetterdaten stammen von **Open-Meteo** und werden vom SkiScope-Backend zwischengespeichert. Zwischen aufeinanderfolgenden Anfragen vergehen nie mehr Open-Meteo-Calls als nötig: Pro Skigebiet wird die Prognose nur dann neu geholt, wenn der DB-Cache älter als drei Stunden ist. Details dazu auf der [Server-Seite](backend.html#caching-strategien).
+Die Wetterdaten stammen von **Open-Meteo** und werden vom SkiScope-Backend zwischengespeichert. Zwischen aufeinanderfolgenden Anfragen vergehen nie mehr Open-Meteo-Calls als nötig: Pro Skigebiet wird die Prognose nur dann neu geholt, wenn der DB-Cache älter als drei Stunden ist. Details dazu auf der [Server-Seite]({{ '/architektur_gdi.html#server' | relative_url }}).
 
 <img src="assets/gifs/Detail_Wetter.gif" alt="Animation: Hover über einen Tag in der Wetter-Sidebar öffnet die Detailansicht mit Temperatur-, Niederschlags- und Sonnenscheindiagramm" class="gifs">
