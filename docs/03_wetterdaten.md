@@ -1,4 +1,4 @@
-Die Wetteranzeige ist fester Bestandteil von SkiScope und wird parallel zur Karte angezeigt. Sie liefert eine 14-tägige Übersicht und auf Wunsch eine stündliche Detailansicht — beides bezogen auf die aktuell ausgewählte Wetterstation eines Skigebiets.
+Die Wetteranzeige ist fester Bestandteil von SkiScope und wird parallel zur Karte angezeigt. Sie liefert eine 14-tägige Übersicht und auf Wunsch eine stündliche Detailansicht — beides bezieht sich auf die Wetterstation, die mit dem jeweiligen Skigebiet verbunden ist.
 
 #### 14-Tages-Prognose in der Sidebar
 
