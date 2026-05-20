@@ -10,7 +10,7 @@ Unten rechts auf der Karte befindet sich die Bedienleiste „Kartenlayer". Mit e
 
 #### Legende
 
-Direkt darüber zeigt die Legende die Farbskala der Schneehöhenkarte in Zentimetern. Die Farben stammen aus der vom SLF gelieferten GeoJSON-Definition und bleiben dadurch konsistent mit deren offizieller Darstellung.
+Auf der linken Seite zeigt die Legende die Farbskala der Schneehöhenkarte in Zentimetern. Die zugrundeliegenden Daten nutzen die offizielle Darstellung des SLF, allerdings wurden die ursprünglichen Farbcodes neu gemappt. Dadurch wurde eine intuitivere Darstellung der Schneehöhe erreicht, die sich nahtlos in das restliche Interface-Design einfügt.
 
 #### Datenfluss
 
