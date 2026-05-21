@@ -2,7 +2,7 @@
 
 Webanwendung für die Planung von Wintersportausflügen in Schweizer Skigebieten. Zeigt aktuelle Schneehöhen, Pisten-/Liftstatus und Wetterprognosen für nahezu alle Skigebiete der Schweiz auf einer interaktiven Karte.
 
-Entwickelt im Rahmen des Moduls **4230 Geoinformatik und Raumanalyse (FHNW)** von _Schiefermüller, Hubler und Zettel_ als Geodateninfrastruktur (GDI).
+Entwickelt im Rahmen des Geomatik-Bachelorstudiums an der Fachhochschule Nordwestschweiz von _Schiefermüller, Hubler und Zettel_
 
 **Dokumentation (GitHub Pages):** <https://flaviozettel.github.io/SkiScope/>
 
