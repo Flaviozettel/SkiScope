@@ -14,7 +14,8 @@ Eine vollständige Auflistung aller eingesetzten Bibliotheken findet sich auf de
 
 #### Warum MapLibre und nicht OpenLayers?
 
-Die Wahl fiel bewusst auf **MapLibre GL JS** statt OpenLayers, weil GeoServer die Layer in SkiScope als **Mapbox Vector Tiles (MVT)** ausliefert. MapLibre rendert MVT nativ über WebGL, was auch bei vielen tausend Geometrien (Pisten, Lifte, Schneehöhen-Polygone) flüssige Interaktion ermöglicht. OpenLayers ist im klassischen OGC-Umfeld (WMS, WFS, raster-lastige Workflows) stärker, hätte für die hier benötigte vektorbasierte, hochinteraktive Darstellung jedoch keinen Vorteil gebracht. Zusätzlich integriert sich MapLibre über `react-map-gl` sauber in den deklarativen React-Aufbau.
+Die Wahl fiel auf MapLibre GL JS, da GeoServer die SkiScope-Layer als Mapbox Vector Tiles (MVT) ausliefert. Durch das native WebGL-Rendering bleibt die Darstellung auch bei grossen Datenmengen performant. OpenLayers hätte für die vektorbasierte, hochinteraktive Anwendung keinen Vorteil gebracht. Zudem integriert sich MapLibre über react-map-gl gut in den React-Aufbau.
+MapLibre unterstützt jedoch ausschliesslich Web Mercator (EPSG:3857). Da alle verwendeten Datenquellen bereits in WGS 84 vorlagen, war keine Reprojektion nötig. Eine sichtbare Einschränkung zeigt sich jedoch bei der Swisstopo-Basiskarte, da deren Vector Tiles in LV95 publiziert werden, erscheinen die Koordinatenlinien in MapLibre leicht schräg.
 
 ---
 
