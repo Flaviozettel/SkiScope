@@ -30,17 +30,38 @@ Eine vollständige Auflistung aller eingesetzten Bibliotheken findet sich auf de
 
 ---
 
-### Zusammenspiel der Komponenten
+### Zusammenspiel von Frontend, GeoServer und Backend
 
-Der Client nutzt zwei unterschiedliche Kommunikationswege auf den Server:
+Die Kartenlayer werden im Frontend über `react-map-gl` eingebunden. Dafür definiert `SkiMap.jsx` pro Datensatz eine eigene `<Source>`-Komponente, welche die benötigten Vector Tiles direkt vom GeoServer lädt. Die Tile-URLs werden zentral über `geoserverTileUrl()` in `mapConfig.js` erzeugt.
 
-**Vector Tiles über GeoServer.** Alle kartografischen Layer wie Schneehöhen, Pisten, Lifte und Skigebietspunkte werden vom Client direkt vom GeoServer als MVT-Kacheln bezogen. GeoServer rendert die Tiles zur Laufzeit aus der PostGIS-Datenbank. Die Tiles werden zusätzlich vom Browser des Nutzers gecacht, sodass wiederholte Karteninteraktionen ohne erneute Server-Last auskommen.
+Die Kommunikation zwischen Frontend und Server ist folgendermassen aufgeteilt:
 
-**Strukturierte Sachdaten über FastAPI.** Sobald Detaildaten benötigt werden, etwa wenn ein Skigebiet angeklickt oder eine Wetterprognose geöffnet wird, fragt der Client die FastAPI an. Diese liest entweder direkt aus der Datenbank oder holt die Daten bei Bedarf von einer externen API, schreibt sie zurück in die DB und gibt sie an den Client weiter.
+- **GeoServer** liefert performante Mapbox Vector Tiles (MVT) für alle geometrischen Daten wie Schneehöhen, Pisten, Lifte und Skigebiete.
+- **FastAPI** liefert strukturierte JSON-Daten für Detailansichten, Wetterdaten oder Statusinformationen.
 
-Die Trennung dieser beiden Wege ist bewusst gewählt: GeoServer liefert performant grosse Geometrien, FastAPI liefert kleine, semantisch strukturierte JSON-Antworten.
+Für den Schneehöhen-Layer wird zusätzlich ein `viewparams`-Parameter verwendet, um die Daten serverseitig nach Datum zu filtern:
 
-Eine Übersicht der angebundenen externen APIs ist auf der Seite [APIs and Interfaces]({{ '/architektur_gdi.html#api_and_interfaces' | relative_url }}) zu finden.
+```js
+geoserverTileUrl("schneehoehen_datum", `&viewparams=datum:${safeDatum}`);
+```
+
+Die wichtigsten eingebundenen Layer sind:
+
+| Layer       | Geometrietyp    | Datenquelle |
+| ----------- | --------------- | ----------- |
+| Schneehöhen | Polygon         | PostGIS     |
+| Pisten      | Polygon / Linie | PostGIS     |
+| Lifte       | Polygon / Linie | GeoPackage  |
+| Skigebiete  | Punkt           | PostGIS     |
+
+Das Styling erfolgt vollständig clientseitig in MapLibre. Dadurch können Farben, Transparenzen, Filter und Hover-Effekte dynamisch angepasst werden.
+
+- Pisten werden anhand ihres Schwierigkeitsgrades eingefärbt.
+- Schneehöhen verwenden eine abgestufte Blau-Skala.
+- Liftanlagen werden als schwarze Linien mit Beschriftung dargestellt.
+- Skigebiete wechseln ihren Status dynamisch zwischen geöffnet und geschlossen.
+
+Zusätzlich wird die Sichtbarkeit einzelner Layer automatisch an den Zoomlevel angepasst: Bei kleinen Zoomstufen bleibt die Schneekarte sichtbar, während ab höheren Zoomstufen detaillierte Pisten- und Liftlayer eingeblendet werden. Dieses Verhalten kann über das Layer-Panel manuell überschrieben werden.
 
 ---
 
