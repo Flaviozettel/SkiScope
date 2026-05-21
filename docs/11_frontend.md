@@ -51,12 +51,12 @@ Aus diesen Prinzipien ergeben sich konkrete Interaktionsmuster.
 
 ### States und Fehlerbehandlung
 
-Da Daten aus mehreren externen Quellen kommen, wird jeder Ladezustand explizit dargestellt.
+Da die Daten aus mehreren externen Quellen stammen, berücksichtigt die Anwendung unterschiedliche Ladezustände sowie die teilweise unvollständige Verfügbarkeit einzelner Datensätze.
 
-**Loading.** Solange eine Backend-Antwort aussteht, zeigt das betreffende Element einen Spinner. Die Karte bleibt dabei bedienbar.
+Loading: Solange eine Backend-Antwort aussteht, zeigt das betreffende Element einen Spinner. Die Karte bleibt dabei bedienbar.
 <img src="assets/gifs/Loading_Detail.gif"  alt="Loading-Anzeige beim Detail-Popup" class="gifs">
 
-**Fehlende Werte.** Fehlen einzelne Werte — etwa weil ein Gebiet keine Langlaufloipen hat. Hier werden die entsprechenden Abschnitte einfach ausgeblendet.
+Fehlende Werte: Fehlen einzelne Werte, etwa weil ein Gebiet keine Langlaufloipen hat, werden die entsprechenden Abschnitte einfach ausgeblendet.
 
 Ein Sonderfall ist die Wetter-Sidebar: Da Open-Meteo nur für die ersten sieben Tage Stundendaten liefert, wird der Detail-Button für spätere Tage gar nicht erst angezeigt.
 
