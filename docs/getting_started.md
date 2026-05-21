@@ -182,6 +182,17 @@ Die folgenden Werte eintragen:
     <string key="user">skiscopeadm</string>
     <string key="passwd">dein_pw</string>
 
+### Vorgefertigte GeoServer-Konfiguration
+
+Der nun eingespielte `data_dir` enthält bereits die vollständige GeoServer-Konfiguration des Projekts. Dazu gehören:
+
+- der Workspace `skiscope`
+- alle benötigten PostGIS- und GeoPackage-Stores
+- die publizierten Layer
+- Tile-Caching-Einstellungen für Mapbox Vector Tiles (MVT)
+
+Dadurch entfällt die manuelle Konfiguration der Layer im GeoServer-Webinterface weitgehend.
+
 ### GeoServer starten
 
     cd /usr/share/geoserver/bin
