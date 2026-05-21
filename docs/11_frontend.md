@@ -50,7 +50,14 @@ Aus diesen Prinzipien ergeben sich konkrete Interaktionsmuster.
 
 ### States und Fehlerbehandlung
 
-Da Daten aus mehreren externen Quellen kommen, wird jeder Ladezustand explizit dargestellt. Popups und Detailansichten zeigen einen Ladeindikator, solange die Backend-Antwort aussteht. Fehlen einzelne Werte (etwa weil ein Skigebiet keine Langlaufloipen hat), werden die entsprechenden Abschnitte einfach ausgeblendet. Bei API- oder Netzfehlern wird eine kurze Fehlermeldung angezeigt — so weiss der Nutzer immer, ob er gerade wartet, ob etwas fehlt oder ob etwas schiefgegangen ist.
+Da Daten aus mehreren externen Quellen kommen, wird jeder Ladezustand explizit dargestellt.
+
+**Loading.** Solange eine Backend-Antwort aussteht, zeigt das betreffende Element einen Spinner. Die Karte bleibt dabei bedienbar.
+<img src="assets/gifs/Loading_Detail.gif"  alt="Loading-Anzeige beim Detail-Popup" class="gifs">
+
+**Fehlende Werte.** Fehlen einzelne Werte — etwa weil ein Gebiet keine Langlaufloipen hat. Hier werden die entsprechenden Abschnitte einfach ausgeblendet.
+
+Ein Sonderfall ist die Wetter-Sidebar: Da Open-Meteo nur für die ersten sieben Tage Stundendaten liefert, wird der Detail-Button für spätere Tage gar nicht erst angezeigt.
 
 ---
 
