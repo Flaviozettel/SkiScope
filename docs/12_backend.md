@@ -32,7 +32,7 @@ Eine vollständige Auflistung aller eingesetzten Bibliotheken findet sich auf de
 
 ### Zusammenspiel von Frontend, GeoServer und Backend
 
-Die Kartenlayer werden im Frontend über `react-map-gl` eingebunden. Dafür definiert `SkiMap.jsx` pro Datensatz eine eigene `<Source>`-Komponente, welche die benötigten Vector Tiles direkt vom GeoServer lädt. Die Tile-URLs werden zentral über `geoserverTileUrl()` in `mapConfig.js` erzeugt.
+Die Kartenlayer werden im Frontend über `react-map-gl` eingebunden.
 
 Die Kommunikation zwischen Frontend und Server ist folgendermassen aufgeteilt:
 
@@ -45,7 +45,7 @@ Für den Schneehöhen-Layer wird zusätzlich ein `viewparams`-Parameter verwende
 geoserverTileUrl("schneehoehen_datum", `&viewparams=datum:${safeDatum}`);
 ```
 
-Die wichtigsten eingebundenen Layer sind:
+Die eingebundenen Layer sind:
 
 | Layer       | Geometrietyp    | Datenquelle |
 | ----------- | --------------- | ----------- |
