@@ -18,8 +18,8 @@
 
 ### Datenhaltung und Geodaten-Dienst
 
-- [PostgreSQL](https://www.postgresql.org/) / [PostGIS](https://postgis.net/) — Relationale Datenbank mit Geodaten-Erweiterung
-- [GeoServer](https://geoserver.org/) — Geodatenserver, liefert Layer als Vector Tiles
+- [PostgreSQL](https://www.postgresql.org/) (17.9) / [PostGIS](https://postgis.net/) (3.5) — Relationale Datenbank mit Geodaten-Erweiterung
+- [GeoServer](https://geoserver.org/)(2.28.3) — Geodatenserver, liefert Layer als Vector Tiles
 - [Raspberry Pi](https://www.raspberrypi.com/) — Hardware für GeoServer, PostgreSQL und Backend
 
 ### Externe Datenquellen
