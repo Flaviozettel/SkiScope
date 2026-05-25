@@ -5,7 +5,23 @@ title: Getting Started
 
 # Getting Started
 
-Diese Anleitung beschreibt, wie SkiScope auf einem **frisch aufgesetzten Raspberry Pi mit Raspberry Pi OS** komplett von Null aufgesetzt wird.
+Diese Anleitung beschreibt, wie SkiScope aufgesetzt wird. Eine Übersicht über die geprüften Versionen findest Du im Abschnitt [Systemanforderungen](#systemanforderungen). Die Befehle um eine fertige Installation zu starten befinden sich unter [System starten](#system-starten).
+
+## Systemanforderungen
+
+SkiScope wurde von uns auf einem Raspberry Pi unter Raspberry Pi OS entwickelt und getestet. Die Anwendung ist aber bewusst systemunabhängig aufgebaut und läuft genauso auf jedem anderen Linux-Server, auf macOS oder unter Windows. Die folgende Anleitung verwendet `apt`-Befehle, weil unser Setup ein Debian-basiertes System ist. Auf anderen Plattformen sind die Schritte identisch, lediglich der Paket-Manager (zum Beispiel `brew` auf macOS) und einzelne Pfadkonventionen ändern sich.
+
+Folgende Versionen müssen mindestens vorhanden sein. In Klammern jeweils die Version, mit der wir das Projekt selbst betrieben haben.
+
+| Komponente               | Getestet mit |
+| ------------------------ | ------------ |
+| Python                   | 3.10         |
+| Node.js                  | 22.14.0      |
+| PostgreSQL               | 17.9         |
+| PostGIS                  | 3.5          |
+| GeoServer                | 2.26.2       |
+| Java JRE (für GeoServer) | 21           |
+| Browser                  | Brave        |
 
 ## Verzeichnisstruktur
 
@@ -29,7 +45,7 @@ werden.
 > User benutzt, musst du den Pfad an mehreren Stellen anpassen — siehe
 > Kasten weiter unten zum Thema _hartkodierter `.env`-Pfad_.
 
-Die Anleitung gliedert sich in sechs Abschnitte:
+Die eigentliche Installation gliedert sich in sechs Abschnitte:
 
 1. [System vorbereiten](#1-system-vorbereiten)
 2. [Datenbank aufsetzen](#2-datenbank-aufsetzen)
@@ -37,6 +53,8 @@ Die Anleitung gliedert sich in sechs Abschnitte:
 4. [Backend installieren](#4-backend-installieren)
 5. [Frontend installieren](#5-frontend-installieren)
 6. [Cronjobs für laufende Daten](#6-cronjobs-für-laufende-daten)
+
+Sobald alles installiert und befüllt ist, beschreibt der Abschnitt [System starten](#system-starten), wie die drei Komponenten im laufenden Betrieb hochgefahren werden.
 
 ---
 
@@ -263,32 +281,6 @@ http://<pi-hostname-oder-ip>:8000/docs
 
 Wenn die Swagger-UI erscheint, läuft das Backend.
 
-### Backend als Systemd-Service (Produktivbetrieb)
-
-```bash
-sudo tee /etc/systemd/system/skiscope-backend.service > /dev/null <<'EOF'
-[Unit]
-Description=SkiScope FastAPI Backend
-After=network.target postgresql.service
-
-[Service]
-User=gisadmin
-WorkingDirectory=/home/gisadmin/skiscope/SkiScope/server
-ExecStart=/home/gisadmin/skiscope/.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000
-Restart=on-failure
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-sudo systemctl daemon-reload
-sudo systemctl enable --now skiscope-backend
-systemctl status skiscope-backend --no-pager
-```
-
-> Falls dein User nicht `gisadmin` heisst: `User=` und alle Pfade
-> entsprechend anpassen.
-
 ---
 
 ## 5. Frontend installieren
@@ -386,5 +378,39 @@ Folgende Zeile anhängen — sie läuft alle zwei Stunden zur vollen Stunde:
 ```bash
 crontab -l
 ```
+
+---
+
+## System starten
+
+Sobald die Installation abgeschlossen und die Datenbank befüllt ist, wird das System mit drei parallel laufenden Prozessen hochgefahren. Jeder Befehl gehört in ein eigenes Terminal, damit die Logs einzeln mitgelesen werden können.
+
+### GeoServer
+
+```bash
+cd /usr/share/geoserver/bin
+sudo sh startup.sh
+```
+
+Webinterface erreichbar unter `http://<hostname-oder-ip>:8080/geoserver/web`.
+
+### Backend
+
+```bash
+cd ~/skiscope/SkiScope/server
+source ~/skiscope/.venv/bin/activate
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+Swagger-UI erreichbar unter `http://<hostname-oder-ip>:8000/docs`.
+
+### Frontend
+
+```bash
+cd ~/skiscope/SkiScope/client
+npm run dev -- --host
+```
+
+Die Anwendung ist anschliessend unter `http://<hostname-oder-ip>:5173` aufrufbar.
 
 ---

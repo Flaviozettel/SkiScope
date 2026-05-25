@@ -1,4 +1,4 @@
-Der Server bündelt sämtliche Datenflüsse zwischen externen Datenquellen, der eigenen Datenhaltung und dem Client. Die gesamte Server-Infrastruktur läuft auf einem **Raspberry Pi** und besteht aus drei Komponenten: einem **GeoServer** für die Bereitstellung OGC-Konformer Kartenelemente, einer **PostgreSQL-/PostGIS-Datenbank** für die Daten- und Cache-Haltung sowie einer **FastAPI-Anwendung** als REST-Schnittstelle.
+Der Server bündelt sämtliche Datenflüsse zwischen externen Datenquellen, der eigenen Datenhaltung und dem Client. Die Server-Infrastruktur besteht aus drei Komponenten: einem **GeoServer** für die Bereitstellung OGC-konformer Kartenelemente, einer **PostgreSQL-/PostGIS-Datenbank** für die Daten- und Cache-Haltung sowie einer **FastAPI-Anwendung** als REST-Schnittstelle. In unserem Referenz-Setup laufen alle drei Komponenten gemeinsam auf einem **Raspberry Pi**. Da die Anwendung systemunabhängig konzipiert ist, funktioniert das gleiche Setup auch auf jedem anderen Linux-Server, auf macOS oder unter Windows.
 
 ---
 
@@ -9,10 +9,10 @@ Der Server bündelt sämtliche Datenflüsse zwischen externen Datenquellen, der 
 Das Zusammenspiel der Komponenten lässt sich in drei Ebenen einteilen:
 
 1. **Client-Ebene** – die React-/MapLibre-Anwendung im Browser des Nutzers.
-2. **Server-Ebene** – GeoServer, FastAPI und PostgreSQL/PostGIS auf dem Raspberry Pi.
+2. **Server-Ebene** – GeoServer, FastAPI und PostgreSQL/PostGIS, in unserem Setup auf einem Raspberry Pi.
 3. **Externe Datenquellen** – Open-Meteo (Wetter), SLF (Schneehöhen), STNet (Betriebsstatus) sowie Overpass/OpenStreetMap (initialer Geometrie-Import).
 
-Der Client kommuniziert ausschliesslich mit dem Raspberry Pi. Die externen APIs werden niemals direkt aus dem Browser angesprochen, sondern stets über die FastAPI als zwischengeschaltete Vermittlungsschicht.
+Der Client kommuniziert ausschliesslich mit dem Server. Die externen APIs werden niemals direkt aus dem Browser angesprochen, sondern stets über die FastAPI als zwischengeschaltete Vermittlungsschicht.
 
 ---
 
@@ -67,7 +67,7 @@ Zusätzlich wird die Sichtbarkeit einzelner Layer automatisch an den Zoomlevel a
 
 ### Caching-Strategien
 
-Da SkiScope auf einem Raspberry Pi läuft und die externen APIs (insbesondere Open-Meteo) mit Rate-Limits arbeiten, ist das Caching ein zentraler Bestandteil der Server-Architektur. Es kommen mehrere Cache-Schichten parallel zum Einsatz.
+Da der Server in unserem Setup auf vergleichsweise schwacher Hardware (Raspberry Pi) läuft und die externen APIs (insbesondere Open-Meteo) mit Rate-Limits arbeiten, ist das Caching ein zentraler Bestandteil der Server-Architektur. Es kommen mehrere Cache-Schichten parallel zum Einsatz.
 
 #### Wetter-Cache in PostgreSQL
 
