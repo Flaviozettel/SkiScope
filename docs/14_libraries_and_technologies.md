@@ -1,20 +1,20 @@
 ### Frontend
 
-- [React](https://react.dev/) — JavaScript-Framework für den Aufbau der Benutzeroberfläche
-- [Vite](https://vite.dev/) — Build-Tool und Entwicklungsserver
-- [MapLibre GL JS](https://maplibre.org/maplibre-gl-js/docs/) — Darstellung und Interaktion der Webkarte sowie Einbindung von GeoServer-Layern
-- [react-map-gl](https://visgl.github.io/react-map-gl/) — React-Wrapper für MapLibre GL JS
-- [Recharts](https://recharts.org/) — Darstellung der Wetterdaten als Diagramme
+- [React](https://react.dev/) (18.3.1) — JavaScript-Framework für den Aufbau der Benutzeroberfläche
+- [Vite](https://vite.dev/) ( 6.4.1) — Build-Tool und Entwicklungsserver
+- [MapLibre GL JS](https://maplibre.org/maplibre-gl-js/docs/) (5.1.0) — Darstellung und Interaktion der Webkarte sowie Einbindung von GeoServer-Layern
+- [react-map-gl](https://visgl.github.io/react-map-gl/) (8.0.1) — React-Wrapper für MapLibre GL JS
+- [Recharts](https://recharts.org/) (3.4.1) n— Darstellung der Wetterdaten als Diagramme
 
 ### Backend
 
-- [FastAPI](https://fastapi.tiangolo.com/) — Python-Framework für die REST API
-- [psycopg2](https://www.psycopg.org/docs/) — PostgreSQL-Treiber für Python
-- [openmeteo-requests](https://pypi.org/project/openmeteo-requests/) — Open-Meteo-Client für Python
-- [requests-cache](https://requests-cache.readthedocs.io/) — HTTP-Cache-Schicht für Open-Meteo-Anfragen
-- [retry-requests](https://pypi.org/project/retry-requests/) — Automatische Wiederholung fehlgeschlagener HTTP-Anfragen
-- [pandas](https://pandas.pydata.org/) — Aufbereitung der Wetterdaten als DataFrame
-- [python-dotenv](https://pypi.org/project/python-dotenv/) — Laden der `.env`-Datei mit DB-Zugangsdaten und API-Keys
+- [FastAPI](https://fastapi.tiangolo.com/) (0.121.3) — Python-Framework für die REST API
+- [psycopg2](https://www.psycopg.org/docs/) (2.9.10) — PostgreSQL-Treiber für Python
+- [openmeteo-requests](https://pypi.org/projct/openmeteo-requests/) (1.7.5) — Open-Meteo-Client für Python
+- [requests-cache](https://requests-cache.readthedocs.io/) (1.3.2) — HTTP-Cache-Schicht für Open-Meteo-Anfragen
+- [retry-requests](https://pypi.org/project/retry-requests/) (2.0.0) — Automatische Wiederholung fehlgeschlagener HTTP-Anfragen
+- [pandas](https://pandas.pydata.org/) (3.0.2) — Aufbereitung der Wetterdaten als DataFrame
+- [python-dotenv](https://pypi.org/project/python-dotenv/) (1.2.2) — Laden der `.env`-Datei mit DB-Zugangsdaten und API-Keys
 
 ### Datenhaltung und Geodaten-Dienst
 
