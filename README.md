@@ -56,9 +56,9 @@ out geom;
 
 #### Lifte
 
+```
 [out:json][timeout:180];
 
-```
 {{geocodeArea:Switzerland}}->.searchArea; 
 
 (
