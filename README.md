@@ -8,6 +8,76 @@ Entwickelt im Rahmen des Geomatik-Bachelorstudiums an der Fachhochschule Nordwes
 
 ---
 
+## Preprocessing - Aufbereitung Geodaten
+
+Die Datenaufbereitung der Skipisten und Skilifte erfolgte in mehreren Schritten. Zunächst wurden die Geometrien über [Overpass turbo](https://overpass-turbo.eu/) mit folgenden Befehlen als GeoJSON bezogen:
+
+´´´
+#### Skigebiete (Fläche)
+
+[out:json][timeout:180];
+
+{{geocodeArea:Switzerland}}->.searchArea; 
+
+(
+  way["landuse"="winter_sports"](area.searchArea);
+  relation["landuse"="winter_sports"](area.searchArea);
+);
+
+out geom;
+
+#### Pisten
+
+[out:json][timeout:180];
+
+{{geocodeArea:Switzerland}}->.searchArea; 
+
+(
+  way["piste:type"="downhill"](area.searchArea);
+  relation["piste:type"="downhill"](area.searchArea);
+
+  way["piste:type"="snowpark"](area.searchArea);
+  relation["piste:type"="snowpark"](area.searchArea);
+
+  way["piste:type"="freeride"](area.searchArea);
+  relation["piste:type"="freeride"](area.searchArea);
+
+  way["piste:type"="backcountry"](area.searchArea);
+  relation["piste:type"="backcountry"](area.searchArea);
+
+  way["piste:type"="ski_jump"](area.searchArea);
+  relation["piste:type"="ski_jump"](area.searchArea);
+);
+
+out geom;
+
+#### Lifte
+
+[out:json][timeout:180];
+
+{{geocodeArea:Switzerland}}->.searchArea; 
+
+(
+  way["aerialway"](area.searchArea);
+  relation["aerialway"](area.searchArea);
+
+  way["railway"="funicular"](area.searchArea);
+  relation["railway"="funicular"](area.searchArea);
+
+  way["railway"="incline"](area.searchArea);
+  relation["railway"="incline"](area.searchArea);
+);
+
+out geom;
+
+´´´
+'geocodeArea' ist eine Hilfsfunktion in overpass turbo, die es erlaubt ein Gebiet anhand eines Namens zu suchen. Das Suchgebiet wird dabei in die Variable .searchArea gespeichert. Diese Fläche dient anschliessend als räumliche Begrenzung der Abfrage.
+
+In einem zweiten Schritt wurden die Wetterstationen von [OpenMeteo](https://open-meteo.com/) als CSV-Datei in QGIS importiert und mittels dem Plugin [all_geocoders_at_once](https://github.com/TrueSpearmint/all_geocoders_at_once) und dem Geocoder-Service Esri (ArcGis, ohne API-Key) geocodiert. Es konnten circa 85% aller Stationen geocodiert werden. Die restlichen Stationen, die nicht geocodiert werden konnten, wurden manuell ergänzt. Es wurde zudem kontrolliert, dass alle Stationen innerhalb einer Fläche "landuse"="winter_sports" liegen. Dies um im folgenden, dritten, Schritt die Stations-ID auf die Skigebiete und später auf die Pisten und Lifte zu übertragen.
+
+Im letzten Schritt wurde ein SQL-Dump aus QGIS erzeugt, womit die Geodaten in die PostgreSQL PostGIS Datenbank geladen wurden.
+---
+
 ## Tech-Stack
 
 - **Frontend:** React, Vite, MapLibre GL JS, Recharts
