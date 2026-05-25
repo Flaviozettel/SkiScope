@@ -1,10 +1,10 @@
 ### Frontend
 
 - [React](https://react.dev/) (18.3.1) — JavaScript-Framework für den Aufbau der Benutzeroberfläche
-- [Vite](https://vite.dev/) ( 6.4.1) — Build-Tool und Entwicklungsserver
+- [Vite](https://vite.dev/) (6.4.1) — Build-Tool und Entwicklungsserver
 - [MapLibre GL JS](https://maplibre.org/maplibre-gl-js/docs/) (5.1.0) — Darstellung und Interaktion der Webkarte sowie Einbindung von GeoServer-Layern
 - [react-map-gl](https://visgl.github.io/react-map-gl/) (8.0.1) — React-Wrapper für MapLibre GL JS
-- [Recharts](https://recharts.org/) (3.4.1) n— Darstellung der Wetterdaten als Diagramme
+- [Recharts](https://recharts.org/) (3.4.1) — Darstellung der Wetterdaten als Diagramme
 
 ### Backend
 

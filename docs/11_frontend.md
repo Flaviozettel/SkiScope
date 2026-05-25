@@ -4,11 +4,11 @@ Der Client ist die Weboberfläche von SkiScope und vereint Karte, Suche, Detaila
 
 ### Verwendete Technologien
 
-- **React** – Komponentenbasierte Benutzeroberfläche.
-- **Vite** – Build-Tool und Entwicklungsserver mit schnellem Hot-Reload.
-- **MapLibre GL JS** – WebGL-basiertes Rendering der Karte und der GeoServer-Vector-Tiles.
-- **react-map-gl** – React-Wrapper, der MapLibre deklarativ in den Komponentenbaum einbettet.
-- **Recharts** – Darstellung der stündlichen Wetterdaten als Diagramm.
+- **React** (18.3.1) – Komponentenbasierte Benutzeroberfläche.
+- **Vite** (6.4.1) – Build-Tool und Entwicklungsserver mit schnellem Hot-Reload.
+- **MapLibre GL JS** (5.1.0) – WebGL-basiertes Rendering der Karte und der GeoServer-Vector-Tiles.
+- **react-map-gl** (8.0.1) – React-Wrapper, der MapLibre deklarativ in den Komponentenbaum einbettet.
+- **Recharts** (3.4.1) – Darstellung der stündlichen Wetterdaten als Diagramm.
 
 Eine vollständige Auflistung aller eingesetzten Bibliotheken findet sich auf der Seite [Libraries and Technologies]({{ '/architektur_gdi.html#libraries_and_technologies' | relative_url }}).
 
