@@ -43,5 +43,4 @@ SkiScope ist noch lange nicht am Ende. Das Projekt bietet verschiedene Möglichk
 
 
 #### GitHub Repository
-
-GitHub Repository: https://github.com/Flaviozettel/SkiScope
+https://github.com/Flaviozettel/SkiScope
