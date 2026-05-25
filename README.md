@@ -12,9 +12,9 @@ Entwickelt im Rahmen des Geomatik-Bachelorstudiums an der Fachhochschule Nordwes
 
 Die Datenaufbereitung der Skipisten und Skilifte erfolgte in mehreren Schritten. Zunächst wurden die Geometrien über [Overpass turbo](https://overpass-turbo.eu/) mit folgenden Befehlen als GeoJSON bezogen:
 
-´´´
 #### Skigebiete (Fläche)
 
+```
 [out:json][timeout:180];
 
 {{geocodeArea:Switzerland}}->.searchArea; 
@@ -25,9 +25,11 @@ Die Datenaufbereitung der Skipisten und Skilifte erfolgte in mehreren Schritten.
 );
 
 out geom;
+```
 
 #### Pisten
 
+```
 [out:json][timeout:180];
 
 {{geocodeArea:Switzerland}}->.searchArea; 
@@ -50,11 +52,13 @@ out geom;
 );
 
 out geom;
+```
 
 #### Lifte
 
 [out:json][timeout:180];
 
+```
 {{geocodeArea:Switzerland}}->.searchArea; 
 
 (
@@ -69,9 +73,9 @@ out geom;
 );
 
 out geom;
+```
 
-´´´
-'geocodeArea' ist eine Hilfsfunktion in overpass turbo, die es erlaubt ein Gebiet anhand eines Namens zu suchen. Das Suchgebiet wird dabei in die Variable .searchArea gespeichert. Diese Fläche dient anschliessend als räumliche Begrenzung der Abfrage.
+"geocodeArea" ist eine Hilfsfunktion in overpass turbo, die es erlaubt ein Gebiet anhand eines Namens zu suchen. Das Suchgebiet wird dabei in die Variable .searchArea gespeichert. Diese Fläche dient anschliessend als räumliche Begrenzung der Abfrage.
 
 In einem zweiten Schritt wurden die Wetterstationen von [OpenMeteo](https://open-meteo.com/) als CSV-Datei in QGIS importiert und mittels dem Plugin [all_geocoders_at_once](https://github.com/TrueSpearmint/all_geocoders_at_once) und dem Geocoder-Service Esri (ArcGis, ohne API-Key) geocodiert. Es konnten circa 85% aller Stationen geocodiert werden. Die restlichen Stationen, die nicht geocodiert werden konnten, wurden manuell ergänzt. Es wurde zudem kontrolliert, dass alle Stationen innerhalb einer Fläche "landuse"="winter_sports" liegen. Dies um im folgenden, dritten, Schritt die Stations-ID auf die Skigebiete und später auf die Pisten und Lifte zu übertragen.
 
