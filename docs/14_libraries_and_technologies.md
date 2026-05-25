@@ -10,7 +10,7 @@
 
 - [FastAPI](https://fastapi.tiangolo.com/) (0.121.3) — Python-Framework für die REST API
 - [psycopg2](https://www.psycopg.org/docs/) (2.9.10) — PostgreSQL-Treiber für Python
-- [openmeteo-requests](https://pypi.org/projct/openmeteo-requests/) (1.7.5) — Open-Meteo-Client für Python
+- [openmeteo-requests](https://pypi.org/project/openmeteo-requests/) (1.7.5) — Open-Meteo-Client für Python
 - [requests-cache](https://requests-cache.readthedocs.io/) (1.3.2) — HTTP-Cache-Schicht für Open-Meteo-Anfragen
 - [retry-requests](https://pypi.org/project/retry-requests/) (2.0.0) — Automatische Wiederholung fehlgeschlagener HTTP-Anfragen
 - [pandas](https://pandas.pydata.org/) (3.0.2) — Aufbereitung der Wetterdaten als DataFrame
@@ -19,8 +19,8 @@
 ### Datenhaltung und Geodaten-Dienst
 
 - [PostgreSQL](https://www.postgresql.org/) (17.9) / [PostGIS](https://postgis.net/) (3.5) — Relationale Datenbank mit Geodaten-Erweiterung
-- [GeoServer](https://geoserver.org/)(2.28.3) — Geodatenserver, liefert Layer als Vector Tiles
-- [Raspberry Pi](https://www.raspberrypi.com/) — Hardware für GeoServer, PostgreSQL und Backend
+- [GeoServer](https://geoserver.org/) (2.28.3) — Geodatenserver, liefert Layer als Vector Tiles
+- [Raspberry Pi](https://www.raspberrypi.com/) — Test-Hardware unseres Referenz-Setups (Anwendung läuft systemunabhängig auf jedem Linux, macOS oder Windows)
 
 ### Externe Datenquellen
 

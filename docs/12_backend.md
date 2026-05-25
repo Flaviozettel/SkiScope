@@ -22,7 +22,7 @@ Auf dem Server kommen folgende Technologien zum Einsatz:
 
 - **FastAPI** (0.121.3) als REST-Framework (Python), inkl. `BackgroundTasks` für asynchrone DB-Schreibvorgänge.
 - **psycopg2** (2.9.10) als PostgreSQL-Treiber.
-- **openmeteo-requests** (1.7.5) in Kombination mit **requests-cache** und **retry-requests** (2.0.0) für robuste, gecachte Open-Meteo-Anfragen.
+- **openmeteo-requests** (1.7.5) in Kombination mit **requests-cache** (1.3.2) und **retry-requests** (2.0.0) für robuste, gecachte Open-Meteo-Anfragen.
 - **PostgreSQL** (17.9) **mit PostGIS** (3.5) als zentrale Datenhaltung, sowohl für Sachdaten als auch für Geometrien (Pisten, Lifte, Skigebiete, Schneehöhen-Polygone).
 - **GeoServer** (2.28.3), der die Geometrien direkt aus PostGIS als **Mapbox Vector Tiles (MVT)** ausliefert.
 

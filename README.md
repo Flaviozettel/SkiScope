@@ -32,7 +32,7 @@ Folgende Versionen haben wir im Projekt getestet. Die aufgeführten Stände sind
 | Node.js                  | 22.14.0      |
 | PostgreSQL               | 17.9         |
 | PostGIS                  | 3.5          |
-| GeoServer                | 2.26.2       |
+| GeoServer                | 2.28.3       |
 | Java JRE (für GeoServer) | 21           |
 | Browser                  | Brave        |
 

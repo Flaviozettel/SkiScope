@@ -19,7 +19,7 @@ Folgende Versionen haben wir im Projekt getestet. Die aufgeführten Stände sind
 | Node.js                  | 22.14.0      |
 | PostgreSQL               | 17.9         |
 | PostGIS                  | 3.5          |
-| GeoServer                | 2.26.2       |
+| GeoServer                | 2.28.3       |
 | Java JRE (für GeoServer) | 21           |
 | Browser                  | Brave        |
 
@@ -154,8 +154,8 @@ Falls nicht:
 
 ### GeoServer installieren
 
-    wget https://sourceforge.net/projects/geoserver/files/GeoServer/2.26.2/geoserver-2.26.2-bin.zip
-    sudo unzip geoserver-2.26.2-bin.zip -d /usr/share/geoserver
+    wget https://sourceforge.net/projects/geoserver/files/GeoServer/2.28.3/geoserver-2.28.3-bin.zip
+    sudo unzip geoserver-2.28.3-bin.zip -d /usr/share/geoserver
     cd /usr/share/geoserver/
     sudo chmod 777 data_dir
     echo "export GEOSERVER_HOME=/usr/share/geoserver" >> ~/.profile
