@@ -80,6 +80,7 @@ out geom;
 In einem zweiten Schritt wurden die Wetterstationen von [OpenMeteo](https://open-meteo.com/) als CSV-Datei in QGIS importiert und mittels dem Plugin [all_geocoders_at_once](https://github.com/TrueSpearmint/all_geocoders_at_once) und dem Geocoder-Service Esri (ArcGis, ohne API-Key) geocodiert. Es konnten circa 85% aller Stationen geocodiert werden. Die restlichen Stationen, die nicht geocodiert werden konnten, wurden manuell ergänzt. Es wurde zudem kontrolliert, dass alle Stationen innerhalb einer Fläche "landuse"="winter_sports" liegen. Dies um im folgenden, dritten, Schritt die Stations-ID auf die Skigebiete und später auf die Pisten und Lifte zu übertragen.
 
 Im letzten Schritt wurde ein SQL-Dump aus QGIS erzeugt, womit die Geodaten in die PostgreSQL PostGIS Datenbank geladen wurden.
+
 ---
 
 ## Tech-Stack
