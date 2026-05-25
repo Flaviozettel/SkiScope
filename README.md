@@ -14,44 +14,67 @@ Entwickelt im Rahmen des Geomatik-Bachelorstudiums an der Fachhochschule Nordwes
 - **Backend:** FastAPI (Python), psycopg2
 - **Datenhaltung:** PostgreSQL mit PostGIS
 - **Geodaten-Dienst:** GeoServer (Vector Tiles / MVT)
-- **Hosting:** Raspberry Pi
+- **Hosting:** plattformunabhängig (Linux, macOS, Windows). Unser Referenz-Setup läuft auf einem Raspberry Pi.
 
-Vollständige Auflistung: siehe [Libraries and Technologies](https://flaviozettel.github.io/SkiScope/libraries_and_technologies.html) auf der GitHub Page.
+Vollständige Auflistung: siehe [Libraries and Technologies](https://flaviozettel.github.io/SkiScope/architektur_gdi.html#libraries_and_technologies) auf der GitHub Page.
 
 ---
 
-## Repository klonen
+## Systemanforderungen
+
+SkiScope wurde von uns auf einem Raspberry Pi unter Raspberry Pi OS entwickelt und getestet. Die Anwendung läuft genauso auf jedem anderen Linux-Server, auf macOS oder unter Windows. Die Installationsanleitung verwendet `apt`-Befehle, weil unser Setup ein Debian-basiertes System ist. Auf anderen Plattformen sind die Schritte identisch, lediglich der Paket-Manager (zum Beispiel `brew` auf macOS) und einzelne Pfadkonventionen ändern sich.
+
+Folgende Versionen haben wir im Projekt getestet. Die aufgeführten Stände sind als Referenz zu verstehen, die Anwendung läuft erfahrungsgemäss auch mit aktuelleren Versionen.
+
+| Komponente               | Getestet mit |
+| ------------------------ | ------------ |
+| Python                   | 3.10         |
+| Node.js                  | 22.14.0      |
+| PostgreSQL               | 17.9         |
+| PostGIS                  | 3.5          |
+| GeoServer                | 2.26.2       |
+| Java JRE (für GeoServer) | 21           |
+| Browser                  | Brave        |
+
+---
+
+## Installation
+
+Eine vollständige Schritt-für-Schritt-Anleitung findest Du auf der GitHub Page unter **[Getting Started](https://flaviozettel.github.io/SkiScope/getting_started.html)**.
+
+---
+
+## System starten
+
+Sobald die Installation abgeschlossen und die Datenbank befüllt ist, wird das System mit drei parallel laufenden Prozessen hochgefahren. Jeder Befehl gehört in ein eigenes Terminal, damit die Logs einzeln mitgelesen werden können.
+
+### GeoServer
 
 ```bash
-git clone https://github.com/Flaviozettel/SkiScope.git SkiScope
-cd SkiScope
+cd /usr/share/geoserver/bin
+sudo sh startup.sh
 ```
 
-## Quick Start (lokal)
+Webinterface erreichbar unter `http://<hostname-oder-ip>:8080/geoserver/web`.
 
-> Vollständige Anleitung inkl. Datenbank, GeoServer-Setup und Cronjobs auf einem Raspberry Pi: siehe **[Getting Started](https://flaviozettel.github.io/SkiScope/getting_started.html)** auf der GitHub Page.
-
-**Frontend**
+### Backend
 
 ```bash
-cd client
-npm install
-npm run dev
+cd ~/skiscope/SkiScope/server
+source ~/skiscope/.venv/bin/activate
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-**Backend**
+Swagger-UI erreichbar unter `http://<hostname-oder-ip>:8000/docs`.
+
+### Frontend
 
 ```bash
-cd server
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r app/requirements.txt
-uvicorn app.main:app --reload
+cd ~/skiscope/SkiScope/client
+npm run dev -- --host
 ```
 
-API-Dokumentation (Swagger UI): <http://localhost:8000/docs>
-
-Voraussetzungen für den Quick Start: Node.js ≥ 22, Python ≥ 3.10, eine erreichbare PostgreSQL-/PostGIS-Instanz sowie eine `.env`-Datei mit DB-Zugangsdaten (Details siehe Getting Started).
+Die Anwendung ist anschliessend unter `http://<hostname-oder-ip>:5173` aufrufbar.
 
 ---
 
@@ -98,6 +121,6 @@ Es wurde kein Code ungeprüft übernommen. Alle KI-generierten Vorschläge wurde
 Die inhaltlichen Entscheidungen, die Systemarchitektur sowie die Projektplanung und Umsetzung erfolgten jedoch eigenständig durch das Team.
 Folgende Kernkomponenten sind besonders als Eigenleistungen hervorzuheben:
 
-- **Systemarchitektur & GDI-Pipeline:** Die Entwicklung und Erstellung der gesamten Datenpipeline – von der PostgreSQL/PostGIS-Datenhaltung über die Vector-Tile-Generierung (MVT) im GeoServer bis hin zur API-Bereitstellung via FastAPI.
+- **Systemarchitektur & GDI-Pipeline:** Die Entwicklung und Erstellung der gesamten Datenpipeline, von der PostgreSQL/PostGIS-Datenhaltung über die Vector-Tile-Generierung (MVT) im GeoServer bis hin zur API-Bereitstellung via FastAPI.
 - **Datenmodellierung & Preprocessing:** Das Design des relationalen Datenmodells für die Schweizer Skigebiete sowie die Logik der automatisierten Import- und Cron-Skripte.
 - **Projektmanagement:** Die Planung des Projekts, das Festlegen von Prioritäten sowie das Zusammenführen und Konfigurieren aller einzelnen Komponenten auf dem Raspberry Pi, damit das Gesamtsystem läuft.

@@ -11,7 +11,7 @@ Diese Anleitung beschreibt, wie SkiScope aufgesetzt wird. Eine Übersicht über 
 
 SkiScope wurde von uns auf einem Raspberry Pi unter Raspberry Pi OS entwickelt und getestet. Die Anwendung ist aber bewusst systemunabhängig aufgebaut und läuft genauso auf jedem anderen Linux-Server, auf macOS oder unter Windows. Die folgende Anleitung verwendet `apt`-Befehle, weil unser Setup ein Debian-basiertes System ist. Auf anderen Plattformen sind die Schritte identisch, lediglich der Paket-Manager (zum Beispiel `brew` auf macOS) und einzelne Pfadkonventionen ändern sich.
 
-Folgende Versionen müssen mindestens vorhanden sein. In Klammern jeweils die Version, mit der wir das Projekt selbst betrieben haben.
+Folgende Versionen haben wir im Projekt getestet. Die aufgeführten Stände sind als Referenz zu verstehen, die Anwendung läuft erfahrungsgemäss auch mit aktuelleren Versionen.
 
 | Komponente               | Getestet mit |
 | ------------------------ | ------------ |
