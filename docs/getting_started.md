@@ -117,7 +117,7 @@ einfach unter `sudo -u postgres`.
 ```bash
 cd ~/skiscope/SkiScope/server/database
 chmod +x init.sh
-sudo -u postgres ADM_PW='dein_pw' ./init.sh
+sudo -u postgres ADM_PW='mein_postgres_pw' ./init.sh
 ```
 
 Das Skript legt Rolle `skiscopeadm` und die Datenbank `skiscope` an. Weiter werden PostGIS-Extension,
@@ -131,7 +131,7 @@ alle Tabellen, Indizes, Views und die Lookup-Daten angelegt.
 ### Test
 
 ```bash
-PGPASSWORD='dein_pw' \
+PGPASSWORD='mein_postgres_pw' \
   psql -h localhost -U skiscopeadm -d skiscope \
        -c "SELECT count(*) FROM strecken_typen;"
 ```
@@ -192,13 +192,13 @@ Datenbankverbindung anpassen:
 
     nano /usr/share/geoserver/data_dir/workspaces/skiscope/DB_skiscope/datastore.xml
 
-Die folgenden Werte eintragen:
+Die folgenden Werte eintragen. Im Feld `passwd` steht das **PostgreSQL-Passwort von `skiscopeadm`**, das du in Schritt 2 vergeben hast (`mein_postgres_pw`):
 
     <string key="host">localhost</string>
     <string key="port">5432</string>
     <string key="database">skiscope</string>
     <string key="user">skiscopeadm</string>
-    <string key="passwd">dein_pw</string>
+    <string key="passwd">mein_postgres_pw</string>
 
 ### Vorgefertigte GeoServer-Konfiguration
 
@@ -220,7 +220,14 @@ Im Browser prüfen:
 
     http://<pi-hostname-oder-ip>:8080/geoserver/web
 
-Login: `admin / geoserver` — **Passwort nach erstem Login ändern.**
+### GeoServer-Admin-Passwort ändern
+
+Beim ersten Login lautet der Default-Zugang:
+
+    Benutzername: admin
+    Passwort:     geoserver
+
+Dieses Passwort muss zwingend geändert werden. Im GeoServer-Webinterface auf **Security → Users, Groups, and Roles → Users**, dort den Eintrag `admin` öffnen und ein neues Passwort vergeben. In dieser Anleitung referenzieren wir es als `mein_geoserver_pw`.
 
 ## 4. Backend installieren
 
@@ -229,9 +236,10 @@ Login: `admin / geoserver` — **Passwort nach erstem Login ändern.**
 > **ggf Hardkodierten Pfad anpassen!**
 > Sowohl `server/app/main.py` als auch `preprocessing/scripts/update_STnet_cron.py`
 > laden die `.env` über
-> `load_dotenv("/home/gisadmin/skiscope/.env")`. Wenn dein Pi-User nicht `gisadmin`
-> heisst, musst du diesen Pfad in beiden Dateien anpassen, sonst findet
-> kein Skript seine Konfiguration.
+> `load_dotenv("/home/gisadmin/skiscope/.env")`. Wenn der User nicht `gisadmin`
+> heisst, muss dies entsprechend angepasst werden.
+
+`DB_PASS` ist das in Schritt 2 vergebene PostgreSQL-Passwort der Rolle `skiscopeadm` (`mein_postgres_pw`). `STN_USERNAME` und `STN_API_KEY` stammen vom STnet-Account bei Schweiz Tourismus. Die STnet-API ist nicht frei nutzbar; Zugang muss unter <https://www.stnet.ch/de/marketing/digital-marketing/daten-export/export-wintersportbericht-wispo/> beantragt werden.
 
 ```bash
 cat > ~/skiscope/.env <<'EOF'
@@ -239,11 +247,11 @@ DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=skiscope
 DB_USER=skiscopeadm
-DB_PASS=dein_pw
+DB_PASS=mein_postgres_pw
 
 # Für den STnet-Cronjob:
-STN_USERNAME=dein_stnet_username
-STN_API_KEY=dein_stnet_api_key
+STN_USERNAME=mein_stnet_username
+STN_API_KEY=mein_stnet_api_key
 LOG_LEVEL=INFO
 EOF
 
@@ -323,7 +331,7 @@ python preprocessing/scripts/update_STnet_cron.py
 Verifizieren, dass Skigebiete vorhanden sind:
 
 ```bash
-PGPASSWORD='dein_pw' psql -h localhost -U skiscopeadm -d skiscope \
+PGPASSWORD='mein_postgres_pw' psql -h localhost -U skiscopeadm -d skiscope \
   -c "SELECT count(*) FROM skigebiete;"
 ```
 
@@ -334,7 +342,7 @@ Erwartete Grössenordnung: ≈ 211 Skigebiete.
 Jetzt können die vorbereiteten Pisten- und Lift-Geometrien geladen werden:
 
 ```bash
-PGPASSWORD='dein_pw' \
+PGPASSWORD='mein_postgres_pw' \
   psql -h localhost -U skiscopeadm -d skiscope \
        -f ~/skiscope/SkiScope/server/database/import_static_geom.sql
 ```
@@ -342,7 +350,7 @@ PGPASSWORD='dein_pw' \
 Test:
 
 ```bash
-PGPASSWORD='dein_pw' psql -h localhost -U skiscopeadm -d skiscope \
+PGPASSWORD='mein_postgres_pw' psql -h localhost -U skiscopeadm -d skiscope \
   -c "SELECT count(*) FROM pisten_geom_multipolygon;"
 ```
 
