@@ -1,13 +1,20 @@
+// Popup, das nach Klick auf einen Skigebiet-Marker erscheint.
+// Zeigt Liftstatus, Schneehöhe, Pistenkilometer und einen Link auf die Detailansicht.
+// tooltipData wird vom Parent (SkiMap) reingereicht – kommt vom /skigebiet-Endpunkt.
+
 import { Popup } from "react-map-gl/maplibre";
 import "./SkigebietPopup.css";
 
 export const SkigebietPopup = ({ selectedMarker, tooltipData, onClose, onOpenDetail }) => {
+  // Postgres-Timestamps sind manchmal mit Mikrosekunden oder ohne ":00" beim Offset.
+  // Wir trimmen die Mikrosekunden und ergänzen ":00" falls nötig, damit Date() das frisst.
   const parseDbTimestamp = (ts) => {
     if (!ts) return null;
     const cleaned = ts.replace(/\.(\d{3})\d+/, ".$1").replace(/([+-]\d{2})$/, "$1:00");
     return new Date(cleaned);
   };
 
+  // "vor 5 Min", "vor 2 Std", "gestern", oder Datum – für den Aktualisierungs-Hinweis.
   const formatTimeAgo = (timestamp) => {
     const updated = parseDbTimestamp(timestamp);
     if (!updated || isNaN(updated)) return "—";
@@ -21,9 +28,12 @@ export const SkigebietPopup = ({ selectedMarker, tooltipData, onClose, onOpenDet
     return updated.toLocaleDateString("de-CH");
   };
 
+  // Lift-Auslastung als Prozent – Basis für Status-Text und Farbe.
   const lifteOffen = tooltipData?.lifte_offen ?? 0;
   const lifteTotal = tooltipData?.lifte_total ?? 0;
   const liftePct = lifteTotal > 0 ? Math.round((lifteOffen / lifteTotal) * 100) : 0;
+
+  // Status-Label in 4 Stufen, schnell ablesbar
   const liftStatus =
     lifteOffen === 0
       ? "geschlossen"
@@ -32,6 +42,8 @@ export const SkigebietPopup = ({ selectedMarker, tooltipData, onClose, onOpenDet
         : liftePct >= 40
           ? "teilweise geöffnet"
           : "wenig geöffnet";
+
+  // Farbcode passend zum Status (grau / grün / orange / rot)
   const statusColor =
     lifteOffen === 0
       ? "#9ca3af"
@@ -46,12 +58,13 @@ export const SkigebietPopup = ({ selectedMarker, tooltipData, onClose, onOpenDet
       longitude={selectedMarker.lng}
       latitude={selectedMarker.lat}
       onClose={onClose}
-      closeOnClick={false}
+      closeOnClick={false}    // Klick auf die Karte darf das Popup nicht schliessen
       anchor="bottom"
       offset={14}
       maxWidth="300px"
     >
       <div className="popup-glass">
+        {/* Loading-State: Spinner solange die Backend-Antwort fehlt */}
         {!tooltipData && (
           <div className="popup-loading">
             <div className="popup-loading-spinner" />
@@ -62,21 +75,23 @@ export const SkigebietPopup = ({ selectedMarker, tooltipData, onClose, onOpenDet
           </div>
         )}
 
+        {/* Fehler-State falls das Backend einen Error zurückgibt */}
         {tooltipData?._error && (
           <div className="popup-error">⚠️ Keine Daten für dieses Skigebiet</div>
         )}
 
+        {/* Normal-State: alle Daten da */}
         {tooltipData && !tooltipData._error && (
           <>
-            {/* Header */}
+            {/* Header mit Name + Status-Badge */}
             <div className="popup-header">
               <div className="popup-name">{tooltipData.name || "—"}</div>
               <div
                 className="popup-status-badge"
                 style={{
                   color: statusColor,
-                  borderColor: statusColor + "33",
-                  background: statusColor + "12",
+                  borderColor: statusColor + "33",  // 33 = ~20% Alpha als Hex
+                  background: statusColor + "12",   // 12 = ~7% Alpha als Hex
                 }}
               >
                 {liftStatus}
@@ -99,7 +114,7 @@ export const SkigebietPopup = ({ selectedMarker, tooltipData, onClose, onOpenDet
               </span>
             </div>
 
-            {/* Schnee */}
+            {/* Schnee + Pistenkilometer als zwei Stat-Boxen */}
             <div className="popup-stat-row">
               <div className="popup-stat">
                 <span className="popup-stat-icon">❄</span>
@@ -117,7 +132,8 @@ export const SkigebietPopup = ({ selectedMarker, tooltipData, onClose, onOpenDet
               </div>
             </div>
 
-            {/* Pistenverteilung */}
+            {/* Pistenverteilung blau/rot/schwarz als horizontaler Stacked Bar.
+                || 1 verhindert Division-by-zero wenn alle drei Werte 0 sind. */}
             {(() => {
               const blau = tooltipData.km_blau || 0;
               const rot = tooltipData.km_rot || 0;
@@ -147,7 +163,7 @@ export const SkigebietPopup = ({ selectedMarker, tooltipData, onClose, onOpenDet
               );
             })()}
 
-            {/* Footer */}
+            {/* Footer mit "vor X Min" und Lawinen-Link (falls vorhanden) */}
             <div className="popup-footer">
               <span>↻ {formatTimeAgo(tooltipData.updated_at)}</span>
               {tooltipData.lawinengefahr_url ? (
@@ -164,6 +180,7 @@ export const SkigebietPopup = ({ selectedMarker, tooltipData, onClose, onOpenDet
               )}
             </div>
 
+            {/* Sprung in die Vollansicht */}
             {onOpenDetail && (
               <button
                 type="button"

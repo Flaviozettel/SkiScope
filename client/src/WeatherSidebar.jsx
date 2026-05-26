@@ -1,19 +1,13 @@
-// ============================================================
-// WeatherSidebar.jsx – Wetter-Sidebar links neben der Karte
-//
-// Zeigt die 7-Tages-Prognose für die aktuelle Wetterstation.
-// Hover → Zeile wird höher und zeigt "Detailliertes Wetter"-Button
-// (nur für die ersten 7 Tage). Klick auf den Button öffnet das
-// WeatherDayDetail-Overlay (in MainArea über der Karte) und markiert
-// die Zeile blau.
-// ============================================================
+// Wetter-Sidebar links neben der Karte.
+// Zeigt eine 14-Tages-Prognose. Hover auf eine Zeile blendet einen
+// "Detailliertes Wetter"-Button ein (nur für die ersten 7 Tage,
+// weil Open-Meteo darüber hinaus keine sauberen Stundendaten liefert).
 
 import { useState } from "react";
 import { WMO_MAP } from "./mapConfig.js";
 import "./WeatherSidebar.css";
 
-// "Detailliertes Wetter"-Button erscheint nur für die ersten 7 Tage
-// (begrenzt durch das Stundendaten-Forecast-Fenster im Backend)
+// Detail-Button erscheint nur für die ersten N Tage (Backend-Limit).
 const DETAIL_DAYS = 7;
 
 export const WeatherSidebar = ({
@@ -23,9 +17,10 @@ export const WeatherSidebar = ({
   detailTag,
   setDetailTag,
 }) => {
-  // UI-Zustand: über welcher Zeile schwebt die Maus
+  // Über welcher Zeile schwebt die Maus gerade?
   const [hoveredDay, setHoveredDay] = useState(null);
 
+  // Klick auf den Detail-Button: Datum setzen + Overlay anzeigen.
   const openDetail = (w) => {
     setAktivDatum(w.tag);
     setDetailTag(w.tag);
@@ -33,6 +28,7 @@ export const WeatherSidebar = ({
 
   return (
     <div className="weather-sidebar">
+      {/* Header mit Stations-Name */}
       <div className="weather-sidebar-title">
         <svg
           width="13"
@@ -54,8 +50,11 @@ export const WeatherSidebar = ({
         </svg>
         <span className="weather-sidebar-name">{wetterStation?.name || "Prognose"}</span>
       </div>
+
+      {/* Eine Zeile pro Tag */}
       {wetter.map((w, i) => {
         const d = new Date(w.tag);
+        // Wetter-Code (WMO) → Icon + Text aus der lokalen Mapping-Tabelle
         const icon = WMO_MAP[Math.round(w.daily_wetter_code_wmo)];
         const isActive = detailTag === w.tag;
         const isHovered = hoveredDay === i;
@@ -72,6 +71,7 @@ export const WeatherSidebar = ({
               <span className="weather-row-icon">{icon?.icon || "❓"}</span>
               <div className="weather-row-info">
                 <span className="weather-row-day">
+                  {/* Erster Tag ist immer "Heute", die anderen Wochentag-Kurz */}
                   {i === 0 ? "Heute" : d.toLocaleDateString("de-CH", { weekday: "short" })}
                 </span>
                 <span className="weather-row-desc">{icon?.text || "—"}</span>

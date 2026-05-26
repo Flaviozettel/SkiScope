@@ -1,21 +1,21 @@
-// ============================================================
-// SkigebietDetail.jsx – Detail-Ansicht eines Skigebiets
-//
-// Layout: links Info-Card mit Header (Name + Zurück-Button),
-// rechts interaktive Karte gezoomt auf die BBox des Gebiets.
-// ============================================================
+// Vollständige Detailansicht eines Skigebiets.
+// Links eine Info-Card mit Kennzahlen, rechts eine eigene Karte gezoomt auf das Gebiet.
+// Wird geöffnet, sobald in App.jsx detailStationId gesetzt wird.
 
 import { useEffect, useRef, useState } from "react";
 import { API_BASE } from "./config.js";
 import { SkiMap } from "./SkiMap.jsx";
 import "./SkigebietDetail.css";
 
+// Zahl formatieren mit optionaler Einheit. NaN/null wird zu "–".
 const fmtNum = (v, unit = "", digits = 0) => {
   if (v == null || !Number.isFinite(Number(v))) return "–";
   const n = Number(v);
   return `${n.toFixed(digits)}${unit ? ` ${unit}` : ""}`;
 };
 
+// Kleine Wrapper-Komponenten für gleichmässiges Layout (vermeidet
+// Wiederholung in der eigentlichen Detail-View weiter unten).
 const Section = ({ title, children }) => (
   <section className="skidetail-section">
     <h3 className="skidetail-section-title">{title}</h3>
@@ -37,8 +37,8 @@ const Row = ({ label, value }) => (
   </div>
 );
 
-// Stacked Bar – nur noch für „Pisten nach Schwierigkeit", weil dort
-// die Farben (blau/rot/schwarz) eine direkte Bedeutung haben.
+// Stacked Bar – nur für "Pisten nach Schwierigkeit", weil dort die Farben
+// (blau/rot/schwarz) eine direkte Bedeutung haben.
 const StackedBar = ({ segments }) => {
   const total = segments.reduce((s, x) => s + (x.value || 0), 0);
   if (total === 0) {
@@ -83,12 +83,15 @@ export const SkigebietDetail = ({
   const [error, setError] = useState(null);
 
   // Eigener mapRef + lokaler Marker-State, damit die Detail-Karte unabhängig
-  // vom Haupt-State auf der Übersichtskarte arbeitet.
+  // von der Übersichtskarte arbeitet. Sonst würden Hover/Klick auf der einen
+  // die andere mitbeeinflussen.
   const detailMapRef = useRef();
   const [hoverMarker, setHoverMarker] = useState(null);
   const [selectedMarker, setSelectedMarker] = useState(null);
   const [tooltipData, setTooltipData] = useState(null);
 
+  // Detaildaten laden. AbortController kümmert sich um schnellen
+  // Stations-Wechsel (alter Fetch wird abgebrochen).
   useEffect(() => {
     if (!stationId) return;
     const ctrl = new AbortController();
@@ -102,7 +105,7 @@ export const SkigebietDetail = ({
       })
       .then((d) => setData(d))
       .catch((err) => {
-        if (err.name === "AbortError") return;
+        if (err.name === "AbortError") return;  // war ein Wechsel, kein echter Fehler
         console.error(err);
         setError("Detaildaten konnten nicht geladen werden.");
       })
@@ -111,6 +114,7 @@ export const SkigebietDetail = ({
     return () => ctrl.abort();
   }, [stationId]);
 
+  // --- Loading- und Fehler-States ---
   if (loading) {
     return (
       <div className="skidetail-host skidetail-status">
@@ -131,6 +135,7 @@ export const SkigebietDetail = ({
     );
   }
 
+  // Abkürzungen für die Render-Phase – data hat eine ziemlich tiefe Struktur.
   const p = data.pisten || {};
   const l = data.lifte || {};
   const ll = data.langlauf || {};
@@ -139,11 +144,13 @@ export const SkigebietDetail = ({
   const sn = data.schnee || {};
   const st = data.stammdaten || {};
 
+  // "Offen / Gesamt"-Strings vorbereiten
   const lifteOffenStr =
     l.anzahl != null ? `${l.anzahl_offen ?? 0} / ${l.anzahl}` : "–";
   const pistenOffenStr =
     p.anzahl != null ? `${p.anzahl_offen ?? "–"} / ${p.anzahl}` : "–";
 
+  // Lift-Typen als kleine Liste – wird unten als Row-Block gerendert.
   const liftTypes = [
     { label: "Seilbahnen", value: l.anzahl_seilbahnen },
     { label: "Sesselbahnen", value: l.anzahl_sesselbahnen },
@@ -154,7 +161,7 @@ export const SkigebietDetail = ({
 
   return (
     <div className="skidetail-host">
-      {/* Linke Info-Card */}
+      {/* Linke Spalte: Info-Card */}
       <aside className="skidetail-info">
         <header className="skidetail-header">
           <button
@@ -184,6 +191,7 @@ export const SkigebietDetail = ({
             </div>
             {(st.oeffnungszeit || st.schliessungszeit) && (
               <div className="skidetail-meta">
+                {/* Zeiten kommen als "HH:MM:SS" – nur HH:MM zeigen */}
                 Betriebszeit: {st.oeffnungszeit?.slice(0, 5) || "?"} –{" "}
                 {st.schliessungszeit?.slice(0, 5) || "?"}
               </div>
@@ -231,7 +239,7 @@ export const SkigebietDetail = ({
             </div>
           </Section>
 
-          {/* Pisten nach Schwierigkeit – Bar mit bedeutungsvollen Farben */}
+          {/* Pisten nach Schwierigkeit – Stacked Bar mit Pisten-Farbcode */}
           <Section title="Pisten nach Schwierigkeit">
             <StackedBar
               segments={[
@@ -242,7 +250,7 @@ export const SkigebietDetail = ({
             />
           </Section>
 
-          {/* Lifte nach Typ – rein numerisch, ohne Farbcode und Balken */}
+          {/* Lifte nach Typ – rein numerisch, ohne Balken */}
           <Section title="Lifte nach Typ">
             <div className="skidetail-rows">
               {liftTypes.map((t) => (
@@ -251,7 +259,7 @@ export const SkigebietDetail = ({
             </div>
           </Section>
 
-          {/* Weitere Aktivitäten – Label/Value-Zeilen statt Kacheln */}
+          {/* Weitere Aktivitäten – Langlauf, Schlitteln, Winterwandern */}
           <Section title="Weitere Aktivitäten">
             <div className="skidetail-rows">
               <Row
@@ -276,7 +284,8 @@ export const SkigebietDetail = ({
         </div>
       </aside>
 
-      {/* Rechte Karte, gezoomt auf BBox */}
+      {/* Rechte Spalte: eigene Karte, automatisch gezoomt auf die BBox des Gebiets.
+          BBox kommt vom Backend (/skigebiet/detail) und ist via ST_Extent berechnet. */}
       <div className="skidetail-map">
         <SkiMap
           mapRef={detailMapRef}
@@ -289,6 +298,8 @@ export const SkigebietDetail = ({
           setTooltipData={setTooltipData}
           setWetterStation={setWetterStation}
           initialBbox={data.bbox}
+          // In der Detailansicht sollen alle relevanten Layer direkt sichtbar sein,
+          // unabhängig von der Zoom-Logik der Übersichtskarte.
           initialLayers={{ schnee: true, pisten: true, lifte: true }}
           onOpenDetail={onOpenDetail}
         />
