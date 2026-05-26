@@ -245,7 +245,9 @@ const WeatherStats = ({ rows }) => {
       humidity: fmt(meanOf(rows, "relative_luftfeuchtigkeit_2m"), "%", 0),
       rainSum: fmt(sumOf(rows, "regen"), "mm", 1),
       snowfallSum: fmt(sumOf(rows, "schneefall"), "cm", 1),
-      snowfallHeight: fmt(maxOf(rows, "schneefall_hoehe"), "cm", 1),
+      snowDepth: fmt(maxOf(rows, "schnee_tiefe"), "cm", 1),
+      // snowfall_height von Open-Meteo: Höhe (m ü. M.), ab der Niederschlag als Schnee fällt
+      snowfallLine: fmt(maxOf(rows, "schneefall_hoehe"), "m ü. M.", 0),
       windMax: fmt(maxOf(rows, "wind_geschwindigkeit_10m"), "km/h", 0),
       gustMax: fmt(maxOf(rows, "wind_boehen_10m"), "km/h", 0),
       cloudCover: fmt(meanOf(rows, "bewoelkung_cover"), "%", 0),
@@ -274,7 +276,8 @@ const WeatherStats = ({ rows }) => {
         <div className="weather-day-detail-rows">
           <Row label="Regen (Summe)" value={stats.rainSum} />
           <Row label="Schneefall (Summe)" value={stats.snowfallSum} />
-          <Row label="Neuschnee (max.)" value={stats.snowfallHeight} />
+          <Row label="Schneedecke (max.)" value={stats.snowDepth} />
+          <Row label="Schneefallgrenze (max.)" value={stats.snowfallLine} />
         </div>
       </Section>
 
@@ -352,6 +355,7 @@ export const WeatherDayDetail = ({ tag, station, onClose }) => {
           regen: toFinite(row.regen),
           niederschlag: toFinite(row.niederschlag),
           schneefall: toFinite(row.schneefall),
+          schnee_tiefe: toFinite(row.schnee_tiefe),
           schneefall_hoehe: toFinite(row.schneefall_hoehe),
           wind_geschwindigkeit_10m: toFinite(row.wind_geschwindigkeit_10m),
           wind_boehen_10m: toFinite(row.wind_boehen_10m),
