@@ -1,8 +1,5 @@
-// ============================================================
-// MiniHoverPopup.jsx – Kleiner Tooltip beim Hover über Skigebiet
-//
-// Zeigt nur den Namen des Skigebiets, ohne weitere Daten.
-// ============================================================
+// Kleiner Tooltip beim Hover über ein Skigebiet.
+// Zeigt nur den Namen – die richtigen Daten kommen erst beim Klick.
 
 import { Popup } from "react-map-gl/maplibre";
 import "./MiniHoverPopup.css";
@@ -12,7 +9,7 @@ export const MiniHoverPopup = ({ hoverMarker }) => {
     <Popup
       longitude={hoverMarker.lng}
       latitude={hoverMarker.lat}
-      closeButton={false}
+      closeButton={false}     // kein X – verschwindet beim Mouseleave
       closeOnClick={false}
       anchor="bottom"
       offset={14}
