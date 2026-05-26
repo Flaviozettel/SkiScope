@@ -1,10 +1,6 @@
-// ============================================================
-// App.jsx – Wurzelkomponente der SkiScope-Anwendung
-//
-// Hält den globalen Anwendungs-State (Datum, Wetter, Marker,
-// Tooltip-Daten, Top-Schnee-Skigebiet) und reicht ihn an die
-// Kindkomponenten Header und MainArea weiter.
-// ============================================================
+// App.jsx ist die Wurzelkomponente
+// Hält den ganzen globalen UI-State (Datum, Wetter, Marker, Tooltips, ...)
+// und reicht ihn an Header und MainArea durch.
 
 import { useEffect, useRef, useState } from "react";
 import "./App.css";
@@ -19,37 +15,37 @@ export function App() {
   // Aktuell ausgewähltes Datum (ISO-String, z.B. "2026-01-15")
   const [aktivDatum, setAktivDatum] = useState(null);
 
-  // Skigebiet mit aktuell höchster Schneehöhe (für Header-Badge und initiale Wetter-Sidebar)
+  // Skigebiet mit der aktuell höchsten Schneehöhe. Für den Header.
   const [topSchnee, setTopSchnee] = useState(null);
 
-  // Aktuell gewählte Wetterstation (entweder topSchnee oder zuletzt geklicktes Skigebiet)
+  // Aktuell gewählte Wetterstation (topSchnee ODER zuletzt geklicktes Skigebiet)
   const [wetterStation, setWetterStation] = useState(null);
 
-  // 7-Tages-Wetterprognose für die aktuelle Wetterstation
+  // 14-Tages-Wetterprognose für die aktuelle Wetterstation
   const [wetter, setWetter] = useState([]);
 
-  // Mini-Tooltip beim Hover über Skigebiet-Punkt
+  // Mini-Tooltip beim Hover über einen Skigebiet-Punkt
   const [hoverMarker, setHoverMarker] = useState(null);
 
-  // Volles Popup nach Klick auf Skigebiet-Punkt
+  // Volles Popup nach Klick auf einen Skigebiet-Punkt
   const [selectedMarker, setSelectedMarker] = useState(null);
   const [tooltipData, setTooltipData] = useState(null);
 
-  // Tag-ISO-String, dessen Wetterdetail-Overlay über der Karte offen ist (null = geschlossen)
+  // ISO-Tag, dessen Wetter-Detail-Overlay gerade offen ist (null = keines offen)
   const [detailTag, setDetailTag] = useState(null);
 
-  // station_id des Skigebiets, dessen Detailansicht offen ist (null = Übersicht)
+  // station_id, dessen Detail-Ansicht statt der Karte gerendert wird
   const [detailStationId, setDetailStationId] = useState(null);
 
-  // Schneehöhen-Import beim App-Start anstossen.
-  // Der /schnee-Endpoint ruft auto_importiere_letzte_woche() auf, das die
-  // Tabelle füllt, aus der GeoServer die Vector-Tiles rendert. Ohne diesen
-  // Trigger bleibt der Schnee-Layer leer.
+  // --- beim App-Start :-----------------------------------------------------------------------------
+
+  // Beim ersten Laden den Schneehöhen-Import anstossen. /schnee triggert im
+  // Backend auto_importiere_letzte_woche().
   useEffect(() => {
     fetch(`${API_BASE}/schnee`).catch(console.error);
   }, []);
 
-  // Top-Schnee einmalig laden (für Header-Badge)
+  // Top-Schnee einmal laden (für "Maximale Schneehöhe")
   useEffect(() => {
     fetch(`${API_BASE}/skigebiete/top-schnee`)
       .then((r) => r.json())
@@ -57,10 +53,10 @@ export function App() {
       .catch(console.error);
   }, []);
 
-  // Initial: Wetter für aktuellen Standort (Muttenz-Koordinaten als Fallback,
-  // da die Browser-Geolocation hier nicht abgefragt wird)
+  // Initiales Wetter laden,
+  // weil wir die Browser-Geolocation hier nicht abfragen.
   useEffect(() => {
-    const lat = 47.534909;
+    const lat = 47.534909; // Muttenz weil Gerätestandort nicht verfügbar
     const lon = 7.641925;
     const url =
       `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
@@ -76,12 +72,15 @@ export function App() {
           daily_temperature_2m_min: data.daily.temperature_2m_min[i],
         }));
         setWetter(days);
+        // Default-Anzeige bevor der User ein Skigebiet wählt
         setWetterStation((prev) => prev ?? { name: "Aktueller Standort" });
       })
       .catch(console.error);
   }, []);
 
-  // Wetterprognose neu laden, sobald sich die Wetterstation ändert
+  // --- Reaktionen auf State-Wechsel ---
+
+  // Sobald sich die Wetterstation ändert: Prognose aus dem Backend nachladen
   useEffect(() => {
     if (!wetterStation?.station_id) return;
     fetch(`${API_BASE}/skigebiet/wetterprognose?station_id=${wetterStation.station_id}&type=woche`)
@@ -90,16 +89,17 @@ export function App() {
       .catch(console.error);
   }, [wetterStation?.station_id]);
 
-  // Beim Laden neuer Wetterdaten: aktiv-Datum auf den ersten Tag setzen
+  // Neue Wetterdaten → Aktiv-Datum auf den ersten Tag setzen
   useEffect(() => {
     if (wetter.length > 0) setAktivDatum(wetter[0].tag);
   }, [wetter]);
 
-  // Wenn die Wetterstation wechselt, eventuell offenes Detail schliessen
+  // Stations-Wechsel schliesst eventuell offenes Wetter-Detail-Overlay
   useEffect(() => {
     setDetailTag(null);
   }, [wetterStation?.station_id]);
 
+  // --- UI-Rendering ---
   return (
     <div className="app">
       <Header mapRef={mapRef} topSchnee={topSchnee} />
