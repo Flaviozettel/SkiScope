@@ -1,8 +1,5 @@
-// ============================================================
-// Footer.jsx – Fusszeile der Anwendung
-//
-// Zeigt Copyright, Modulnummer und Autorennamen an.
-// ============================================================
+// Fusszeile mit Copyright, Modul und Autoren.
+// Statische Komponente, kein State.
 
 export const Footer = () => {
   return (
