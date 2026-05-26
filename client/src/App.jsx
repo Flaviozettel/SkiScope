@@ -45,35 +45,20 @@ export function App() {
     fetch(`${API_BASE}/schnee`).catch(console.error);
   }, []);
 
-  // Top-Schnee einmal laden (für "Maximale Schneehöhe")
+  // Top-Schnee einmal laden (für "Maximale Schneehöhe").
+  // Wir nehmen das gleiche Skigebiet auch als Initial-Wetterstation, dann
+  // wird die Prognose über unser Backend geladen (statt direkt von
+  // Open-Meteo aus dem Browser, was an CORS scheitern würde).
   useEffect(() => {
     fetch(`${API_BASE}/skigebiete/top-schnee`)
       .then((r) => r.json())
-      .then(setTopSchnee)
-      .catch(console.error);
-  }, []);
-
-  // Initiales Wetter laden,
-  // weil wir die Browser-Geolocation hier nicht abfragen.
-  useEffect(() => {
-    const lat = 47.534909; // Muttenz weil Gerätestandort nicht verfügbar
-    const lon = 7.641925;
-    const url =
-      `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
-      `&daily=weather_code,temperature_2m_max,temperature_2m_min` +
-      `&timezone=Europe%2FBerlin&forecast_days=14`;
-    fetch(url)
-      .then((r) => r.json())
       .then((data) => {
-        const days = data.daily.time.map((tag, i) => ({
-          tag,
-          daily_wetter_code_wmo: data.daily.weather_code[i],
-          daily_temperature_2m_max: data.daily.temperature_2m_max[i],
-          daily_temperature_2m_min: data.daily.temperature_2m_min[i],
-        }));
-        setWetter(days);
-        // Default-Anzeige bevor der User ein Skigebiet wählt
-        setWetterStation((prev) => prev ?? { name: "Aktueller Standort" });
+        setTopSchnee(data);
+        if (data?.station_id) {
+          setWetterStation((prev) =>
+            prev ?? { station_id: data.station_id, name: data.station_name },
+          );
+        }
       })
       .catch(console.error);
   }, []);
