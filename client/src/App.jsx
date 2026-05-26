@@ -45,27 +45,20 @@ export function App() {
     fetch(`${API_BASE}/schnee`).catch(console.error);
   }, []);
 
-  // Top-Schnee einmal laden (für "Maximale Schneehöhe" im Header)
+  // Top-Schnee einmal laden (für "Maximale Schneehöhe").
+  // Wir nehmen das gleiche Skigebiet auch als Initial-Wetterstation, dann
+  // wird die Prognose über unser Backend geladen (statt direkt von
+  // Open-Meteo aus dem Browser, was an CORS scheitern würde).
   useEffect(() => {
     fetch(`${API_BASE}/skigebiete/top-schnee`)
       .then((r) => r.json())
-      .then(setTopSchnee)
-      .catch(console.error);
-  }, []);
-
-  // Initiales Wetter laden. Fallback-Standort = Muttenz (FHNW), weil wir
-  // die Browser-Geolocation hier nicht abfragen. Geht über unser Backend
-  // (Endpunkt /wetter), damit der Browser nicht direkt auf Open-Meteo
-  // zugreifen muss – das ist von einer LAN-Origin aus CORS-blockiert.
-  useEffect(() => {
-    const lat = 47.534909;
-    const lon = 7.641925;
-    fetch(`${API_BASE}/wetter?lat=${lat}&lon=${lon}`)
-      .then((r) => r.json())
-      .then((days) => {
-        setWetter(days);
-        // Default-Anzeige in der Sidebar, bevor ein Skigebiet gewählt wird
-        setWetterStation((prev) => prev ?? { name: "Aktueller Standort" });
+      .then((data) => {
+        setTopSchnee(data);
+        if (data?.station_id) {
+          setWetterStation((prev) =>
+            prev ?? { station_id: data.station_id, name: data.station_name },
+          );
+        }
       })
       .catch(console.error);
   }, []);

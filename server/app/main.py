@@ -814,36 +814,3 @@ def get_wetterprognose(
             }
             for d in data
         ]
-
-# -------------------------
-# Wetter für freie Koordinaten (Initial-Standort / Muttenz)
-# -------------------------
-
-@app.get("/wetter")
-def get_wetter_by_coords(lat: float, lon: float):
-    """
-    Wochenprognose für eine beliebige Koordinate, die NICHT zwingend zu
-    einem Skigebiet gehört. Wird im Frontend für die Initial-Anzeige
-    (Standort: Muttenz) verwendet, damit der Browser nicht direkt auf
-    Open-Meteo zugreifen muss (CORS).
-
-    Kein DB-Cache, weil wir keinen Stations-Key haben. Über requests_cache
-    werden identische Aufrufe trotzdem 1 h lokal zwischengespeichert.
-    """
-    data = fetch_tagesdaten_from_api(0, lat, lon)
-    return [
-        {
-            "tag": d["tag"].isoformat(),
-            "daily_wetter_code_wmo": _finite_or_none(d["daily_wetter_code_wmo"]),
-            "daily_temperature_2m_max": _finite_or_none(d["daily_temperature_2m_max"]),
-            "daily_temperature_2m_min": _finite_or_none(d["daily_temperature_2m_min"]),
-            "daily_sunrise": d["daily_sunrise"].isoformat() if d["daily_sunrise"] else None,
-            "daily_sunset": d["daily_sunset"].isoformat() if d["daily_sunset"] else None,
-            "daily_uv_index_max": _finite_or_none(d["daily_uv_index_max"]),
-            "daily_snowfall_sum": _finite_or_none(d["daily_snowfall_sum"]),
-            "daily_rain_sum": _finite_or_none(d["daily_rain_sum"]),
-            "daily_sunshine_duration": _finite_or_none(d["daily_sunshine_duration"]),
-            "daily_wind_speed_10m_mean": _finite_or_none(d["daily_wind_speed_10m_mean"]),
-        }
-        for d in data
-    ]
