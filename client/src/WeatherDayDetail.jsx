@@ -1,3 +1,8 @@
+// Detail-Overlay für das Wetter eines einzelnen Tages.
+// Wird über der Karte/Detailansicht eingeblendet wenn aus der WeatherSidebar
+// ein Tag (1–7) angeklickt wurde. Holt die Stundendaten vom Backend und
+// zeigt sie als Recharts-Diagramm + Tagesstatistiken.
+
 import { useEffect, useMemo, useState } from "react";
 import "./WeatherDayDetail.css";
 import { API_BASE } from "./config.js";
@@ -15,6 +20,7 @@ import {
   Area,
 } from "recharts";
 
+// Hilfs-Formatter: ISO-Zeit → "HH:MM"
 const formatHour = (value) => {
   const d = new Date(value);
   return d.toLocaleTimeString("de-CH", {
@@ -23,28 +29,32 @@ const formatHour = (value) => {
   });
 };
 
-// `??` fängt nur null/undefined, nicht NaN — daher explizit auf endlich prüfen
+// `??` fängt nur null/undefined, aber NICHT NaN – daher explizit prüfen.
 const toFinite = (v) => (Number.isFinite(v) ? v : null);
 
-// Feste Mindest-Skala für Regen, damit 1 mm/h nicht aussieht wie ein Unwetter.
-// Erst bei tatsächlich starkem Niederschlag wächst die Achse mit.
+// Mindest-Skala für die Regen-Achse, erst beim überschreiten passt sich die Achse an.
+// Erst bei starkem Niederschlag wächst die Achse mit.
 const RAIN_MIN_DOMAIN = 5; // mm
 
-// Nur jeden N-ten Stunden-Tick auf der X-Achse — sonst überlappen sich die Labels
-// auf der schmalen Hälfte.
+// Nur jeden N-ten Stunden-Tick zeigen, sonst überlappen die Labels auf der
+// schmalen Diagramm-Hälfte.
 const HOUR_TICK_INTERVAL = 2;
 
+// --- Chart-Komponente ---
+
 const WeatherChart = ({ data }) => {
+  // Y-Achsen-Range für Temperatur dynamisch: min/max der Tagesdaten + Padding,
+  // dann auf ganze Grad runden für saubere Tick-Beschriftung.
   const tempDomain = useMemo(() => {
     const vals = data.map((d) => d.temp_2m).filter((v) => Number.isFinite(v));
     if (vals.length === 0) return [0, 10];
     const min = Math.min(...vals);
     const max = Math.max(...vals);
     const pad = Math.max(2, (max - min) * 0.2);
-    // auf ganze Grad runden für saubere Ticks
     return [Math.floor(min - pad), Math.ceil(max + pad)];
   }, [data]);
 
+  // Regen-Achse: 0 bis max der Daten, aber mindestens RAIN_MIN_DOMAIN.
   const rainDomain = useMemo(() => {
     const vals = data.map((d) => d.niederschlag).filter((v) => Number.isFinite(v));
     const max = vals.length ? Math.max(...vals) : 0;
@@ -53,10 +63,7 @@ const WeatherChart = ({ data }) => {
 
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <ComposedChart
-        data={data}
-        margin={{ top: 8, right: 12, bottom: 0, left: 0 }}
-      >
+      <ComposedChart data={data} margin={{ top: 8, right: 12, bottom: 0, left: 0 }}>
         <CartesianGrid stroke="#e5e7eb" strokeDasharray="2 4" vertical={false} />
 
         <XAxis
@@ -67,6 +74,7 @@ const WeatherChart = ({ data }) => {
           axisLine={{ stroke: "#d1d5db" }}
         />
 
+        {/* Linke Y-Achse: Temperatur in °C */}
         <YAxis
           yAxisId="temp"
           width={36}
@@ -79,6 +87,7 @@ const WeatherChart = ({ data }) => {
           axisLine={false}
         />
 
+        {/* Rechte Y-Achse: Regen in mm */}
         <YAxis
           yAxisId="rain"
           orientation="right"
@@ -92,13 +101,8 @@ const WeatherChart = ({ data }) => {
           axisLine={false}
         />
 
-        <YAxis
-          yAxisId="sun"
-          orientation="right"
-          width={0}
-          domain={[0, 60]}
-          hide
-        />
+        {/* Versteckte dritte Y-Achse für Sonnenscheindauer (Skala 0–60 Min/h) */}
+        <YAxis yAxisId="sun" orientation="right" width={0} domain={[0, 60]} hide />
 
         <Tooltip
           formatter={(value, name) => {
@@ -112,6 +116,7 @@ const WeatherChart = ({ data }) => {
 
         <Legend wrapperStyle={{ fontSize: 11, paddingTop: 4 }} iconSize={10} />
 
+        {/* Sonnenschein als gelbe Fläche im Hintergrund */}
         <Area
           yAxisId="sun"
           type="monotone"
@@ -122,6 +127,7 @@ const WeatherChart = ({ data }) => {
           fillOpacity={0.55}
         />
 
+        {/* Niederschlag als Balken */}
         <Bar
           yAxisId="rain"
           dataKey="niederschlag"
@@ -131,6 +137,7 @@ const WeatherChart = ({ data }) => {
           radius={[2, 2, 0, 0]}
         />
 
+        {/* Temperatur als orange Linie, vorne dran */}
         <Line
           yAxisId="temp"
           type="monotone"
@@ -145,6 +152,7 @@ const WeatherChart = ({ data }) => {
   );
 };
 
+// Schreibt z.B. "Montag, 15. Januar 2026"
 const formatHeaderDate = (tag) => {
   if (!tag) return "";
   const d = new Date(tag);
@@ -156,9 +164,9 @@ const formatHeaderDate = (tag) => {
   });
 };
 
-// Aggregat-Helfer: ignorieren null/undefined-Werte
-const finiteValues = (rows, key) =>
-  rows.map((r) => r[key]).filter((v) => Number.isFinite(v));
+// --- Aggregat-Helfer für die Tagesstatistiken ---
+// Ignorieren null/undefined/NaN, damit Min/Max/Mean nicht falsch werden.
+const finiteValues = (rows, key) => rows.map((r) => r[key]).filter((v) => Number.isFinite(v));
 
 const sumOf = (rows, key) => {
   const vs = finiteValues(rows, key);
@@ -184,11 +192,14 @@ const meanOf = (rows, key) => {
   return vs.reduce((a, b) => a + b, 0) / vs.length;
 };
 
+// Wert formatieren, "–" wenn null oder nicht endlich
 const fmt = (value, unit, digits = 1) => {
   if (value == null || !Number.isFinite(value)) return "–";
   return `${value.toFixed(digits)} ${unit}`.trim();
 };
 
+// Layout-Wrapper (gleicher Stil wie in SkigebietDetail, bewusst nicht
+// extrahiert – die beiden Komponenten haben sonst nichts gemeinsam).
 const Section = ({ title, children }) => (
   <section className="weather-day-detail-section">
     <h3 className="weather-day-detail-section-title">{title}</h3>
@@ -210,7 +221,10 @@ const Row = ({ label, value }) => (
   </div>
 );
 
+// --- Statistik-Block unter dem Diagramm ---
+
 const WeatherStats = ({ rows }) => {
+  // useMemo, damit die Aggregate nicht bei jedem Render neu berechnet werden.
   const stats = useMemo(() => {
     if (!rows || rows.length === 0) return null;
 
@@ -240,6 +254,7 @@ const WeatherStats = ({ rows }) => {
       cloudMid: fmt(meanOf(rows, "bewoelkung_mittel"), "%", 0),
       cloudHigh: fmt(meanOf(rows, "bewoelkung_hoch"), "%", 0),
       sunshineSum: fmt(sumOf(rows, "sonnenscheindauer"), "h", 1),
+      // Modell ist überall gleich, also einfach aus der ersten Zeile mit Wert nehmen.
       model: rows.find((r) => r.wetter_modell)?.wetter_modell ?? "–",
     };
   }, [rows]);
@@ -289,12 +304,16 @@ const WeatherStats = ({ rows }) => {
   );
 };
 
+// --- Haupt-Overlay ---
+
 export const WeatherDayDetail = ({ tag, station, onClose }) => {
-  const [data, setData] = useState([]);
-  const [rawRows, setRawRows] = useState([]);
+  const [data, setData] = useState([]); // aufbereitete Daten für das Chart
+  const [rawRows, setRawRows] = useState([]); // normalisierte Rohdaten für die Stats
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // Stundendaten für den gewählten Tag laden. Wenn der User schnell zwischen
+  // Tagen wechselt, brechen wir den alten Request über AbortController ab.
   useEffect(() => {
     if (!tag || !station?.station_id) {
       setData([]);
@@ -317,14 +336,17 @@ export const WeatherDayDetail = ({ tag, station, onClose }) => {
         return r.json();
       })
       .then((rows) => {
+        // Daten fürs Chart vorbereiten – nur die drei Spuren, die wir plotten.
         const chartData = rows.map((row) => ({
           time: row.zeitpunkt,
           timeLabel: formatHour(row.zeitpunkt),
           temp_2m: toFinite(row.temperatur_2m ?? row.temperature_2m),
           niederschlag: toFinite(row.niederschlag ?? row.precipitation) ?? 0,
+          // sonnenscheindauer kommt vom Backend in Sekunden → Minuten für die Y-Achse
           sonnenscheindauer: toFinite((row.sonnenscheindauer ?? row.sunshine) / 60) ?? 0,
         }));
 
+        // Vollständige normalisierte Rohdaten für die Tagesstatistiken.
         const normalizedRows = rows.map((row) => ({
           temperatur_2m: toFinite(row.temperatur_2m),
           gefuehlte_temperatur: toFinite(row.gefuehlte_temperatur),
@@ -340,10 +362,8 @@ export const WeatherDayDetail = ({ tag, station, onClose }) => {
           bewoelkung_tief: toFinite(row.bewoelkung_tief),
           bewoelkung_mittel: toFinite(row.bewoelkung_mittel),
           bewoelkung_hoch: toFinite(row.bewoelkung_hoch),
-          // sonnenscheindauer kommt vom Backend in Sekunden → in Stunden für die Tagessumme
-          sonnenscheindauer: toFinite(row.sonnenscheindauer)
-            ? row.sonnenscheindauer / 3600
-            : null,
+          // Hier in Stunden, weil wir in der Statistik die Tagessumme zeigen.
+          sonnenscheindauer: toFinite(row.sonnenscheindauer) ? row.sonnenscheindauer / 3600 : null,
           wetter_modell: row.wetter_modell,
         }));
 
@@ -351,7 +371,7 @@ export const WeatherDayDetail = ({ tag, station, onClose }) => {
         setRawRows(normalizedRows);
       })
       .catch((err) => {
-        if (err.name === "AbortError") return;
+        if (err.name === "AbortError") return; // Wechsel, kein echter Fehler
         console.error(err);
         setError("Wetterdetails konnten nicht geladen werden.");
       })
